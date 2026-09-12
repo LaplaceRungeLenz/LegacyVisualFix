@@ -16,6 +16,8 @@ public final class Theme {
     public final boolean showText;
     public final boolean showDetails;
     public final boolean showLogo;
+    public final int fadeInMs;
+    public final int fadeOutMs;
     public final String logo;
     public final String title;
     public final double logoX;
@@ -41,6 +43,8 @@ public final class Theme {
         showText = bool(p, "showText", true);
         showDetails = bool(p, "showDetails", false);
         showLogo = bool(p, "showLogo", true);
+        fadeInMs = (int) number(p, "animation.fadeInMs", 200, 0, 2000);
+        fadeOutMs = (int) number(p, "animation.fadeOutMs", 300, 0, 2000);
         logo = texture(p, "texture.logo", "modernnh:textures/gui/logo.png");
         String requestedTitle = p.getProperty("title", "GT NEW HORIZONS")
             .trim();
@@ -53,7 +57,7 @@ public final class Theme {
         barY = number(p, "bar.y", 0.71, 0, 1);
         barWidth = (int) number(p, "bar.width", 240, 16, 4096);
         barWidthFraction = number(p, "bar.widthFraction", p.containsKey("bar.width") ? 0 : 0.4, 0, 1);
-        barHeight = (int) number(p, "bar.height", 10, 2, 256);
+        barHeight = (int) number(p, "bar.height", 6, 2, 256);
         backgroundColor = color(p, "color.background", 0xFF101E2C);
         trackColor = color(p, "color.track", 0xFFFFFFFF);
         fillColor = color(p, "color.fill", 0xFFFFFFFF);

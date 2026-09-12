@@ -36,6 +36,8 @@ public class ClientSmoke {
 
     private int ticks;
     private boolean running;
+    private boolean waitingForFade;
+    private int exitTicks;
     private boolean insideTestReload;
     private int reloads;
     private boolean throwFromListener;
@@ -51,6 +53,48 @@ public class ClientSmoke {
 
     @SubscribeEvent
     public void tick(TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.END && waitingForFade) {
+            if (++exitTicks < 30) {
+                if (exitTicks <= 8) {
+                    try {
+                        screenshot(
+                            new File(
+                                Minecraft.getMinecraft().mcDataDir,
+                                "modernnh-smoke/fade-frame-" + exitTicks + ".png"));
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                return;
+            }
+            Minecraft mc = Minecraft.getMinecraft();
+            File results = new File(mc.mcDataDir, "modernnh-smoke");
+            try {
+                java.lang.reflect.Field transitions = ReloadScreen.class.getDeclaredField("TRANSITIONS");
+                transitions.setAccessible(true);
+                Object value = transitions.get(null);
+                java.lang.reflect.Field exit = value.getClass()
+                    .getDeclaredField("exit");
+                exit.setAccessible(true);
+                if (exit.get(value) != null) throw new AssertionError("Fade-out did not finish in normal game frames");
+                screenshot(new File(results, "fade-finished.png"));
+                Files.write(
+                    new File(results, "result.txt").toPath(),
+                    "PASS: resources, configuration, GL state, exception recovery, optional shader tests and real-frame fade-out cleanup\n"
+                        .getBytes(StandardCharsets.UTF_8));
+                System.out.println("MODERNNH_SMOKE_PASS");
+            } catch (Throwable e) {
+                e.printStackTrace();
+                try {
+                    Files.write(
+                        new File(results, "result.txt").toPath(),
+                        ("FAIL: " + e).getBytes(StandardCharsets.UTF_8));
+                } catch (Exception ignored) {}
+            } finally {
+                mc.shutdown();
+            }
+            return;
+        }
         if (event.phase != TickEvent.Phase.END || running || ++ticks < 30) return;
         running = true;
         Minecraft mc = Minecraft.getMinecraft();
@@ -187,22 +231,24 @@ public class ClientSmoke {
             insideTestReload = false;
             Thread.sleep(1000);
             if (listeners.get() != 6) throw new AssertionError("Reload did not recover");
+            CaptureSmoke.run();
+            ShaderSmoke.run(mc, results);
+            waitingForFade = true;
             Files.write(
                 new File(results, "result.txt").toPath(),
-                "PASS: 6 successful real reloads, language, pack add/remove, invalid theme, GL restoration, original exception propagation and recovery\n"
+                "PENDING: reload tests complete; waiting for actual rendered fade-out frames\n"
                     .getBytes(StandardCharsets.UTF_8));
-            System.out.println("MODERNNH_SMOKE_PASS");
         } catch (Throwable e) {
             e.printStackTrace();
             try {
                 Files.write(new File(results, "result.txt").toPath(), ("FAIL: " + e).getBytes(StandardCharsets.UTF_8));
             } catch (Exception ignored) {}
         } finally {
-            mc.shutdown();
+            if (!waitingForFade) mc.shutdown();
         }
     }
 
-    private static void screenshot(File output) throws Exception {
+    static void screenshot(File output) throws Exception {
         int width = Display.getWidth();
         int height = Display.getHeight();
         ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 4);

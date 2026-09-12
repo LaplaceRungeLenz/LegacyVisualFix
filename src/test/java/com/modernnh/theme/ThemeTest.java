@@ -41,7 +41,7 @@ public class ThemeTest {
         assertEquals(0.5, theme.barX, 0);
         assertEquals(0.71, theme.barY, 0);
         assertEquals(240, theme.barWidth);
-        assertEquals(10, theme.barHeight);
+        assertEquals(6, theme.barHeight);
         assertEquals(0xFFFFFFFF, theme.fillColor);
         assertEquals(Theme.Fit.COVER, theme.fit);
     }

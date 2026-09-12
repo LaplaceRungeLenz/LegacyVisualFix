@@ -21,7 +21,8 @@ public final class ModernNHLoadingPlugin implements IFMLLoadingPlugin, IEarlyMix
 
     @Override
     public List<String> getMixins(Set<String> loadedCoreMods) {
-        // All targets are declared in the JSON client section; no client classes load on servers.
+        // The manifest also registers this config: keep all targets in its client list.
+        // Optional Angelica targets use @Pseudo and are skipped when the mod is absent.
         return Collections.emptyList();
     }
 

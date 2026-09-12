@@ -1,14 +1,14 @@
 # ModernNH
 
-Minecraft **1.7.10 / Forge 10.13.4.1614** 客户端模组。切换语言、应用资源包或按 F3+T 时显示可定制的资源重载进度界面。
+Minecraft **1.7.10 / Forge 10.13.4.1614** 客户端模组。切换语言、应用资源包、按 F3+T，以及 Angelica 光影启用、关闭、更换和重新加载时显示可定制的加载界面。进入和退出具有淡入淡出效果。
 
-基于 [GTNH Project Starter](https://github.com/GTNewHorizons/ExampleMod1.7.10) 和 GTNHGradle 构建。默认主题采用略提亮的深蓝渐变、GTNH 官方 Logo、金色像素进度条和简洁状态文字。背景和进度条由本项目生成；Logo 来源及独立许可见下文。
+基于 [GTNH Project Starter](https://github.com/GTNewHorizons/ExampleMod1.7.10) 和 GTNHGradle 构建。默认主题采用略提亮的深蓝渐变、GTNH Jappa 风格重绘 Logo、扁平金色进度条和简洁状态文字。背景和进度条由本项目生成；Logo 来源及独立许可见下文。
 
 ![默认加载界面](docs/screenshots/default.png)
 
 ## 安装
 
-1. 将 `build/libs/modernnh-0.2.0.jar` 放入客户端 `mods/`。
+1. 将 `build/libs/modernnh-0.3.0.jar` 放入客户端 `mods/`。
 2. 需要 **UniMixins 0.2.1 或更新版本**。GTNH 已带有 Mixin 环境时，先核对其版本，避免重复安装不同 Mixin 加载器。
 3. 启动游戏后自动生成 `config/modernnh/theme.properties`。
 
@@ -22,6 +22,8 @@ Minecraft **1.7.10 / Forge 10.13.4.1614** 客户端模组。切换语言、应�
 enabled=true
 showText=true
 showDetails=false
+animation.fadeInMs=200
+animation.fadeOutMs=300
 showLogo=true
 title=GT NEW HORIZONS
 texture.logo=file:logo.png
@@ -36,7 +38,7 @@ background.fit=cover
 bar.x=0.5
 bar.y=0.71
 bar.widthFraction=0.4
-bar.height=10
+bar.height=6
 color.background=FF101E2C
 color.track=FFFFFFFF
 color.fill=FFFFFFFF
@@ -49,6 +51,7 @@ color.text=FFE9E6D9
 | --- | --- |
 | `enabled` / `showText` | 开关加载界面 / 阶段文字 |
 | `texture.background` | 背景 PNG |
+| `animation.fadeInMs` / `animation.fadeOutMs` | 淡入 / 淡出毫秒数，默认 200 / 300；0 关闭，最大 2000 |
 | `texture.logo` / `showLogo` | 独立 Logo PNG / 显示开关；空路径或缺失图片时隐藏 |
 | `logo.x` / `logo.y` / `logo.height` | Logo 中心坐标及高度占屏幕的比例，保持原图宽高比 |
 | `title` / `title.y` | 标题和垂直位置；标题留空时隐藏，最多 128 字符 |
@@ -60,9 +63,9 @@ color.text=FFE9E6D9
 | `bar.width` / `bar.height` | GUI 缩放后的像素尺寸；界面较小时自动收缩并限制在屏幕内 |
 | `color.*` | `RRGGBB` 或 `AARRGGBB`，可带 `#`；材质颜色会乘以配置颜色 |
 
-填充通过裁切材质右侧表示进度，保持剩余部分的 UV 比例。用 `FFFFFFFF` 保留原材质颜色。PNG 单边最多 4096 像素，总计最多 4,194,304 像素。无效图片回退纯色，无效字段使用默认值。
+填充通过裁切材质右侧表示进度，保持剩余部分的 UV 比例。默认使用 6 GUI 像素高的扁平色条，无倒角和立体边框。用 `FFFFFFFF` 保留原材质颜色。PNG 单边最多 4096 像素，总计最多 4,194,304 像素。无效图片回退纯色，无效字段使用默认值。
 
-0.1 的完整未修改默认配置自动升级，并备份为 `theme-0.1.properties.bak`。修改过任意配置项的文件保持原样；旧 `bar.width` 继续有效。想切换为新版主题，可先备份自己的配置，再复制下方示例。配置文件按 Java Properties 读取；非 Latin-1 文字使用 `\uXXXX` 转义。标题和状态采用独立像素字体，其他字符使用系统字体回退。
+0.1 和 0.2 的完整未修改默认配置自动升级，并备份为对应的 `theme-0.1.properties.bak` 或 `theme-0.2.properties.bak`。修改过任意配置项的文件保持原样；旧 `bar.width` 继续有效。想切换为新版主题，可先备份自己的配置，再复制下方示例。配置文件按 Java Properties 读取；非 Latin-1 文字使用 `\uXXXX` 转义。标题和状态采用独立像素字体，其他字符使用系统字体回退。
 
 完整默认配置见 [examples/gtnh/theme.properties](examples/gtnh/theme.properties)。资源包示例目录：
 
@@ -96,7 +99,7 @@ YourTheme/
 .\gradlew.bat runClient25
 ```
 
-版本在 `addon.gradle` 中定义为 `0.2.0`，可用环境变量 `VERSION` 覆盖。上游 `build.gradle.kts` 保持原样，依赖放在 `dependencies.gradle`。
+版本在 `addon.gradle` 中定义为 `0.3.0`，可用环境变量 `VERSION` 覆盖。上游 `build.gradle.kts` 保持原样，依赖放在 `dependencies.gradle`。
 
 GitHub Actions 仅运行构建、测试和格式检查；当前没有自动创建 Release 的工作流。
 
@@ -104,7 +107,9 @@ GitHub Actions 仅运行构建、测试和格式检查；当前没有自动创�
 
 ## 进度含义与限制
 
-主进度是**已完成监听器数 / 总监听器数**，不是剩余时间。纹理文字显示 Forge 当前处理的项，未将“开始处理”当作“处理完成”。游戏仍同步执行重载；在监听器、纹理加载、mipmap 和上传的可用边界刷新，单个第三方长步骤仍可能暂停画面。
+资源重载进度是**已完成监听器数 / 总监听器数**。光影重载显示准备与清理、读取光影包、应用管线三个阶段；独立管线编译显示一个工作阶段。它们都不是剩余时间或编译文件数量。纹理文字显示 Forge 当前处理的项，未将“开始处理”当作“处理完成”。游戏仍同步执行重载；在监听器、纹理加载、mipmap 和上传的可用边界刷新，单个第三方长步骤仍可能暂停画面。
+
+光影接入已验证 **Angelica 2.1.25**，为可选功能；没有 Angelica 时自动跳过，不增加硬依赖。关闭光影后的普通固定功能管线不会触发光影加载界面。其他光影加载器（如 OptiFine/ShadersMod）尚未接入。淡入对切换前的已显示画面进行约 200ms 的同步混合；淡出在后续正常游戏帧上完成，不增加 300ms 的重载阻塞。
 
 纹理细分 Mixin 对替换过原版纹理方法的渲染模组采用可选注入；监听器阶段进度仍保留。尚未穷尽所有整合包、显卡、着色器与全屏组合。准确测试记录和重现命令见 [docs/testing.md](docs/testing.md)。
 
@@ -116,8 +121,8 @@ GitHub Actions 仅运行构建、测试和格式检查；当前没有自动创�
 .\gradlew.bat runClient25 -PclientSmoke -PangelicaSmoke --no-configuration-cache
 ```
 
-冒烟测试会修改**开发客户端**的配置和测试资源包，保存截图与 `modernnh-smoke/result.txt` 后退出。它只在显式使用 `-PclientSmoke` 时编译；**不要携带该参数构建发布包**。发布前执行 `gradlew clean build`，确保没有测试模组残留。
+冒烟测试会修改**开发客户端**的配置和测试资源包，保存截图与 `modernnh-smoke/result.txt` 后退出；Angelica 环境另写入 `shader-result.txt`。测试包含真实最小光影包的切换和程序编译。它只在显式使用 `-PclientSmoke` 时编译；**不要携带该参数构建发布包**。发布前执行 `gradlew clean build`，确保没有测试模组残留。
 
 ## 许可
 
-代码及原创背景、进度条、像素字形采用 MIT，见 [LICENSE](LICENSE)。GTNH 官方 Logo 独立适用 CC BY-NC-SA 4.0，来源、署名和许可见 [美术资源说明](src/main/resources/META-INF/NOTICE-GTNH.md)。使用 GTNH 开发工具不表示 GTNH 官方认可或维护本项目。
+代码及原创背景、进度条、像素字形采用 MIT，见 [LICENSE](LICENSE)。GTNH Jappa 风格重绘 Logo 独立适用 CC BY-NC-SA 4.0，来源、署名和许可见 [美术资源说明](src/main/resources/META-INF/NOTICE-GTNH.md)。使用 GTNH 开发工具不表示 GTNH 官方认可或维护本项目。

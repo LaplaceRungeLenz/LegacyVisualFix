@@ -5,6 +5,6 @@
   "refmap": "mixins.modernnh.refmap.json",
   "compatibilityLevel": "JAVA_8",
   "mixins": [],
-  "client": ["MixinMinecraft", "MixinReloadableResourceManager", "MixinTextureMap"],
+  "client": ["MixinMinecraft", "MixinReloadableResourceManager", "MixinTextureMap", "angelica.MixinIris", "angelica.MixinGlShader", "angelica.MixinPipelineManager"],
   "injectors": { "defaultRequire": 1 }
 }

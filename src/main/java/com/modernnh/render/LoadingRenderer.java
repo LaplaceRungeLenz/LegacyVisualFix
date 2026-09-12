@@ -20,6 +20,11 @@ public final class LoadingRenderer implements AutoCloseable {
     private String lastTitle = "";
 
     public void draw(Minecraft mc, Theme theme, ThemeTextures textures, ReloadProgress progress, String detail) {
+        draw(mc, theme, textures, progress, detail, "Reloading resources", true);
+    }
+
+    public void draw(Minecraft mc, Theme theme, ThemeTextures textures, ReloadProgress progress, String detail,
+        String label, boolean present) {
         int width = Math.max(1, Display.getWidth());
         int height = Math.max(1, Display.getHeight());
         ScaledResolution resolution = new ScaledResolution(mc, width, height);
@@ -90,10 +95,10 @@ public final class LoadingRenderer implements AutoCloseable {
             if (fraction > 0) {
                 quad(
                     fill,
-                    bar.x + 2,
-                    bar.y + Math.min(2, bar.height / 4.0),
-                    Math.max(0, bar.width - 4) * fraction,
-                    bar.height - Math.min(4, bar.height / 2.0),
+                    bar.x,
+                    bar.y,
+                    bar.width * fraction,
+                    bar.height,
                     fraction,
                     fill == null && !theme.fill.isEmpty() && theme.fillColor == 0xFFFFFFFF ? 0xFFDDB85D
                         : theme.fillColor);
@@ -101,24 +106,23 @@ public final class LoadingRenderer implements AutoCloseable {
             if (theme.showText) {
                 String count = progress.getCompleted() + " / " + progress.getTotal();
                 String details = theme.showDetails ? progress.getStage() + "  " + detail : "";
-                updateText(count, details, (int) bar.width);
+                updateText(count, details, (int) bar.width, label);
                 double ty = Math.max(0, Math.min(h - textTexture.height, bar.y + bar.height + 6));
                 quad(textTexture, bar.x, ty, bar.width, textTexture.height, 1, theme.textColor);
             }
-            Display.update(false);
+            if (present) Display.update(false);
         }
         // Pump window events without dispatching game input or recursively ticking/rendering Minecraft.
         Display.processMessages();
     }
 
-    private void updateText(String count, String details, int width) {
-        String key = count + "\n" + details + "\n" + width;
+    private void updateText(String count, String details, int width, String label) {
+        String key = count + "\n" + details + "\n" + width + "\n" + label;
         if (key.equals(lastText) && textTexture != null) return;
         BufferedImage image = new BufferedImage(
             Math.max(1, width),
             details.isEmpty() ? 9 : 21,
             BufferedImage.TYPE_INT_ARGB);
-        String label = "Reloading resources";
         if (PixelText.width(label) + PixelText.width(count) + 8 > width) label = "Reloading";
         if (PixelText.width(label) + PixelText.width(count) + 8 <= width) PixelText.draw(image, label, 0, 0);
         PixelText.draw(image, count, Math.max(0, width - PixelText.width(count)), 0);

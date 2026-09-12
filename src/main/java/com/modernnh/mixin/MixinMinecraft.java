@@ -12,6 +12,13 @@ import com.modernnh.reload.ReloadScreen;
 @Mixin(Minecraft.class)
 public abstract class MixinMinecraft {
 
+    @Inject(
+        method = "runGameLoop",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;func_147120_f()V"))
+    private void modernnh$transition(CallbackInfo ci) {
+        ReloadScreen.renderTransition();
+    }
+
     @Inject(method = "startGame", at = @At("RETURN"))
     private void modernnh$ready(CallbackInfo ci) {
         ReloadScreen.initialize((Minecraft) (Object) this);
