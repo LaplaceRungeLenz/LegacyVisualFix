@@ -1,0 +1,21 @@
+{
+	"modListVersion": 2,
+	"modList": [{
+		"modid": "${modId}",
+		"name": "${modName}",
+		"description": "Configurable client-side resource reload progress screen for Minecraft 1.7.10.",
+		"version": "${modVersion}",
+		"mcversion": "${minecraftVersion}",
+		"url": "https://github.com/LaplaceRungeLenz/ModernNH",
+		"updateUrl": "",
+		"authorList": ["ModernNH contributors"],
+		"credits": "Built using GTNH Project Starter and GTNHGradle",
+		"logoFile": "",
+		"screenshots": [],
+		"parent": "",
+		"requiredMods": [],
+		"dependencies": [],
+		"dependants": [],
+		"useDependencyInformation": false
+	}]
+}

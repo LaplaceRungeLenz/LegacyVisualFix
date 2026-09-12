@@ -1,0 +1,10 @@
+{
+  "required": true,
+  "minVersion": "0.8.5",
+  "package": "com.modernnh.mixin",
+  "refmap": "mixins.modernnh.refmap.json",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [],
+  "client": ["MixinMinecraft", "MixinReloadableResourceManager", "MixinTextureMap"],
+  "injectors": { "defaultRequire": 1 }
+}
