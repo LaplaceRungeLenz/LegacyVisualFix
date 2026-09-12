@@ -14,6 +14,7 @@ import org.lwjgl.opengl.Display;
 import com.modernnh.ModernNH;
 import com.modernnh.render.LoadingRenderer;
 import com.modernnh.theme.Theme;
+import com.modernnh.theme.ThemeMigration;
 import com.modernnh.theme.ThemeTextures;
 
 import cpw.mods.fml.common.ProgressManager;
@@ -151,6 +152,24 @@ public final class ReloadScreen {
             Properties properties = new Properties();
             try (InputStream input = Files.newInputStream(config.toPath())) {
                 properties.load(input);
+            }
+            Properties previous = new Properties();
+            Properties next = new Properties();
+            try (
+                InputStream oldDefaults = ReloadScreen.class
+                    .getResourceAsStream("/assets/modernnh/theme-0.1.properties");
+                InputStream newDefaults = ReloadScreen.class.getResourceAsStream("/assets/modernnh/theme.properties")) {
+                if (oldDefaults != null && newDefaults != null) {
+                    previous.load(oldDefaults);
+                    next.load(newDefaults);
+                }
+            }
+            if (ThemeMigration.upgrade(properties, previous, next)) {
+                File backup = new File(directory, "theme-0.1.properties.bak");
+                if (!backup.exists()) Files.copy(config.toPath(), backup.toPath());
+                try (java.io.OutputStream output = Files.newOutputStream(config.toPath())) {
+                    properties.store(output, "ModernNH 0.2 theme; original defaults backed up alongside this file");
+                }
             }
             Theme replacementTheme = Theme.parse(properties);
             ThemeTextures replacement = replacementTheme.enabled

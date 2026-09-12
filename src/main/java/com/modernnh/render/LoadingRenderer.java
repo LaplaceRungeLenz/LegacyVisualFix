@@ -1,9 +1,5 @@
 package com.modernnh.render;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
 import net.minecraft.client.Minecraft;
@@ -20,6 +16,8 @@ public final class LoadingRenderer implements AutoCloseable {
 
     private OwnedTexture textTexture;
     private String lastText = "";
+    private OwnedTexture titleTexture;
+    private String lastTitle = "";
 
     public void draw(Minecraft mc, Theme theme, ThemeTextures textures, ReloadProgress progress, String detail) {
         int width = Math.max(1, Display.getWidth());
@@ -44,28 +42,68 @@ public final class LoadingRenderer implements AutoCloseable {
                 }
                 quad(bg, (w - bw) / 2, (h - bh) / 2, bw, bh, 1, 0xFFFFFFFF);
             }
-            BarLayout bar = new BarLayout(w, h, theme.barWidth, theme.barHeight, theme.barX, theme.barY);
-            quad(textures == null ? null : textures.track, bar.x, bar.y, bar.width, bar.height, 1, theme.trackColor);
+            if (theme.showLogo && textures != null && textures.logo != null) {
+                OwnedTexture logo = textures.logo;
+                double lh = h * theme.logoHeight;
+                double lw = lh * logo.width / logo.height;
+                double scale = Math.min(1, (w - 8.0) / lw);
+                lw *= scale;
+                lh *= scale;
+                double lx = Math.max(0, Math.min(w - lw, w * theme.logoX - lw / 2));
+                double ly = Math.max(0, Math.min(h - lh, h * theme.logoY - lh / 2));
+                quad(logo, lx, ly, lw, lh, 1, 0xFFFFFFFF);
+            }
+            if (!theme.title.isEmpty()) {
+                if (titleTexture == null || !lastTitle.equals(theme.title)) {
+                    OwnedTexture replacement = new OwnedTexture(PixelText.image(theme.title), true);
+                    if (titleTexture != null) titleTexture.close();
+                    titleTexture = replacement;
+                    lastTitle = theme.title;
+                }
+                double tw = Math.min(w - 8.0, h * 0.48);
+                double th = Math.min(18, titleTexture.height * tw / titleTexture.width);
+                tw = th * titleTexture.width / titleTexture.height;
+                quad(
+                    titleTexture,
+                    (w - tw) / 2,
+                    Math.max(0, Math.min(h - th, h * theme.titleY - th / 2)),
+                    tw,
+                    th,
+                    1,
+                    theme.textColor);
+            }
+            int desiredWidth = theme.barWidthFraction > 0 ? Math.max(1, (int) Math.round(w * theme.barWidthFraction))
+                : theme.barWidth;
+            BarLayout bar = new BarLayout(w, h, desiredWidth, theme.barHeight, theme.barX, theme.barY);
+            OwnedTexture track = textures == null ? null : textures.track;
+            OwnedTexture fill = textures == null ? null : textures.fill;
+            quad(
+                track,
+                bar.x,
+                bar.y,
+                bar.width,
+                bar.height,
+                1,
+                track == null && !theme.track.isEmpty() && theme.trackColor == 0xFFFFFFFF ? 0xFF263441
+                    : theme.trackColor);
             double fraction = progress.getFraction();
             if (fraction > 0) {
                 quad(
-                    textures == null ? null : textures.fill,
-                    bar.x,
-                    bar.y,
-                    bar.filledWidth(fraction),
-                    bar.height,
+                    fill,
+                    bar.x + 2,
+                    bar.y + Math.min(2, bar.height / 4.0),
+                    Math.max(0, bar.width - 4) * fraction,
+                    bar.height - Math.min(4, bar.height / 2.0),
                     fraction,
-                    theme.fillColor);
+                    fill == null && !theme.fill.isEmpty() && theme.fillColor == 0xFFFFFFFF ? 0xFFDDB85D
+                        : theme.fillColor);
             }
             if (theme.showText) {
-                // Rasterize independently: using Minecraft FontRenderer during its reload can mutate TextureManager.
-                String text = "RELOADING RESOURCES  " + progress
-                    .getCompleted() + " / " + progress.getTotal() + " stages\n" + progress.getStage() + "\n" + detail;
-                updateText(text);
-                double tw = Math.min(w - 8, textTexture.width / 2.0);
-                double th = textTexture.height * tw / textTexture.width;
-                double ty = Math.max(0, Math.min(h - th, bar.y - th - 8));
-                quad(textTexture, (w - tw) / 2, ty, tw, th, 1, theme.textColor);
+                String count = progress.getCompleted() + " / " + progress.getTotal();
+                String details = theme.showDetails ? progress.getStage() + "  " + detail : "";
+                updateText(count, details, (int) bar.width);
+                double ty = Math.max(0, Math.min(h - textTexture.height, bar.y + bar.height + 6));
+                quad(textTexture, bar.x, ty, bar.width, textTexture.height, 1, theme.textColor);
             }
             Display.update(false);
         }
@@ -73,34 +111,23 @@ public final class LoadingRenderer implements AutoCloseable {
         Display.processMessages();
     }
 
-    private void updateText(String text) {
-        if (text.equals(lastText) && textTexture != null) return;
-        BufferedImage image = new BufferedImage(1024, 112, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = image.createGraphics();
-        try {
-            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-            g.setFont(new Font(Font.DIALOG, Font.PLAIN, 24));
-            g.setColor(Color.WHITE);
-            String[] lines = text.split("\n", -1);
-            for (int i = 0; i < Math.min(3, lines.length); i++) {
-                String line = lines[i];
-                while (g.getFontMetrics()
-                    .stringWidth(line) > 1000 && line.length() > 1) {
-                    line = line.substring(0, line.length() - 1);
-                }
-                g.drawString(
-                    line,
-                    (1024 - g.getFontMetrics()
-                        .stringWidth(line)) / 2,
-                    28 + i * 34);
-            }
-        } finally {
-            g.dispose();
-        }
-        OwnedTexture replacement = new OwnedTexture(image);
+    private void updateText(String count, String details, int width) {
+        String key = count + "\n" + details + "\n" + width;
+        if (key.equals(lastText) && textTexture != null) return;
+        BufferedImage image = new BufferedImage(
+            Math.max(1, width),
+            details.isEmpty() ? 9 : 21,
+            BufferedImage.TYPE_INT_ARGB);
+        String label = "Reloading resources";
+        if (PixelText.width(label) + PixelText.width(count) + 8 > width) label = "Reloading";
+        if (PixelText.width(label) + PixelText.width(count) + 8 <= width) PixelText.draw(image, label, 0, 0);
+        PixelText.draw(image, count, Math.max(0, width - PixelText.width(count)), 0);
+        if (!details.isEmpty())
+            PixelText.draw(image, details.substring(0, Math.min(details.length(), width / 6)), 0, 12);
+        OwnedTexture replacement = new OwnedTexture(image, true);
         if (textTexture != null) textTexture.close();
         textTexture = replacement;
-        lastText = text;
+        lastText = key;
     }
 
     private static void quad(OwnedTexture texture, double x, double y, double width, double height, double uMax,
@@ -130,6 +157,10 @@ public final class LoadingRenderer implements AutoCloseable {
 
     @Override
     public void close() {
+        if (titleTexture != null) {
+            titleTexture.close();
+            titleTexture = null;
+        }
         if (textTexture != null) {
             textTexture.close();
             textTexture = null;

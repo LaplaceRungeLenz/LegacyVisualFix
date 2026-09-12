@@ -4,8 +4,8 @@
 
 | 环境 | 结果 |
 | --- | --- |
-| `gradlew clean build --no-configuration-cache` | 通过：7 项 JUnit 测试、Spotless、Checkstyle、重混淆与发布打包 |
-| Windows，Java 8u492，Forge 10.13.4.1614，UniMixins 0.2.1 | 六次正常重载与异常恢复通过；默认/金色/回退画面已目视检查 |
+| `gradlew clean build --no-configuration-cache` | 通过：9 项 JUnit 测试、Spotless、Checkstyle、重混淆与发布打包 |
+| Windows，Java 8u492，Forge 10.13.4.1614，UniMixins 0.2.1 | 六次正常重载与异常恢复通过；新版默认/自定义/回退画面已目视检查；0.1 配置升级和备份通过 |
 | Windows，Temurin Java 25，Angelica 2.1.25，lwjgl3ify 3.0.10，Hodgepodge 2.7.62，GTNHLib 0.10.0 | 相同冒烟用例通过；截图确认可见，未出现 ModernNH 绘制错误 |
 
 现代环境使用本机 Temurin 25 替代 GTNH 默认请求的 JetBrains JDK，避免重复下载。HotSwap 调试未启用，运行命令加 `-x setupHotswapAgent25`，不修改系统 JDK。机器专属覆盖在不提交的 `addon.late.local.gradle` 中；正常构建不依赖该文件。
@@ -14,7 +14,7 @@
 
 本次没有启动完整 GTNH 整合包、进入世界或穷尽全屏/着色器设置；下方人工清单仍需在目标整合包中验收。
 
-发布包 `modernnh-0.1.0.jar` 已检查：包含默认 PNG、配置、Mixin 配置与 refmap，主类版本为 52（Java 8），不包含 `ClientSmoke` 或测试模组。SHA-256：`b787f65bc0d36e8ed4f1010baf4f9635b0e027e2a4c09d8f94aafe9477c8f432`。
+发布包 `modernnh-0.2.0.jar` 已检查：包含默认 PNG、配置、Mixin 配置与 refmap，主类版本为 52（Java 8），不包含 `ClientSmoke` 或测试模组。SHA-256：`8620213ca44263c6f34034f19083f9d52d69b16aa264d1243d7b60f7971bc00b`。
 
 ## 可重复的测试
 
@@ -24,7 +24,7 @@
 
 测试端添加一个只用于观察的重载监听器，在加载期间截取前缓冲区，并检查活动纹理单元、纹理绑定、矩阵模式和视口在绘制后保持原值。测试未比较所有 GL 状态，不能据此宣称所有渲染模组都兼容。
 
-冒烟测试覆盖默认主题、切换到 `zh_CN`、金色进度条、缺失本地背景、非法尺寸/NaN、资源包添加和移除、监听器异常的原样传播、失败后状态清理、随后一次正常重载。资源包主题在成功加载后缓存，因此移除资源包的加载过程仍显示该资源包主题，随后回到默认主题。
+0.2 冒烟测试还覆盖原样 0.1 配置迁移及备份、本地 Logo 替换、缺失 Logo 隐藏、纯色条回退和 showDetails。冒烟测试覆盖默认主题、切换到 `zh_CN`、金色进度条、缺失本地背景、非法尺寸/NaN、资源包添加和移除、监听器异常的原样传播、失败后状态清理、随后一次正常重载。资源包主题在成功加载后缓存，因此移除资源包的加载过程仍显示该资源包主题，随后回到默认主题。
 
 故意失败用例会产生监听器异常和原版资源包回退日志。缺失图片用例会产生 ModernNH 回退警告。原版 Forge 的联网版本检查和快速连续重载的异步音频系统也可能输出错误；需和 ModernNH 的绘制错误分别判断。
 

@@ -15,6 +15,10 @@ public final class OwnedTexture implements AutoCloseable {
     public final int id;
 
     public OwnedTexture(BufferedImage image) {
+        this(image, false);
+    }
+
+    public OwnedTexture(BufferedImage image, boolean nearest) {
         width = image.getWidth();
         height = image.getHeight();
         ByteBuffer pixels = BufferUtils.createByteBuffer(width * height * 4);
@@ -37,8 +41,14 @@ public final class OwnedTexture implements AutoCloseable {
             GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, 0);
             GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_ROWS, 0);
             GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_PIXELS, 0);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+            GL11.glTexParameteri(
+                GL11.GL_TEXTURE_2D,
+                GL11.GL_TEXTURE_MIN_FILTER,
+                nearest ? GL11.GL_NEAREST : GL11.GL_LINEAR);
+            GL11.glTexParameteri(
+                GL11.GL_TEXTURE_2D,
+                GL11.GL_TEXTURE_MAG_FILTER,
+                nearest ? GL11.GL_NEAREST : GL11.GL_LINEAR);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
             GL11.glTexImage2D(

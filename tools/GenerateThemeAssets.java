@@ -1,39 +1,39 @@
-import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.GradientPaint;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
 
-/** Reproducible, original procedural assets. Run with Java 25: java tools/GenerateThemeAssets.java */
+/** Original, reproducible gradient and pixel bevels; no raster concept artwork is shipped. */
 public class GenerateThemeAssets {
     public static void main(String[] args) throws Exception {
         File directory = new File("src/main/resources/assets/modernnh/textures/gui");
         directory.mkdirs();
         BufferedImage bg = new BufferedImage(1600, 900, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g = bg.createGraphics();
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setPaint(new GradientPaint(0, 0, new Color(12, 22, 31), 1600, 900, new Color(24, 45, 53)));
-        g.fillRect(0, 0, 1600, 900);
-        g.setColor(new Color(72, 125, 133, 22));
-        g.setStroke(new BasicStroke(1));
-        for (int x = -900; x < 2500; x += 100) g.drawLine(x, 0, x + 900, 900);
-        for (int x = 0; x < 2500; x += 100) g.drawLine(x, 0, x - 900, 900);
-        g.setColor(new Color(93, 204, 170, 65));
-        g.setStroke(new BasicStroke(2));
-        g.drawLine(0, 270, 570, 270);
-        g.drawLine(570, 270, 640, 200);
-        g.drawLine(640, 200, 1600, 200);
-        g.dispose();
+        for (int y = 0; y < 900; y++) {
+            for (int x = 0; x < 1600; x++) {
+                double dx = (x - 800.0) / 690;
+                double dy = (y - 360.0) / 430;
+                double glow = Math.exp(-(dx * dx + dy * dy) * 1.6);
+                int r = 11 + (int) Math.round(10 * glow);
+                int g = 21 + (int) Math.round(34 * glow);
+                int b = 33 + (int) Math.round(47 * glow);
+                bg.setRGB(x, y, (r << 16) | (g << 8) | b);
+            }
+        }
         ImageIO.write(bg, "png", new File(directory, "background.png"));
-        BufferedImage white = new BufferedImage(8, 8, BufferedImage.TYPE_INT_ARGB);
-        g = white.createGraphics();
-        g.setColor(Color.WHITE);
-        g.fillRect(0, 0, 8, 8);
+        BufferedImage track = new BufferedImage(240, 10, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = track.createGraphics();
+        g.setColor(new Color(0x101923)); g.fillRect(0, 0, 240, 10);
+        g.setColor(new Color(0x71808A)); g.fillRect(1, 0, 238, 1);
+        g.setColor(new Color(0x46535F)); g.fillRect(0, 1, 1, 8); g.fillRect(239, 1, 1, 8);
+        g.setColor(new Color(0x33414F)); g.fillRect(1, 9, 238, 1);
+        g.setColor(new Color(0x263441)); g.fillRect(2, 2, 236, 6);
         g.dispose();
-        ImageIO.write(white, "png", new File(directory, "bar_track.png"));
-        ImageIO.write(white, "png", new File(directory, "bar_fill.png"));
+        ImageIO.write(track, "png", new File(directory, "bar_track.png"));
+        BufferedImage fill = new BufferedImage(240, 6, BufferedImage.TYPE_INT_ARGB);
+        int[] rows = {0xFFF0B4, 0xEACB79, 0xDDB85D, 0xDDB85D, 0xCAA14C, 0xA77B32};
+        for (int y = 0; y < 6; y++) for (int x = 0; x < 240; x++) fill.setRGB(x, y, 0xFF000000 | rows[y]);
+        ImageIO.write(fill, "png", new File(directory, "bar_fill.png"));
     }
 }

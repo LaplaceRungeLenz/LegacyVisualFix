@@ -24,27 +24,32 @@ public final class ThemeTextures implements AutoCloseable {
     public final OwnedTexture background;
     public final OwnedTexture track;
     public final OwnedTexture fill;
+    public final OwnedTexture logo;
 
     public ThemeTextures(Minecraft mc, File directory, Theme theme) {
         OwnedTexture loadedBackground = null;
         OwnedTexture loadedTrack = null;
         OwnedTexture loadedFill = null;
+        OwnedTexture loadedLogo = null;
         try {
-            loadedBackground = load(mc, directory, theme.background);
-            loadedTrack = load(mc, directory, theme.track);
-            loadedFill = load(mc, directory, theme.fill);
+            loadedBackground = load(mc, directory, theme.background, false);
+            loadedTrack = load(mc, directory, theme.track, true);
+            loadedFill = load(mc, directory, theme.fill, true);
+            if (theme.showLogo) loadedLogo = load(mc, directory, theme.logo, false);
         } catch (RuntimeException | LinkageError e) {
             close(loadedBackground);
             close(loadedTrack);
             close(loadedFill);
+            close(loadedLogo);
             throw e;
         }
         background = loadedBackground;
         track = loadedTrack;
         fill = loadedFill;
+        logo = loadedLogo;
     }
 
-    private static OwnedTexture load(Minecraft mc, File directory, String location) {
+    private static OwnedTexture load(Minecraft mc, File directory, String location, boolean nearest) {
         if (location.isEmpty()) return null;
         try (InputStream input = open(mc, directory, location);
             ImageInputStream stream = new MemoryCacheImageInputStream(input)) {
@@ -59,7 +64,7 @@ public final class ThemeTextures implements AutoCloseable {
                     throw new IOException("Theme PNG exceeds 4096px / 4 megapixels: " + location);
                 }
                 BufferedImage image = reader.read(0);
-                return new OwnedTexture(image);
+                return new OwnedTexture(image, nearest);
             } finally {
                 reader.dispose();
             }
@@ -92,5 +97,6 @@ public final class ThemeTextures implements AutoCloseable {
         close(background);
         close(track);
         close(fill);
+        close(logo);
     }
 }

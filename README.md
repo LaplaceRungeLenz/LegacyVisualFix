@@ -2,13 +2,13 @@
 
 Minecraft **1.7.10 / Forge 10.13.4.1614** 客户端模组。切换语言、应用资源包或按 F3+T 时显示可定制的资源重载进度界面。
 
-基于 [GTNH Project Starter](https://github.com/GTNewHorizons/ExampleMod1.7.10) 和 GTNHGradle 构建。默认背景为本项目生成的原创纹理，不含 GTNH 官方美术资源。
+基于 [GTNH Project Starter](https://github.com/GTNewHorizons/ExampleMod1.7.10) 和 GTNHGradle 构建。默认主题采用略提亮的深蓝渐变、GTNH 官方 Logo、金色像素进度条和简洁状态文字。背景和进度条由本项目生成；Logo 来源及独立许可见下文。
 
 ![默认加载界面](docs/screenshots/default.png)
 
 ## 安装
 
-1. 将 `build/libs/modernnh-0.1.0.jar` 放入客户端 `mods/`。
+1. 将 `build/libs/modernnh-0.2.0.jar` 放入客户端 `mods/`。
 2. 需要 **UniMixins 0.2.1 或更新版本**。GTNH 已带有 Mixin 环境时，先核对其版本，避免重复安装不同 Mixin 加载器。
 3. 启动游戏后自动生成 `config/modernnh/theme.properties`。
 
@@ -21,26 +21,39 @@ Minecraft **1.7.10 / Forge 10.13.4.1614** 客户端模组。切换语言、应�
 ```properties
 enabled=true
 showText=true
+showDetails=false
+showLogo=true
+title=GT NEW HORIZONS
+texture.logo=file:logo.png
+logo.x=0.5
+logo.y=0.38
+logo.height=0.37
+title.y=0.62
 texture.background=file:background.png
 texture.track=file:bar_track.png
 texture.fill=file:bar_fill.png
 background.fit=cover
 bar.x=0.5
-bar.y=0.75
-bar.width=240
-bar.height=12
-color.background=FF101820
+bar.y=0.71
+bar.widthFraction=0.4
+bar.height=10
+color.background=FF101E2C
 color.track=FFFFFFFF
 color.fill=FFFFFFFF
-color.text=FFE5EEF4
+color.text=FFE9E6D9
 ```
 
-对应 PNG 放在 `config/modernnh/` 下。也可使用 `modernnh:textures/gui/background.png` 这样的资源位置，由资源包覆盖；设为空字符串则绘制纯色。
+对应 PNG 放在 `config/modernnh/` 下。也可使用 `modernnh:textures/gui/background.png` 这样的资源位置，由资源包覆盖；背景或进度条设为空字符串则绘制纯色，Logo 为空则隐藏。进度条纹理缺失且色值为默认白色时，使用深灰轨道与金色填充。
 
 | 配置 | 含义 |
 | --- | --- |
 | `enabled` / `showText` | 开关加载界面 / 阶段文字 |
 | `texture.background` | 背景 PNG |
+| `texture.logo` / `showLogo` | 独立 Logo PNG / 显示开关；空路径或缺失图片时隐藏 |
+| `logo.x` / `logo.y` / `logo.height` | Logo 中心坐标及高度占屏幕的比例，保持原图宽高比 |
+| `title` / `title.y` | 标题和垂直位置；标题留空时隐藏，最多 128 字符 |
+| `showDetails` | 是否额外显示技术阶段文字，默认关闭 |
+| `bar.widthFraction` | 进度条占屏幕宽度比例；设为 0 后使用 `bar.width` 固定 GUI 像素 |
 | `texture.track` / `texture.fill` | 进度条底图 / 填充 PNG |
 | `background.fit` | `cover` 裁切铺满、`contain` 完整显示、`stretch` 拉伸 |
 | `bar.x` / `bar.y` | 进度条中心占屏幕宽高的比例，范围 0–1 |
@@ -49,13 +62,16 @@ color.text=FFE5EEF4
 
 填充通过裁切材质右侧表示进度，保持剩余部分的 UV 比例。用 `FFFFFFFF` 保留原材质颜色。PNG 单边最多 4096 像素，总计最多 4,194,304 像素。无效图片回退纯色，无效字段使用默认值。
 
-GTNH 风格的金色配置见 [examples/gtnh/theme.properties](examples/gtnh/theme.properties)。资源包示例目录：
+0.1 的完整未修改默认配置自动升级，并备份为 `theme-0.1.properties.bak`。修改过任意配置项的文件保持原样；旧 `bar.width` 继续有效。想切换为新版主题，可先备份自己的配置，再复制下方示例。配置文件按 Java Properties 读取；非 Latin-1 文字使用 `\uXXXX` 转义。标题和状态采用独立像素字体，其他字符使用系统字体回退。
+
+完整默认配置见 [examples/gtnh/theme.properties](examples/gtnh/theme.properties)。资源包示例目录：
 
 ```text
 YourTheme/
   pack.mcmeta
   assets/modernnh/textures/gui/
     background.png
+    logo.png
     bar_track.png
     bar_fill.png
 ```
@@ -80,7 +96,7 @@ YourTheme/
 .\gradlew.bat runClient25
 ```
 
-版本在 `addon.gradle` 中定义为 `0.1.0`，可用环境变量 `VERSION` 覆盖。上游 `build.gradle.kts` 保持原样，依赖放在 `dependencies.gradle`。
+版本在 `addon.gradle` 中定义为 `0.2.0`，可用环境变量 `VERSION` 覆盖。上游 `build.gradle.kts` 保持原样，依赖放在 `dependencies.gradle`。
 
 GitHub Actions 仅运行构建、测试和格式检查；当前没有自动创建 Release 的工作流。
 
@@ -104,4 +120,4 @@ GitHub Actions 仅运行构建、测试和格式检查；当前没有自动创�
 
 ## 许可
 
-MIT，见 [LICENSE](LICENSE)。使用 GTNH 开发工具不表示 GTNH 官方认可或维护本项目。
+代码及原创背景、进度条、像素字形采用 MIT，见 [LICENSE](LICENSE)。GTNH 官方 Logo 独立适用 CC BY-NC-SA 4.0，来源、署名和许可见 [美术资源说明](src/main/resources/META-INF/NOTICE-GTNH.md)。使用 GTNH 开发工具不表示 GTNH 官方认可或维护本项目。

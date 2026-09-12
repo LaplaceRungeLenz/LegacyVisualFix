@@ -58,7 +58,8 @@ public class ClientSmoke {
         results.mkdirs();
         try {
             File themeFile = new File(mc.mcDataDir, "config/modernnh/theme.properties");
-            try (java.io.InputStream defaults = getClass().getResourceAsStream("/assets/modernnh/theme.properties")) {
+            try (java.io.InputStream defaults = getClass()
+                .getResourceAsStream("/assets/modernnh/theme-0.1.properties")) {
                 Files.copy(defaults, themeFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
             }
             ((IReloadableResourceManager) mc.getResourceManager())
@@ -100,6 +101,13 @@ public class ClientSmoke {
                 });
             for (reloads = 0; reloads < 5; reloads++) {
                 if (reloads == 1) {
+                    try (java.io.InputStream logo = getClass()
+                        .getResourceAsStream("/assets/modernnh/textures/gui/logo.png")) {
+                        Files.copy(
+                            logo,
+                            new File(themeFile.getParentFile(), "custom-logo.png").toPath(),
+                            java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    }
                     mc.gameSettings.language = "zh_CN";
                     for (Language language : mc.getLanguageManager()
                         .getLanguages()) {
@@ -109,14 +117,14 @@ public class ClientSmoke {
                     File theme = new File(mc.mcDataDir, "config/modernnh/theme.properties");
                     Files.write(
                         theme.toPath(),
-                        ("bar.width=280\ncolor.fill=FFFFBC52\nbackground.fit=contain\n")
+                        ("bar.width=280\ncolor.fill=FFFFBC52\nbackground.fit=contain\ntexture.logo=file:custom-logo.png\nshowDetails=true\n")
                             .getBytes(StandardCharsets.ISO_8859_1));
                 }
                 if (reloads == 2) {
                     File theme = new File(mc.mcDataDir, "config/modernnh/theme.properties");
                     Files.write(
                         theme.toPath(),
-                        ("texture.background=file:missing.png\nbar.width=-1\nbar.x=NaN\n")
+                        ("texture.background=file:missing.png\ntexture.logo=file:missing.png\ntexture.track=\ntexture.fill=\nbar.width=-1\nbar.x=NaN\n")
                             .getBytes(StandardCharsets.ISO_8859_1));
                 }
                 if (reloads == 3) {
@@ -147,6 +155,16 @@ public class ClientSmoke {
                 insideTestReload = true;
                 mc.refreshResources();
                 insideTestReload = false;
+                if (reloads == 0) {
+                    java.util.Properties migrated = new java.util.Properties();
+                    try (java.io.InputStream input = Files.newInputStream(themeFile.toPath())) {
+                        migrated.load(input);
+                    }
+                    if (!"0.4".equals(migrated.getProperty("bar.widthFraction"))
+                        || !new File(themeFile.getParentFile(), "theme-0.1.properties.bak").exists()) {
+                        throw new AssertionError("Stock theme migration or backup failed");
+                    }
+                }
                 Thread.sleep(1000);
             }
             if (listeners.get() != 5) throw new AssertionError("Reload listener count: " + listeners.get());
