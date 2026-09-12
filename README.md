@@ -22,8 +22,8 @@ Minecraft **1.7.10 / Forge 10.13.4.1614** 客户端模组。切换语言、应�
 enabled=true
 showText=true
 showDetails=false
-animation.fadeInMs=200
-animation.fadeOutMs=300
+animation.fadeInMs=400
+animation.fadeOutMs=600
 showLogo=true
 title=GT NEW HORIZONS
 texture.logo=file:logo.png
@@ -51,7 +51,7 @@ color.text=FFE9E6D9
 | --- | --- |
 | `enabled` / `showText` | 开关加载界面 / 阶段文字 |
 | `texture.background` | 背景 PNG |
-| `animation.fadeInMs` / `animation.fadeOutMs` | 淡入 / 淡出毫秒数，默认 200 / 300；0 关闭，最大 2000 |
+| `animation.fadeInMs` / `animation.fadeOutMs` | 淡入 / 淡出毫秒数，默认 400 / 600；0 关闭，最大 2000 |
 | `texture.logo` / `showLogo` | 独立 Logo PNG / 显示开关；空路径或缺失图片时隐藏 |
 | `logo.x` / `logo.y` / `logo.height` | Logo 中心坐标及高度占屏幕的比例，保持原图宽高比 |
 | `title` / `title.y` | 标题和垂直位置；标题留空时隐藏，最多 128 字符 |
@@ -109,7 +109,7 @@ GitHub Actions 仅运行构建、测试和格式检查；当前没有自动创�
 
 资源重载进度是**已完成监听器数 / 总监听器数**。光影重载显示准备与清理、读取光影包、应用管线三个阶段；独立管线编译显示一个工作阶段。它们都不是剩余时间或编译文件数量。纹理文字显示 Forge 当前处理的项，未将“开始处理”当作“处理完成”。游戏仍同步执行重载；在监听器、纹理加载、mipmap 和上传的可用边界刷新，单个第三方长步骤仍可能暂停画面。
 
-光影接入已验证 **Angelica 2.1.25**，为可选功能；没有 Angelica 时自动跳过，不增加硬依赖。关闭光影后的普通固定功能管线不会触发光影加载界面。其他光影加载器（如 OptiFine/ShadersMod）尚未接入。淡入对切换前的已显示画面进行约 200ms 的同步混合；淡出在后续正常游戏帧上完成，不增加 300ms 的重载阻塞。
+光影接入已验证 **Angelica 2.1.25**，为可选功能；没有 Angelica 时自动跳过，不增加硬依赖。关闭光影后的普通固定功能管线不会触发光影加载界面。其他光影加载器（如 OptiFine/ShadersMod）尚未接入。淡入对切换前的已显示画面进行约 400ms 的同步混合；淡出在后续正常游戏帧上完成，不增加 600ms 的重载阻塞。
 
 纹理细分 Mixin 对替换过原版纹理方法的渲染模组采用可选注入；监听器阶段进度仍保留。尚未穷尽所有整合包、显卡、着色器与全屏组合。准确测试记录和重现命令见 [docs/testing.md](docs/testing.md)。
 

@@ -43,8 +43,8 @@ public final class Theme {
         showText = bool(p, "showText", true);
         showDetails = bool(p, "showDetails", false);
         showLogo = bool(p, "showLogo", true);
-        fadeInMs = (int) number(p, "animation.fadeInMs", 200, 0, 2000);
-        fadeOutMs = (int) number(p, "animation.fadeOutMs", 300, 0, 2000);
+        fadeInMs = (int) number(p, "animation.fadeInMs", 400, 0, 2000);
+        fadeOutMs = (int) number(p, "animation.fadeOutMs", 600, 0, 2000);
         logo = texture(p, "texture.logo", "modernnh:textures/gui/logo.png");
         String requestedTitle = p.getProperty("title", "GT NEW HORIZONS")
             .trim();

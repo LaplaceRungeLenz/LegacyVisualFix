@@ -14,7 +14,7 @@
 
 本次没有启动完整 GTNH 整合包、进入世界或穷尽全屏/着色器设置；下方人工清单仍需在目标整合包中验收。
 
-发布包 `modernnh-0.3.0.jar` 已检查：包含默认 PNG、配置、Mixin 配置与 refmap，主类版本为 52（Java 8），不包含 `ClientSmoke` 或测试模组。SHA-256：`befea4ab3d18f809c91276e16bfb1ad8f6a615619ee37c284c75756c8c6b5266`。
+发布包 `modernnh-0.3.0.jar` 已检查：包含默认 PNG、配置、Mixin 配置与 refmap，主类版本为 52（Java 8），不包含 `ClientSmoke` 或测试模组。SHA-256：`2b017f9fd397d5a59ad179072b5e56db7d9f911a567dd096fd2dd082bbe1f98c`。
 
 ## 新增动画与光影检查
 
