@@ -1,5 +1,27 @@
 # ModernNH 测试记录
 
+## 2026-09-13 Waila / Chromatic Tooltips
+
+交付构建 `spotlessApply clean build --no-configuration-cache` 通过：**14 项 JUnit 测试**、Spotless、Checkstyle、重混淆打包。`modernnh-0.4.0.jar` 已确认包含两份 Mixin 配置和 refmap，主类字节码版本 52（Java 8），不含 smoke 测试类或 Waila / Chromatic 依赖类。SHA-256：`a9f322e2d50394728deb98dd6d51b7f89322b9b3d24ad8d534aa0e645e7512e8`。
+
+Windows 11、RTX 4080 Laptop、Java 8u492、Forge 10.13.4.1614；Waila 1.19.34，测试依赖 GTNHLib 0.11.37 解析到 UniMixins 0.3.1。
+
+| 用例 | 结果 |
+| --- | --- |
+| 普通 Waila，GUI Scale 1/2、Waila scale 0.75/1/1.5 | 公开可见渲染入口、扩张中间帧、收缩终点、隐藏重置、关闭动画、坐标与 scissor 恢复通过 |
+| ChromaticTooltips 1.0.35-GTNH + Compat 1.0.36-GTNH，默认主题 | 通过 |
+| 同一客户端启用 GregTech simple 资源包 | 主题刷新、纹理边框与过渡通过 |
+| 切换到 GregTech icon 资源包 | 主题刷新与过渡通过 |
+| 移除专用资源包 | 恢复默认主题，过渡通过 |
+| Compat 的 `wailaEnabled=false` | 正确选择普通 Waila 路径，全部 Waila 用例通过 |
+| 不安装 Waila / Chromatic，UniMixins 0.2.1 | 原有 `-PclientSmoke` 资源重载、配置、GL 状态、异常恢复和淡出测试通过，无可选类加载错误 |
+
+每个资源包场景均验证自定义进度条 renderer 被调用，并检查没有新增 GL 错误。普通物品 context 在活跃 Waila 动画范围内仍被排除。实际着色与边框截图已目视核对：[默认 Chromatic](screenshots/waila/chromatic-default.png)、[simple 扩张中间帧](screenshots/waila/gregtech-simple-growing.png)、[icon 主题](screenshots/waila/gregtech-icon.png)、[移除后](screenshots/waila/resource-pack-removed.png)。
+
+这是使用临时 WorldClient、实体射线目标和合成内容的客户端渲染测试，不是完整 GTNH 存档/机器测试。未对所有自定义旋转主题或大型光影组合做验证。详细限制与资源包来源见 [Waila 适配说明](waila-animation.md)。原版快速重载时的异步 OpenAL 错误及 Forge 对第三方库 module-info 的扫描警告仍可能出现，不能与新增 GL 错误混为一谈。
+
+本机 Java 直连 GitHub 超时，Chromatic 官方 dev JAR 经系统网络下载后由 `-PchromaticRepository=file:///C:/Users/rog/Documents/ChatGPT/ModernNH/.gradle/chromatic-artifacts/` 读取。仓库默认仍使用官方 GitHub URL，正常 JAR 不包含这两个依赖。
+
 ## 2026-09-12 实测结果
 
 | 环境 | 结果 |
