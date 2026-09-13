@@ -22,11 +22,19 @@
 
 [配置、兼容版本与限制](docs/waila-animation.md)
 
+### 3. FOV 平滑过渡
+
+- 调整疾跑、速度属性、飞行和拉弓的原版 FOV 响应速度，默认约 **300 ms** 完成变化的 95%。
+- 保留原版最终倍率、Forge FOV 钩子和帧间插值；不修改玩家速度。
+- 独立配置，关闭后恢复原版平滑。仅客户端生效。
+
+[配置与实现说明](docs/fov.md)
+
 ## 安装
 
 1. 使用 **Minecraft 1.7.10 / Forge 10.13.4.1614**。
 2. 安装 **UniMixins 0.2.1 或更新版本**；GTNH 已有 Mixin 环境时，请使用整合包配套版本，避免重复安装。
-3. 将 `modernnh-0.4.0.jar` 放入客户端 `mods/`，替换旧版 ModernNH。
+3. 将 `modernnh-0.5.0.jar` 放入客户端 `mods/`，替换旧版 ModernNH。
 
 **服务端无需安装。** Waila、Chromatic Tooltips、Compat 和 Angelica 均为可选集成，不随 ModernNH 打包。
 
@@ -36,6 +44,7 @@
 | --- | --- | --- |
 | 资源重载界面 | `config/modernnh/theme.properties` | 修改后按 F3+T；资源包主题在成功重载后缓存 |
 | Waila 平滑过渡 | `config/modernnh/waila-animation.cfg` | 重启游戏 |
+| FOV 平滑过渡 | `config/modernnh/fov.cfg` | 重启游戏 |
 
 配置自动生成；Waila 动画配置仅在安装 Waila 时生成。资源重载界面的示例见 [theme.properties](examples/gtnh/theme.properties)。
 
@@ -48,13 +57,13 @@
 ./gradlew clean build
 ```
 
-Windows 使用 `gradlew.bat`。正常 JAR 位于 `build/libs/modernnh-0.4.0.jar`，版本在 `addon.gradle` 定义。交付构建不要添加任何 `Smoke` 参数。
+Windows 使用 `gradlew.bat`。正常 JAR 位于 `build/libs/modernnh-0.5.0.jar`，版本在 `addon.gradle` 定义。交付构建不要添加任何 `Smoke` 参数。
 
 - [客户端测试命令与结果](docs/testing.md)
 - [Waila / Chromatic 适配结构和专用测试](docs/waila-animation.md)
 - [资源重载主题配置](docs/reload-screen.md)
 
-代码按功能组织：`reload/`、`theme/`、`render/` 管理资源重载界面，`waila/` 管理提示框动画，`mixin/` 提供对应注入。GitHub Actions 只执行构建、测试和格式检查，不自动发布 Release。
+代码按功能组织：`reload/`、`theme/`、`render/` 管理资源重载界面，`waila/` 管理提示框动画，`fov/` 管理 FOV 配置及过渡参数，`mixin/` 提供对应注入。GitHub Actions 只执行构建、测试和格式检查，不自动发布 Release。
 
 ## 许可与来源
 

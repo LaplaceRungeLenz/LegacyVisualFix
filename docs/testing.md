@@ -68,3 +68,10 @@ Windows 11、RTX 4080 Laptop、Java 8u492、Forge 10.13.4.1614；Waila 1.19.34�
 6. GTNH 实际整合包及其指定 Angelica/lwjgl3ify 版本上复测，尤其注意材质上传阶段。
 
 开发冒烟测试自动触发的是界面/按键最终调用的同一 `Minecraft.refreshResources()`，并不等于人工点击了每一个入口。
+## 2026-09-13 FOV 验证
+
+- `clean build` 通过：17 项 JUnit 测试，Spotless、Checkstyle、重混淆与打包均通过。其中新增 3 项 FOV 单元测试。
+- Java 8 / Forge 10.13.4.1614 / UniMixins 真实客户端：`-PfovSmoke` 通过，验证已注入的 `EntityRenderer` 与真实玩家疾跑属性。
+- Java 25 / Angelica 2.1.25 / lwjgl3ify：同一 FOV 冒烟测试通过。覆盖默认 300ms 收敛、反向切换、前一 tick 值、禁用和零时长原版回退。
+- 该测试创建临时世界对象，不读取用户存档。未测试完整 GTNH 装备组合、实际光影包或主观手感；原版运行记录仍有异步 OpenAL 初始化错误，FOV 检查报告为 PASS。
+- 正常 JAR 已确认含 FOV 类及重混淆 refmap，不含任何 Smoke 类。配置及实现见 [FOV 说明](fov.md)。
