@@ -1,8 +1,11 @@
 // GTNH extension point: leave the upstream convention build script unchanged.
-project.ext.modVersion = System.getenv('VERSION') ?: '0.3.0'
+project.ext.modVersion = System.getenv('VERSION') ?: '0.4.0'
 project.version = project.ext.modVersion
 
 // Explicit opt-in only. The smoke mod never belongs in a release jar.
 if (project.hasProperty('clientSmoke')) {
     sourceSets.main.java.srcDir('src/smokeTest/java')
+}
+if (project.hasProperty('wailaSmoke')) {
+    sourceSets.main.java.srcDir('src/wailaSmokeTest/java')
 }

@@ -3,7 +3,7 @@
 	"modList": [{
 		"modid": "${modId}",
 		"name": "${modName}",
-		"description": "Configurable client-side resource reload progress screen for Minecraft 1.7.10.",
+		"description": "Client-side reload screens and smooth Waila tooltip transitions, including Chromatic Tooltips themes, for Minecraft 1.7.10.",
 		"version": "${modVersion}",
 		"mcversion": "${minecraftVersion}",
 		"url": "https://github.com/LaplaceRungeLenz/ModernNH",

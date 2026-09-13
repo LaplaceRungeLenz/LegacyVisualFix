@@ -1,5 +1,14 @@
 // Add any additional repositories for your dependencies here.
 
 repositories {
-
+    // These upstream versions have GitHub artifacts but no GTNH Maven publication.
+    ivy {
+        name = 'chromaticGitHubReleases'
+        url = project.findProperty('chromaticRepository') ?: 'https://github.com/GTNewHorizons/'
+        patternLayout {
+            artifact '[module]/releases/download/[revision]/[module]-[revision](-[classifier]).[ext]'
+        }
+        metadataSources { artifact() }
+        content { includeGroup 'upstream.chromatic' }
+    }
 }

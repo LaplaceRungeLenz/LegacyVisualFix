@@ -35,6 +35,17 @@
  */
 dependencies {
     testImplementation("junit:junit:4.13.2")
+    compileOnly("com.github.GTNewHorizons:waila:1.19.34:dev") { transitive = false }
+    compileOnly("upstream.chromatic:chromatictooltips:1.0.35-GTNH:dev") { transitive = false }
+    compileOnly("upstream.chromatic:chromatictooltipscompat:1.0.36-GTNH:dev") { transitive = false }
+    if (project.hasProperty('wailaSmoke')) {
+        runtimeOnlyNonPublishable("com.github.GTNewHorizons:waila:1.19.34:dev") { transitive = false }
+        runtimeOnlyNonPublishable("com.github.GTNewHorizons:GTNHLib:0.11.37:dev")
+    }
+    if (project.hasProperty('chromaticSmoke')) {
+        runtimeOnlyNonPublishable("upstream.chromatic:chromatictooltips:1.0.35-GTNH:dev") { transitive = false }
+        runtimeOnlyNonPublishable("upstream.chromatic:chromatictooltipscompat:1.0.36-GTNH:dev") { transitive = false }
+    }
     if (project.hasProperty('angelicaSmoke')) {
         runtimeOnlyNonPublishable("com.github.GTNewHorizons:Angelica:2.1.25:dev")
     }
