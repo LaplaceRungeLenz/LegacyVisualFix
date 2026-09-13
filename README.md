@@ -1,6 +1,6 @@
 # ModernNH
 
-面向 **Minecraft 1.7.10 / GT New Horizons** 的视觉体验改进模组。各项功能独立配置，后续功能会继续按模块添加。
+面向 **Minecraft 1.7.10 / GT New Horizons** 的视觉体验改进模组。各项功能独立配置，后续将会逐渐添加更多功能。
 
 ## 已添加的特性
 
@@ -29,8 +29,6 @@
 3. 将 `modernnh-0.4.0.jar` 放入客户端 `mods/`，替换旧版 ModernNH。
 
 **服务端无需安装。** Waila、Chromatic Tooltips、Compat 和 Angelica 均为可选集成，不随 ModernNH 打包。
-
-当前验证基线：Waila **1.19.34**、ChromaticTooltips **1.0.35-GTNH**、ChromaticTooltipsCompat **1.0.36-GTNH**；Angelica 接入已验证 **2.1.25**。测试环境与未覆盖场景见 [测试记录](docs/testing.md)。
 
 ## 配置入口
 
