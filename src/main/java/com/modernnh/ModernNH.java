@@ -3,6 +3,7 @@ package com.modernnh;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.modernnh.fov.FovConfig;
 import com.modernnh.waila.WailaAnimationConfig;
 
 import cpw.mods.fml.common.Loader;
@@ -23,6 +24,8 @@ public final class ModernNH {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+        if (event.getSide()
+            .isClient()) FovConfig.load(event.getModConfigurationDirectory());
         if (event.getSide()
             .isClient() && Loader.isModLoaded("Waila")) {
             WailaAnimationConfig.load(event.getModConfigurationDirectory());
