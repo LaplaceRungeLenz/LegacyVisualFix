@@ -34,11 +34,13 @@
 
 1. 使用 **Minecraft 1.7.10 / Forge 10.13.4.1614**。
 2. 安装 **UniMixins 0.2.1 或更新版本**；GTNH 已有 Mixin 环境时，请使用整合包配套版本，避免重复安装。
-3. 将 `modernnh-0.5.0.jar` 放入客户端 `mods/`，替换旧版 ModernNH。
+3. 将 `modernnh-0.5.1.jar` 放入客户端 `mods/`，替换旧版 ModernNH。
 
 **服务端无需安装。** Waila、Chromatic Tooltips、Compat 和 Angelica 均为可选集成，不随 ModernNH 打包。
 
 ## 配置入口
+
+0.5.1 修复 MyCTMLib 1.3.0 与 Better Loading Screen 早期资源重载导致的启动崩溃；保留启动后的 CTM 清理和 GregTech 检测。见 [启动兼容说明](docs/startup-compatibility.md)。
 
 | 功能 | 配置文件 | 生效方式 |
 | --- | --- | --- |
@@ -57,7 +59,7 @@
 ./gradlew clean build
 ```
 
-Windows 使用 `gradlew.bat`。正常 JAR 位于 `build/libs/modernnh-0.5.0.jar`，版本在 `addon.gradle` 定义。交付构建不要添加任何 `Smoke` 参数。
+Windows 使用 `gradlew.bat`。正常 JAR 位于 `build/libs/modernnh-0.5.1.jar`，版本在 `addon.gradle` 定义。交付构建不要添加任何 `Smoke` 参数。
 
 - [客户端测试命令与结果](docs/testing.md)
 - [Waila / Chromatic 适配结构和专用测试](docs/waila-animation.md)
