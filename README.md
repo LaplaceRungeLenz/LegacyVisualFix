@@ -1,6 +1,6 @@
 # ModernNH
 
-面向 **Minecraft 1.7.10 / GT New Horizons** 的客户端体验改进模组。各项功能独立配置，后续功能会继续按模块添加。
+面向 **Minecraft 1.7.10 / GT New Horizons** 的视觉体验改进模组。各项功能独立配置，后续功能会继续按模块添加。
 
 ## 已添加的特性
 
