@@ -1,5 +1,13 @@
 # ModernNH 测试记录
 
+## 2026-09-13 GTNH beta3 启动修复（0.5.1）
+
+- 最终 `clean build` 通过：17 项 JUnit 测试、Spotless、Checkstyle 与重混淆打包。0.5.1 JAR 的兼容类为 Java 8 字节码，不含 Smoke 类或第三方模组。
+- 从用户日志定位并用 MyCTMLib 1.3.0、Better Loading Screen 1.7.16-GTNH、GTNHLib 0.11.46 复现启动阶段的 `Loader.namedMods` 空指针。
+- 修复后，Java 25 + Angelica 2.1.25 的同版本组合启动成功；专用测试确认启动后四个 CTM Map 正常清空，GregTech 检测与已发现模组列表一致。该精简环境没有安装 GregTech，因此不等于完整 GT 连纹渲染验证。
+- Java 8 / Forge 普通客户端不安装 MyCTMLib 时也启动成功；两种环境均通过实际 EntityRenderer FOV 冒烟测试。
+- 测试仅使用独立目录及临时世界，不修改用户 GTNH 实例或存档。未启动完整 beta3 整合包；复现命令、实现机制及范围见 [启动兼容说明](startup-compatibility.md)。
+
 ## 2026-09-13 Waila / Chromatic Tooltips
 
 交付构建 `spotlessApply clean build --no-configuration-cache` 通过：**14 项 JUnit 测试**、Spotless、Checkstyle、重混淆打包。`modernnh-0.4.0.jar` 已确认包含两份 Mixin 配置和 refmap，主类字节码版本 52（Java 8），不含 smoke 测试类或 Waila / Chromatic 依赖类。SHA-256：`a9f322e2d50394728deb98dd6d51b7f89322b9b3d24ad8d534aa0e645e7512e8`。
