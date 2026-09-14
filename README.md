@@ -30,11 +30,19 @@
 
 [配置与实现说明](docs/fov.md)
 
+### 4. 玩家物品栏入场动画
+
+- 原版生存和创造物品栏从下方向上飞入，默认 **250 ms**；创造页签、搜索框与翻页控件同步移动。
+- NEI 面板和药水效果保持原位；首次操作会结束动画并被消费，随后恢复正常交互。
+- 可独立关闭、调整时长和距离；暂不适配其他模组的容器界面。
+
+[配置、交互与兼容范围](docs/inventory-animation.md)
+
 ## 安装
 
 1. 使用 **Minecraft 1.7.10 / Forge 10.13.4.1614**。
 2. 安装 **UniMixins 0.2.1 或更新版本**；GTNH 已有 Mixin 环境时，请使用整合包配套版本，避免重复安装。
-3. 将 `modernnh-0.5.1.jar` 放入客户端 `mods/`，替换旧版 ModernNH。
+3. 将 `modernnh-0.6.0.jar` 放入客户端 `mods/`，替换旧版 ModernNH。
 
 **服务端无需安装。** Waila、Chromatic Tooltips、Compat 和 Angelica 均为可选集成，不随 ModernNH 打包。
 
@@ -47,6 +55,7 @@
 | 资源重载界面 | `config/modernnh/theme.properties` | 修改后按 F3+T；资源包主题在成功重载后缓存 |
 | Waila 平滑过渡 | `config/modernnh/waila-animation.cfg` | 重启游戏 |
 | FOV 平滑过渡 | `config/modernnh/fov.cfg` | 重启游戏 |
+| 玩家物品栏动画 | `config/modernnh/inventory.cfg` | 重启游戏 |
 
 配置自动生成；Waila 动画配置仅在安装 Waila 时生成。资源重载界面的示例见 [theme.properties](examples/gtnh/theme.properties)。
 
@@ -59,7 +68,7 @@
 ./gradlew clean build
 ```
 
-Windows 使用 `gradlew.bat`。正常 JAR 位于 `build/libs/modernnh-0.5.1.jar`，版本在 `addon.gradle` 定义。交付构建不要添加任何 `Smoke` 参数。
+Windows 使用 `gradlew.bat`。正常 JAR 位于 `build/libs/modernnh-0.6.0.jar`，版本在 `addon.gradle` 定义。交付构建不要添加任何 `Smoke` 参数。
 
 - [客户端测试命令与结果](docs/testing.md)
 - [Waila / Chromatic 适配结构和专用测试](docs/waila-animation.md)
