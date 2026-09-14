@@ -1,5 +1,20 @@
 # ModernNH 测试记录
 
+## 2026-09-14 玩家物品栏动画（0.6.0）
+
+生存物品栏、创造分类/搜索/玩家物品页采用局部绘制平移；NEI 和药水保持屏幕坐标。代码基于已合入 0.5.1 启动修复的主分支。独立代码审查发现并修正了 NEI 中文输入法不带物理按键状态的字符事件处理。
+
+最终不带任何 Smoke 参数的 `spotlessApply clean build --offline --no-configuration-cache` 通过：**23 项 JUnit 测试**、Spotless、Checkstyle 与重混淆。`modernnh-0.6.0.jar` 已检查包含新增 Mixin/refmap 和启动修复，动画类字节码版本为 52（Java 8），无 Smoke 类、Minecraft 类或 NEI 类。SHA-256：`e9ed05e3907e4e7add08a352da4b3ed7f9523ec88ba1f152fa16e27a55fa1600`。本机另传 `chromaticRepository` 指向既有本地依赖缓存。
+
+- 单元测试覆盖首个渲染帧起算、端点和超时落位、不同帧率采样一致、重建不重播、禁用/零时长、点击与拖动/松开配对、滚轮和中文输入法事件。
+- 真实客户端测试使用离线 WorldClient、测试玩家及原版 GUI，保存移动/落位截图并检查背景像素、按钮矩阵、药水像素、原始布局坐标、悬停、重建和异常后的矩阵恢复。NEI 开启其世界面板，并通过公开 `IContainerDrawHandler` 验证覆盖绘制保持原位。
+- Java 8 / Forge 10.13.4.1614，不安装 NEI 以及安装 NEI 2.7.69-GTNH 两种环境：生存物品栏、创造分类/搜索/玩家物品页、GUI Scale 1/2 全部通过；两者均无 GL 错误。报告：[无 NEI](screenshots/inventory/vanilla-result.txt)、[NEI](screenshots/inventory/nei-result.txt)。
+- Java 25 + Angelica 2.1.25 + NEI 2.7.69-GTNH：Scale 1/2 的生存、创造分类、搜索和玩家物品页全部通过位置/矩阵检查；创造分类和搜索无 GL 错误，包含人物模型的页面出现 1280。**关闭动画的对照组同样出现 1280 和药水首帧明暗差异**，不能宣称此环境无 GL 错误。单独的动画矩阵作用域（含异常恢复）无 GL 错误。对照测试先预热再检查位置，不把首帧颜色变化误判为位移。
+
+这不是完整 GTNH beta3 整合包或真实服务器测试；尚未穷尽实体模型、附属按钮、物品拖放组合、全屏和实际光影包。动画期间首次输入会被消费，这是交互设计，不是掉帧。其他模组容器和替换原版界面的子类被排除。
+
+参考：[实现与配置](inventory-animation.md)、[现代环境生存栏中间位置](screenshots/inventory/modern-survival-moving.png)、[创造搜索页](screenshots/inventory/modern-creative-search-moving.png)、[现代环境测试结果](screenshots/inventory/modern-result.txt)。测试截图使用 32 GUI 像素的固定距离，便于做准确像素比较；正常配置默认从屏幕外进入。
+
 ## 2026-09-13 GTNH beta3 启动修复（0.5.1）
 
 - 最终 `clean build` 通过：17 项 JUnit 测试、Spotless、Checkstyle 与重混淆打包。0.5.1 JAR 的兼容类为 Java 8 字节码，不含 Smoke 类或第三方模组。
