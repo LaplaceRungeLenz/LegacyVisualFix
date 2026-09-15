@@ -1,6 +1,6 @@
 # ModernNH
 
-面向 **Minecraft 1.7.10 / GT New Horizons** 的视觉体验改进模组。各项功能独立配置，后续将会逐渐添加更多功能。
+面向 **Minecraft 1.7.10 / GT New Horizons** 的视觉体验与交互改进模组。各项功能独立配置，后续将会逐渐添加更多功能。
 
 ## 已添加的特性
 
@@ -30,13 +30,21 @@
 
 [配置与实现说明](docs/fov.md)
 
+### 金刚杵九宫格工具交互
+
+- 使用 GT 原生扳手/剪线钳九宫格选择机器朝向和线缆、管道连接方向。
+- 独立开关；多人游戏需客户端与服务端均安装。未支持此功能的服务器保留原始交互。
+- 仅移植这项功能，不含副手替换、连续挖掘保护或 AE 部件拆卸。
+
+[配置、来源与验证范围](docs/vajra.md)
+
 ## 安装
 
 1. 使用 **Minecraft 1.7.10 / Forge 10.13.4.1614**。
 2. 安装 **UniMixins 0.2.1 或更新版本**；GTNH 已有 Mixin 环境时，请使用整合包配套版本，避免重复安装。
-3. 将 `modernnh-0.5.1.jar` 放入客户端 `mods/`，替换旧版 ModernNH。
+3. 将 `modernnh-0.6.1.jar` 放入客户端 `mods/`，替换旧版 ModernNH。
 
-**服务端无需安装。** Waila、Chromatic Tooltips、Compat 和 Angelica 均为可选集成，不随 ModernNH 打包。
+**仅使用视觉功能时服务端无需安装；金刚杵九宫格功能需要客户端和服务端均安装。** Waila、Chromatic Tooltips、Compat 和 Angelica 均为可选集成，不随 ModernNH 打包。
 
 ## 配置入口
 
@@ -46,6 +54,7 @@
 | --- | --- | --- |
 | 资源重载界面 | `config/modernnh/theme.properties` | 修改后按 F3+T；资源包主题在成功重载后缓存 |
 | Waila 平滑过渡 | `config/modernnh/waila-animation.cfg` | 重启游戏 |
+| 金刚杵九宫格 | `config/modernnh/vajra.cfg` | 重启游戏/服务端 |
 | FOV 平滑过渡 | `config/modernnh/fov.cfg` | 重启游戏 |
 
 配置自动生成；Waila 动画配置仅在安装 Waila 时生成。资源重载界面的示例见 [theme.properties](examples/gtnh/theme.properties)。
@@ -59,7 +68,7 @@
 ./gradlew clean build
 ```
 
-Windows 使用 `gradlew.bat`。正常 JAR 位于 `build/libs/modernnh-0.5.1.jar`，版本在 `addon.gradle` 定义。交付构建不要添加任何 `Smoke` 参数。
+Windows 使用 `gradlew.bat`。正常 JAR 位于 `build/libs/modernnh-0.6.1.jar`，版本在 `addon.gradle` 定义。交付构建不要添加任何 `Smoke` 参数。
 
 - [客户端测试命令与结果](docs/testing.md)
 - [Waila / Chromatic 适配结构和专用测试](docs/waila-animation.md)
@@ -69,4 +78,4 @@ Windows 使用 `gradlew.bat`。正常 JAR 位于 `build/libs/modernnh-0.5.1.jar`
 
 ## 许可与来源
 
-代码及原创素材采用 [MIT](LICENSE)。GTNH Jappa 风格 Logo 单独适用 **CC BY-NC-SA 4.0**，详见 [素材来源与许可](src/main/resources/META-INF/NOTICE-GTNH.md)。本项目不是 GTNH 官方模组。
+原有代码及原创素材采用 [MIT](LICENSE)。金刚杵移植模块采用 GPL-3.0-only，包含该模块的组合代码发行包按 GPL-3.0-only 提供，详见 [移植来源与许可](src/main/resources/META-INF/NOTICE-Vajra.md)。GTNH Jappa 风格 Logo 单独适用 **CC BY-NC-SA 4.0**，详见 [素材来源与许可](src/main/resources/META-INF/NOTICE-GTNH.md)。本项目不是 GTNH 官方模组。

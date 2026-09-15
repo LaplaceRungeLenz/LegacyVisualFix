@@ -3,7 +3,7 @@
 	"modList": [{
 		"modid": "${modId}",
 		"name": "${modName}",
-		"description": "Client-side reload screens and smooth Waila tooltip transitions, including Chromatic Tooltips themes, for Minecraft 1.7.10.",
+		"description": "Reload screens, smooth tooltips/FOV and optional client/server Vajra wrench/cutter grid interactions for Minecraft 1.7.10.",
 		"version": "${modVersion}",
 		"mcversion": "${minecraftVersion}",
 		"url": "https://github.com/LaplaceRungeLenz/ModernNH",
