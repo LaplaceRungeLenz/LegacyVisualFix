@@ -46,11 +46,20 @@
 
 [配置、来源与验证范围](docs/vajra.md)
 
+### 6. 物品 UI 动效
+
+- 快捷栏选中框平滑移动，实际物品选择即时生效。
+- 悬停物品放大；鼠标携带物品缩放、倾斜并回弹。
+- 相同 Item、metadata 和 NBT 的物品轻微浮动；非普通稀有度携带物品产生彩色拖尾。
+- 接入原版容器、NEI、ModularUI 1/2，独立开关；详细实测范围与排除项见说明。
+
+[配置、兼容程度与限制](docs/ui-effects.md)
+
 ## 安装
 
 1. 使用 **Minecraft 1.7.10 / Forge 10.13.4.1614**。
 2. 安装 **UniMixins 0.2.1 或更新版本**；GTNH 已有 Mixin 环境时，请使用整合包配套版本，避免重复安装。
-3. 将 `modernnh-0.6.1.jar` 放入客户端 `mods/`，替换旧版 ModernNH。
+3. 将 `modernnh-0.7.0.jar` 放入客户端 `mods/`，替换旧版 ModernNH。
 
 **仅使用视觉功能时服务端无需安装；金刚杵九宫格功能需要客户端和服务端均安装。** Waila、Chromatic Tooltips、Compat 和 Angelica 均为可选集成，不随 ModernNH 打包。
 
@@ -65,6 +74,7 @@
 | 金刚杵九宫格 | `config/modernnh/vajra.cfg` | 重启游戏/服务端 |
 | FOV 平滑过渡 | `config/modernnh/fov.cfg` | 重启游戏 |
 | 玩家物品栏动画 | `config/modernnh/inventory.cfg` | 重启游戏 |
+| 物品 UI 动效 | `config/modernnh/ui.cfg` | 重启游戏 |
 
 配置自动生成；Waila 动画配置仅在安装 Waila 时生成。资源重载界面的示例见 [theme.properties](examples/gtnh/theme.properties)。
 
@@ -77,7 +87,7 @@
 ./gradlew clean build
 ```
 
-Windows 使用 `gradlew.bat`。正常 JAR 位于 `build/libs/modernnh-0.6.1.jar`，版本在 `addon.gradle` 定义。交付构建不要添加任何 `Smoke` 参数。
+Windows 使用 `gradlew.bat`。正常 JAR 位于 `build/libs/modernnh-0.7.0.jar`，版本在 `addon.gradle` 定义。交付构建不要添加任何 `Smoke` 参数。
 
 - [客户端测试命令与结果](docs/testing.md)
 - [Waila / Chromatic 适配结构和专用测试](docs/waila-animation.md)

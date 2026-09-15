@@ -98,3 +98,24 @@ Windows 11、RTX 4080 Laptop、Java 8u492、Forge 10.13.4.1614；Waila 1.19.34�
 - Java 25 / Angelica 2.1.25 / lwjgl3ify：同一 FOV 冒烟测试通过。覆盖默认 300ms 收敛、反向切换、前一 tick 值、禁用和零时长原版回退。
 - 该测试创建临时世界对象，不读取用户存档。未测试完整 GTNH 装备组合、实际光影包或主观手感；原版运行记录仍有异步 OpenAL 初始化错误，FOV 检查报告为 PASS。
 - 正常 JAR 已确认含 FOV 类及重混淆 refmap，不含任何 Smoke 类。配置及实现见 [FOV 说明](fov.md)。
+
+## 2026-09-15 五项 UI 效果验证（0.7.0）
+
+测试使用真实 Forge 客户端、变换后的 GUI、物品 renderer 和 GPU，但玩家与容器由测试构造；不读取用户存档，也不是完整 GTNH 游玩验收。
+
+| 实测组合 | 结果与范围 |
+| --- | --- |
+| Java 8 / Forge 10.13.4.1614 / UniMixins，原版 GUI | 五项效果通过，检查原 renderer、数量、NBT/metadata 匹配、禁用恢复和真实快捷栏立即选中 |
+| NEI 2.7.69-GTNH | 真实容器槽位及鼠标携带效果通过；不扩展 NEI 目录/配方图标 |
+| NEI 2.8.130-GTNH + MUI 1.3.4 + MUI2 2.3.85-1.7.10，Java 8 | 五项及两个框架的真实 GUI 测试通过；普通槽悬停、幽灵槽排除、携带倾斜/拖尾、矩阵深度和物品数量通过；测试场景新增 GL 错误为 0 |
+| NEI 2.7.69-GTNH + 上述 MUI + Angelica 2.1.25 / lwjgl3ify 3.0.10，Java 25 | 同组功能检查通过；存在下述环境 GL 限制，未启用实际光影包 |
+
+可选 MUI 测试另加载 GTNHLib 0.11.37、Baubles-Expanded 2.2.21。MUI2 使用其取消原版绘制后执行的 `ClientScreenHandler` 路径，已实际测试，不能只由 GuiContainer 继承关系推断兼容。
+
+Java 25 / Angelica 组合中，重复绘制原版容器和 MUI2 GUI 的等价禁用对照也产生 `GL_INVALID_ENUM (1280)`，启用效果时错误码相同；MUI1 对照及启用均为 0。单独新增槽位变换/恢复无错误，粒子绘制的矩阵、颜色和相关 GL 状态恢复检查通过。这个结果不构成整个组合无 GL 错误的保证。
+
+额外覆盖粒子数量上限、静止过期、800ms 停顿不补发、倾角回落、低/高帧率收敛、原物品数量不变。截图见 [物品效果](screenshots/ui/nei-trail.png)。完整 GTNH 机器、AE2 专用终端、自定义 HUD 和实际光影包仍需整合包验收，支持边界见 [UI 说明](ui-effects.md)。
+
+复现：`runClient -PuiSmoke -PneiSmoke -PuiMuiSmoke -PuiNeiVersion=2.8.130-GTNH`；Angelica 使用 `runClient25 -PuiSmoke -PneiSmoke -PuiMuiSmoke -PangelicaSmoke`。必须检查 `MODERNNH_UI_SMOKE PASS` 与两个 `MODERNNH_UI_MUI_SMOKE PASS`，不能仅用 Gradle 退出成功判断效果测试通过。
+
+正式构建 `spotlessApply clean build` 通过：34 项 JUnit 测试（本次新增 8 项）、Spotless、Checkstyle、重混淆与打包全部通过。交付 JAR 含 UI 早期/可选后期 Mixins 和 refmap，UI 字节码为 Java 8（major 52），不含 Smoke 类。
