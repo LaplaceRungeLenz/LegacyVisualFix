@@ -1,5 +1,13 @@
 # ModernNH 测试记录
 
+## 2026-09-15 0.7.1 发布包回归核对
+
+- 用户实例仅有 `modernnh-0.7.0.jar`，SHA-256 为 `c977bd47145aeaa1397aa2d7520a61117b461ef4380f0aa44e63e0a081ff09b1`，与首次交付包完全相同。字节码缺少 `InventoryScreenEvents` 和 `InventoryMotion.openingFrom`，输入仍是旧 Redirect 写法，未包含随后合并的 0.6.3 修复。GitHub main（7e932dc）与本地修复源码已包含这些修复；此次不是源代码再次丢失修复，而是旧产物以相同版本号交付造成混淆。
+- `scripts/verify_release.py` 针对实际 JAR 校验必要修复、UI 类、Java 8 字节码、版本与文件名及 Smoke 类排除。已确认它会拒绝用户当前旧包，错误为缺少 `InventoryScreenEvents.class`。这是产物完整性门槛，不能代替运行时行为测试。
+- Java 8 / beta3 相关模组的实际背包测试通过：生存/创造物品页、缩放 1/2、拿取/放回/分堆、MUI 输入事件、首次点击及松开、Baubles/CosmeticArmor 返回不重播。新增连续回归检查飞入结束后的真实物品 renderer 缩放达到约 1.2 倍，再执行真实鼠标输入拿取。采样限定到目标数量堆叠，避免 NEI 其他图标覆盖测量。
+- 不修改用户实例或存档。0.7.1 使用独立版本号交付，保留 main 已有输入修复及五项 UI 效果。
+- Java 25 + Angelica 2.1.25 / lwjgl3ify 3.0.10 搭配相同 beta3 依赖也通过完整输入/返回/悬停测试；独立 UI 测试验证携带倾斜及回落、拖尾、同类浮动和快捷栏，报告 PASS，相关 GL 检查为 0。此次测试使用隔离客户端，不等于整个整合包存档的全面验收。
+
 ## 2026-09-15 玩家物品栏交互修复（0.6.3）
 
 使用用户 GTNH 2.9.0 beta3 实例中的相关 JAR 在独立开发客户端复现：NEI 2.8.130、CodeChickenCore 1.4.19、GTNHLib 0.11.46、ModularUI2 2.3.88、BogoSorter 1.3.50、MouseTweaks 2.5.2、BaublesExpanded 2.2.22、CosmeticArmorReworked 1.0.6。没有修改用户实例。
@@ -143,3 +151,4 @@ Java 25 / Angelica 组合中，重复绘制原版容器和 MUI2 GUI 的等价禁
 正式构建 `spotlessApply clean build` 通过：34 项 JUnit 测试（本次新增 8 项）、Spotless、Checkstyle、重混淆与打包全部通过。交付 JAR 含 UI 早期/可选后期 Mixins 和 refmap，UI 字节码为 Java 8（major 52），不含 Smoke 类。
 
 PR #6 合入 main 的 0.6.3 修复后再次验证：spotlessApply build 通过，37 项 JUnit 测试通过；NEI 2.8.130 + MUI 1.3.4 / MUI2 2.3.85 的实际 GUI 冒烟测试全部 PASS，测试场景 GL 错误为 0。首次 clean 因 Windows 文件占用失败，停止 Gradle 守护进程后重新构建通过。
+- 0.7.1 最终 spotlessApply clean build、37 项 JUnit 测试及实际发布包校验全部通过。CI 在构建后执行相同产物检查。

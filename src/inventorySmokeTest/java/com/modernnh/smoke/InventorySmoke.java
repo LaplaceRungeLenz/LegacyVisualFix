@@ -383,6 +383,7 @@ public final class InventorySmoke {
             net.minecraft.inventory.Slot slot = gui.inventorySlots.getSlot(9);
             int x = coordinate(gui, "guiLeft") + slot.xDisplayPosition + 8;
             int y = coordinate(gui, "guiTop") + slot.yDisplayPosition + 8;
+            verifyUiHover(gui, x, y);
             click(gui, x, y, 0);
             require(mc.thePlayer.inventory.getItemStack() != null, "left click did not pick up stack");
             require(mc.thePlayer.inventory.getItemStack().stackSize == 32, "left click picked wrong count");
@@ -405,6 +406,48 @@ public final class InventorySmoke {
                 require(mousePre > pre && mousePost > post, "ModularUI input events were bypassed");
             }
             System.out.println("INVENTORY_INPUT left/right pickup/place PASS");
+        }
+
+        private void verifyUiHover(GuiContainer gui, int x, int y) throws Exception {
+            final float[] scale = { 0 };
+            net.minecraftforge.client.IItemRenderer probe = new net.minecraftforge.client.IItemRenderer() {
+
+                public boolean handleRenderType(ItemStack stack, ItemRenderType type) {
+                    return type == ItemRenderType.INVENTORY;
+                }
+
+                public boolean shouldUseRenderHelper(ItemRenderType type, ItemStack stack, ItemRendererHelper helper) {
+                    return false;
+                }
+
+                public void renderItem(ItemRenderType type, ItemStack stack, Object... data) {
+                    if (stack.stackSize != 32) return;
+                    FloatBuffer matrix = BufferUtils.createFloatBuffer(16);
+                    GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, matrix);
+                    scale[0] = (float) Math.hypot(matrix.get(0), matrix.get(1));
+                }
+            };
+            net.minecraftforge.client.MinecraftForgeClient.registerItemRenderer(Items.diamond, probe);
+            try {
+                gui.drawScreen(-1000, -1000, 0);
+                float baseline = scale[0];
+                for (int i = 0; i < 25; i++) {
+                    Thread.sleep(16);
+                    gui.drawScreen(x, y, 0);
+                }
+                System.out.println(
+                    "UI_HOVER baseline=" + baseline
+                        + " actual="
+                        + scale[0]
+                        + " screen="
+                        + gui.getClass()
+                            .getName());
+                require(baseline > 0 && scale[0] > baseline * 1.1F, "UI hover did not scale after entrance");
+                require(!InventoryAnimations.entering(gui), "hover restarted entrance animation");
+                System.out.println("INVENTORY_UI hover after entrance PASS");
+            } finally {
+                net.minecraftforge.client.MinecraftForgeClient.registerItemRenderer(Items.diamond, null);
+            }
         }
 
         private void verifyEarlyClick() throws Exception {
