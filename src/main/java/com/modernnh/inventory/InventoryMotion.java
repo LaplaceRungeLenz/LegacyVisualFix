@@ -4,6 +4,7 @@ package com.modernnh.inventory;
 public final class InventoryMotion {
 
     private boolean initialized;
+    private boolean entranceAllowed = true;
     private boolean entering;
     private boolean started;
     private long start;
@@ -11,6 +12,11 @@ public final class InventoryMotion {
     private int distance;
     private float offset;
     private int suppressedButtons;
+
+    /** A fresh GUI can still be a return from another inventory page. */
+    public void openingFrom(boolean world, InventoryMotion previous) {
+        entranceAllowed = world || (previous != null && previous.entranceAllowed && !previous.initialized);
+    }
 
     public void initialize(boolean enabled, int duration, int configuredDistance) {
         if (initialized) {
@@ -20,7 +26,7 @@ public final class InventoryMotion {
         initialized = true;
         durationMs = duration;
         distance = configuredDistance;
-        entering = enabled && duration > 0;
+        entering = enabled && entranceAllowed && duration > 0;
     }
 
     public float frame(long now, int height, int top) {

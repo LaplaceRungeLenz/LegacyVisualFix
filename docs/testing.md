@@ -1,5 +1,27 @@
 # ModernNH 测试记录
 
+## 2026-09-15 玩家物品栏交互修复（0.6.3）
+
+使用用户 GTNH 2.9.0 beta3 实例中的相关 JAR 在独立开发客户端复现：NEI 2.8.130、CodeChickenCore 1.4.19、GTNHLib 0.11.46、ModularUI2 2.3.88、BogoSorter 1.3.50、MouseTweaks 2.5.2、BaublesExpanded 2.2.22、CosmeticArmorReworked 1.0.6。没有修改用户实例。
+
+- 修复前：日志记录 ModularUI2 鼠标/键盘 Redirect 被 ModernNH 抢占，真实 `GuiScreen.handleInput` 左键拿取测试失败；只有 NEI、MouseTweaks 的组合不复现。返回新建背包对象的测试也失败。
+- 修复后：可组合输入包装保留原操作链；生存/创造玩家物品页的左键拿取/放回、右键放置/分堆，以及 ModularUI2 Pre/Post 事件通过。测试向 LWJGL 事件队列注入完整按下/松开事件，检查实际槽位和光标堆叠数量。
+- 实际 Baubles、CosmeticArmor GUI 返回新建背包不再播放；游戏中首次打开、首次创造模式内部跳转仍播放。从普通 GUI 返回、创造模式返回、GUI 缩放也覆盖。
+- GUI 缩放 1/2 下，动画自然结束、面板/按钮平移、NEI 与药水固定坐标、非目标容器排除、异常后的矩阵恢复通过。
+- Java 8 和 Temurin Java 25 均已运行相关组合。现代渲染测试使用开发依赖 lwjgl3ify 3.0.10、Angelica 2.1.25；没有将其描述为整个 GTNH 实例的全面实机验收。
+- 最终 `clean build` 通过 29 项 JUnit 测试、Spotless、Checkstyle 和重混淆打包；交付 JAR 的新增类为 Java 8 字节码，未包含烟雾测试、NEI 或 Minecraft 类。
+
+复现命令（`inventoryCompatMods` 指向实例 `mods`，`inventoryCompatLibraries` 指向 PrismLauncher 的 `libraries`）：
+
+```text
+./gradlew runClient -PinventorySmoke -PinventoryCompatMods=/path/to/mods -PinventoryCompatLibraries=/path/to/libraries
+./gradlew runClient25 -PinventorySmoke -PangelicaSmoke -PinventoryCompatMods=/path/to/mods -PinventoryCompatLibraries=/path/to/libraries
+./gradlew runClient -PinventorySmoke
+./gradlew clean build
+```
+
+烟雾测试报告位于 `run/client/modernnh-inventory-smoke/result.txt`；客户端会捕获断言后退出，必须检查报告的 `PASS`，不能只看 Gradle 退出码。输入和返回路径测试均不编入正常交付 JAR。
+
 ## 2026-09-14 玩家物品栏动画（0.6.0）
 
 生存物品栏、创造分类/搜索/玩家物品页采用局部绘制平移；NEI 和药水保持屏幕坐标。代码基于已合入 0.5.1 启动修复的主分支。独立代码审查发现并修正了 NEI 中文输入法不带物理按键状态的字符事件处理。

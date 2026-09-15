@@ -9,6 +9,38 @@ import org.junit.Test;
 public class InventoryMotionTest {
 
     @Test
+    public void freshObjectsReturningFromOtherScreensDoNotReplay() {
+        InventoryMotion returned = new InventoryMotion();
+        returned.openingFrom(false, null);
+        returned.initialize(true, 250, 32);
+        assertFalse(returned.isEntering());
+    }
+
+    @Test
+    public void worldOpeningCarriesThroughInitialCreativeRedirectOnly() {
+        InventoryMotion initial = new InventoryMotion();
+        initial.openingFrom(true, null);
+        InventoryMotion creative = new InventoryMotion();
+        creative.openingFrom(false, initial);
+        creative.initialize(true, 250, 32);
+        assertTrue(creative.isEntering());
+        InventoryMotion returned = new InventoryMotion();
+        returned.openingFrom(false, creative);
+        returned.initialize(true, 250, 32);
+        assertFalse(returned.isEntering());
+    }
+
+    @Test
+    public void returningThroughCreativeRedirectDoesNotStartAnimation() {
+        InventoryMotion returned = new InventoryMotion();
+        returned.openingFrom(false, null);
+        InventoryMotion creative = new InventoryMotion();
+        creative.openingFrom(false, returned);
+        creative.initialize(true, 250, 32);
+        assertFalse(creative.isEntering());
+    }
+
+    @Test
     public void startsAtFirstFrameAndSettlesWithoutOvershoot() {
         InventoryMotion motion = new InventoryMotion();
         motion.initialize(true, 250, 0);
