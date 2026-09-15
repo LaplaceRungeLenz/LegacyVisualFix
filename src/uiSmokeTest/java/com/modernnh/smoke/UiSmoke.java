@@ -319,6 +319,8 @@ public final class UiSmoke {
         mc.thePlayer.inventory.currentItem = 0;
         bar.draw(res);
         int origin = bar.selector;
+        require(bar.selectorCalls == 1 && bar.itemsBeforeSelector == 9, "selector must draw once after all items");
+        require(!bar.selectorDepth, "selector must ignore item depth");
         mc.thePlayer.inventory.currentItem = 8;
         Thread.sleep(16);
         bar.draw(res);
@@ -333,24 +335,40 @@ public final class UiSmoke {
         mc.thePlayer.inventory.currentItem = 0;
         bar.draw(res);
         require(bar.selector == origin, "disabled hotbar did not snap");
+        require(bar.selectorCalls == 1 && bar.itemsBeforeSelector == 0, "disabled hotbar changed vanilla order");
         UiEffectsConfig.hotbar = true;
     }
 
     private static class Bar extends GuiIngameForge {
 
         int selector;
+        int items, itemsBeforeSelector, selectorCalls;
+        boolean selectorDepth;
 
         Bar(Minecraft mc) {
             super(mc);
         }
 
         void draw(ScaledResolution res) {
+            items = 0;
+            selectorCalls = 0;
             renderHotbar(res.getScaledWidth(), res.getScaledHeight(), 0);
         }
 
         @Override
+        protected void renderInventorySlot(int slot, int x, int y, float ticks) {
+            items++;
+            super.renderInventorySlot(slot, x, y, ticks);
+        }
+
+        @Override
         public void drawTexturedModalRect(int x, int y, int u, int v, int w, int h) {
-            if (u == 0 && v == 22 && w == 24) selector = x;
+            if (u == 0 && v == 22 && w == 24) {
+                selector = x;
+                selectorCalls++;
+                itemsBeforeSelector = items;
+                selectorDepth = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
+            }
             super.drawTexturedModalRect(x, y, u, v, w, h);
         }
     }

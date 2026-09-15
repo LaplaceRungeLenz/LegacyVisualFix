@@ -1,100 +1,39 @@
 # ModernNH
 
-面向 **Minecraft 1.7.10 / GT New Horizons** 的视觉体验与交互改进模组。各项功能独立配置，后续将会逐渐添加更多功能。
+面向 **Minecraft 1.7.10 / GT New Horizons** 的视觉与交互改进模组，各项功能可独立配置。
 
-## 已添加的特性
+## 功能
 
-### 1. 资源重载界面
-
-- 切换语言、应用资源包或按 **F3+T** 时，显示重载阶段与进度。
-- 支持 **Angelica** 光影启用、关闭、更换、重载及程序编译时的进度显示。
-- 默认深蓝主题、GTNH Jappa 风格 Logo、金色进度条和像素字体。
-- 支持自定义背景、Logo、颜色、布局与文字；默认淡入 **400 ms**、淡出 **600 ms**。
-
-[配置说明与预览](docs/reload-screen.md)
-
-### 2. Waila 提示框平滑过渡
-
-- 切换注视目标或展开信息时，平滑调整提示框大小与位置，默认 **150 ms**。
-- 文字、物品图标和自定义进度条保持正常尺寸；扩张期间裁切暂时放不下的内容。
-- 专门适配 **Chromatic Tooltips + Compat**，保留默认主题与资源包样式，支持资源包切换后的主题刷新。
-- 仅作用于 Waila；不改变背包中的物品悬停提示框。可单独关闭或调整时长。
-
-[配置、兼容版本与限制](docs/waila-animation.md)
-
-### 3. FOV 平滑过渡
-
-- 调整疾跑、速度属性、飞行和拉弓的原版 FOV 响应速度，默认约 **300 ms** 完成变化的 95%。
-- 保留原版最终倍率、Forge FOV 钩子和帧间插值；不修改玩家速度。
-- 独立配置，关闭后恢复原版平滑。仅客户端生效。
-
-[配置与实现说明](docs/fov.md)
-
-### 4. 玩家物品栏入场动画
-
-- 原版生存和创造物品栏从下方向上飞入，默认 **250 ms**；创造页签、搜索框与翻页控件同步移动。
-- NEI 面板和药水效果保持原位；首次操作会结束动画并被消费，随后恢复正常交互。
-- 可独立关闭、调整时长和距离；暂不适配其他模组的容器界面。
-
-[配置、交互与兼容范围](docs/inventory-animation.md)
-
-### 5. 金刚杵九宫格工具交互
-
-- 使用 GT 原生扳手/剪线钳九宫格选择机器朝向和线缆、管道连接方向。
-- 独立开关；多人游戏需客户端与服务端均安装。未支持此功能的服务器保留原始交互。
-- 仅移植这项功能，不含副手替换、连续挖掘保护或 AE 部件拆卸。
-
-[配置、来源与验证范围](docs/vajra.md)
-
-### 6. 物品 UI 动效
-
-- 快捷栏选中框平滑移动，实际物品选择即时生效。
-- 悬停物品放大；鼠标携带物品缩放、倾斜并回弹。
-- 相同 Item、metadata 和 NBT 的物品轻微浮动；非普通稀有度携带物品产生彩色拖尾。
-- 接入原版容器、NEI、ModularUI 1/2，独立开关；详细实测范围与排除项见说明。
-
-[配置、兼容程度与限制](docs/ui-effects.md)
+- **资源重载界面**：显示语言、资源包及 Angelica 光影重载进度，可自定义背景、Logo、颜色和淡入淡出。
+- **Waila 动画**：提示框大小与位置平滑过渡，适配 Chromatic Tooltips + Compat。
+- **FOV 动画**：平滑处理疾跑、飞行和拉弓等视野变化。
+- **背包入场动画**：生存与创造物品栏从下方飞入，NEI 面板和药水效果保持原位。
+- **物品动效**：快捷栏选择框在物品上方平滑移动；悬停放大；拿起后随鼠标移动倾斜；同类物品浮动；非普通稀有度物品带彩色拖尾。支持原版容器、NEI 容器槽位及 ModularUI 1/2。
+- **金刚杵九宫格**：使用 GT 扳手与剪线钳式九宫格调整机器朝向及线缆、管道连接。
 
 ## 安装
 
-1. 使用 **Minecraft 1.7.10 / Forge 10.13.4.1614**。
-2. 安装 **UniMixins 0.2.1 或更新版本**；GTNH 已有 Mixin 环境时，请使用整合包配套版本，避免重复安装。
-3. 将 `modernnh-0.7.1.jar` 放入客户端 `mods/`，替换旧版 ModernNH。
+需要 **Forge 10.13.4.1614** 与 **UniMixins 0.2.1+**；GTNH 请使用整合包配套的 Mixin 环境。
 
-**仅使用视觉功能时服务端无需安装；金刚杵九宫格功能需要客户端和服务端均安装。** Waila、Chromatic Tooltips、Compat 和 Angelica 均为可选集成，不随 ModernNH 打包。
+将 ModernNH JAR 放入 `mods/`，替换旧文件，不要同时保留多个版本。视觉功能只需客户端安装；金刚杵九宫格需要客户端与服务端均安装。Waila、Chromatic Tooltips 和 Angelica 为可选集成。
 
-## 配置入口
+## 配置
 
-0.5.1 修复 MyCTMLib 1.3.0 与 Better Loading Screen 早期资源重载导致的启动崩溃；保留启动后的 CTM 清理和 GregTech 检测。见 [启动兼容说明](docs/startup-compatibility.md)。
+配置自动生成于 `config/modernnh/`。除主题可通过 **F3+T** 重载外，其他配置修改后需重启；金刚杵配置也需重启服务端。
 
-| 功能 | 配置文件 | 生效方式 |
-| --- | --- | --- |
-| 资源重载界面 | `config/modernnh/theme.properties` | 修改后按 F3+T；资源包主题在成功重载后缓存 |
-| Waila 平滑过渡 | `config/modernnh/waila-animation.cfg` | 重启游戏 |
-| 金刚杵九宫格 | `config/modernnh/vajra.cfg` | 重启游戏/服务端 |
-| FOV 平滑过渡 | `config/modernnh/fov.cfg` | 重启游戏 |
-| 玩家物品栏动画 | `config/modernnh/inventory.cfg` | 重启游戏 |
-| 物品 UI 动效 | `config/modernnh/ui.cfg` | 重启游戏 |
+| 文件 | 主要配置项 |
+| --- | --- |
+| `theme.properties` | `enabled` 总开关；`showText`、`showDetails`、`showLogo` 显示内容；`texture.*` 贴图；`color.*` 颜色；`logo.*`、`bar.*` 布局；`animation.fadeInMs` / `animation.fadeOutMs` 淡入淡出 |
+| `waila-animation.cfg` | `enabled` 开关；`durationMs` 过渡时长，默认 150 ms |
+| `fov.cfg` | `enabled` 开关；`transitionMs` 响应时长，默认 300 ms |
+| `inventory.cfg` | `enabled` 开关；`durationMs` 飞入时长，默认 250 ms；`distance` 飞入距离，0 为自动 |
+| `ui.cfg` | `enabled` 总开关；`hotbar`、`hover`、`carried`、`matching`、`trails` 分别控制快捷栏、悬停、携带、同类浮动和拖尾 |
+| `vajra.cfg` | `enabled` 金刚杵九宫格开关 |
 
-配置自动生成；Waila 动画配置仅在安装 Waila 时生成。资源重载界面的示例见 [theme.properties](examples/gtnh/theme.properties)。
+`ui.cfg` 还可调整：`hoverScale` / `carriedScale` 放大倍数（默认 1.2）、`rotationDegrees` 倾角、`floatAmplitude` 浮动幅度、`responseSpeed` 响应速度、`maxParticles` / `particleRate` 粒子上限与速率，以及 `excludedScreens` 排除界面的完整类名。
 
-## 开发与验证
+悬停时仅放大，拿起物品后移动鼠标才会晃动。同类匹配比较物品、metadata 和 NBT，忽略数量；NEI 目录、配方图标、幽灵槽和流体槽不添加这些物品效果。
 
-构建需要 **JDK 25**，产物保持 **Java 8 字节码**。基于 GTNH Project Starter / GTNHGradle；依赖从 GTNH Maven、Mojang、Maven Central 与 GitHub 获取。
+## 许可
 
-```text
-./gradlew setupDecompWorkspace
-./gradlew clean build
-```
-
-Windows 使用 `gradlew.bat`。正常 JAR 位于 `build/libs/modernnh-0.7.1.jar`，版本在 `addon.gradle` 定义。交付构建不要添加任何 `Smoke` 参数。
-
-- [客户端测试命令与结果](docs/testing.md)
-- [Waila / Chromatic 适配结构和专用测试](docs/waila-animation.md)
-- [资源重载主题配置](docs/reload-screen.md)
-
-代码按功能组织：`reload/`、`theme/`、`render/` 管理资源重载界面，`waila/` 管理提示框动画，`fov/` 管理 FOV 配置及过渡参数，`mixin/` 提供对应注入。GitHub Actions 只执行构建、测试和格式检查，不自动发布 Release。
-
-## 许可与来源
-
-原有代码及原创素材采用 [MIT](LICENSE)。金刚杵移植模块采用 GPL-3.0-only，包含该模块的组合代码发行包按 GPL-3.0-only 提供，详见 [移植来源与许可](src/main/resources/META-INF/NOTICE-Vajra.md)。GTNH Jappa 风格 Logo 单独适用 **CC BY-NC-SA 4.0**，详见 [素材来源与许可](src/main/resources/META-INF/NOTICE-GTNH.md)。本项目不是 GTNH 官方模组。
+原创代码与素材采用 [MIT](LICENSE)；包含 GPL-3.0-only 金刚杵移植模块的组合代码发行包按 GPL-3.0-only 提供，见 [模块许可](src/main/resources/META-INF/NOTICE-Vajra.md)。GTNH Jappa 风格 Logo 采用 CC BY-NC-SA 4.0，见 [素材许可](src/main/resources/META-INF/NOTICE-GTNH.md)。本项目不是 GTNH 官方模组。
