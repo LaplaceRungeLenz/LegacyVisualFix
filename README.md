@@ -50,7 +50,7 @@
 
 1. 使用 **Minecraft 1.7.10 / Forge 10.13.4.1614**。
 2. 安装 **UniMixins 0.2.1 或更新版本**；GTNH 已有 Mixin 环境时，请使用整合包配套版本，避免重复安装。
-3. 将 `modernnh-0.6.2.jar` 放入客户端 `mods/`，替换旧版 ModernNH。
+3. 将 `modernnh-0.6.3.jar` 放入客户端 `mods/`，替换旧版 ModernNH。
 
 **仅使用视觉功能时服务端无需安装；金刚杵九宫格功能需要客户端和服务端均安装。** Waila、Chromatic Tooltips、Compat 和 Angelica 均为可选集成，不随 ModernNH 打包。
 
@@ -77,7 +77,7 @@
 ./gradlew clean build
 ```
 
-Windows 使用 `gradlew.bat`。正常 JAR 位于 `build/libs/modernnh-0.6.2.jar`，版本在 `addon.gradle` 定义。交付构建不要添加任何 `Smoke` 参数。
+Windows 使用 `gradlew.bat`。正常 JAR 位于 `build/libs/modernnh-0.6.3.jar`，版本在 `addon.gradle` 定义。交付构建不要添加任何 `Smoke` 参数。
 
 - [客户端测试命令与结果](docs/testing.md)
 - [Waila / Chromatic 适配结构和专用测试](docs/waila-animation.md)
