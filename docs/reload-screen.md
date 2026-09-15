@@ -6,7 +6,7 @@
 
 ## 主题定制
 
-编辑游戏目录下 `config/modernnh/theme.properties`，然后按 F3+T：
+编辑游戏目录下 `config/legacyvisualfix/theme.properties`，然后按 F3+T：
 
 ```properties
 enabled=true
@@ -35,7 +35,7 @@ color.fill=FFFFFFFF
 color.text=FFE9E6D9
 ```
 
-对应 PNG 放在 `config/modernnh/` 下。也可使用 `modernnh:textures/gui/background.png` 这样的资源位置，由资源包覆盖；背景或进度条设为空字符串则绘制纯色，Logo 为空则隐藏。进度条纹理缺失且色值为默认白色时，使用深灰轨道与金色填充。
+对应 PNG 放在 `config/legacyvisualfix/` 下。也可使用 `legacyvisualfix:textures/gui/background.png` 这样的资源位置，由资源包覆盖；背景或进度条设为空字符串则绘制纯色，Logo 为空则隐藏。进度条纹理缺失且色值为默认白色时，使用深灰轨道与金色填充。
 
 | 配置 | 含义 |
 | --- | --- |
@@ -62,7 +62,7 @@ color.text=FFE9E6D9
 ```text
 YourTheme/
   pack.mcmeta
-  assets/modernnh/textures/gui/
+  assets/legacyvisualfix/textures/gui/
     background.png
     logo.png
     bar_track.png
@@ -72,7 +72,7 @@ YourTheme/
 `pack.mcmeta`：
 
 ```json
-{"pack":{"pack_format":1,"description":"ModernNH theme"}}
+{"pack":{"pack_format":1,"description":"LegacyVisualFix theme"}}
 ```
 
 加载期间使用独立纹理快照。切换资源包时，本次加载仍显示旧主题；新资源包主题在成功重载后缓存，从下一次加载开始显示。本地配置和图片在下一次重载开始前读取。坏资源包失败期间保留上一次缓存。

@@ -1,16 +1,16 @@
-# 物品 UI 动效（ModernNH 0.7.0）
+# 物品 UI 动效（LegacyVisualFix 0.7.0）
 
-0.7.1 更正交付：最初在对话中提供的 0.7.0 JAR 构建于背包交互修复合入之前，缺少 ModularUI 输入包装和返回界面的状态处理；后续主分支已包含修复。请用 0.7.1 替换旧文件，不同时保留多个 ModernNH JAR。详见测试记录中的产物核对。
+0.7.1 更正交付：最初在对话中提供的 0.7.0 JAR 构建于背包交互修复合入之前，缺少 ModularUI 输入包装和返回界面的状态处理；后续主分支已包含修复。请用 0.7.1 替换旧文件，不同时保留多个 LegacyVisualFix JAR。详见测试记录中的产物核对。
 
 五项客户端效果：快捷栏选中框平滑移动；悬停物品缩放；鼠标携带物品缩放与阻尼倾斜；相同物品浮动；非普通稀有度物品的彩色粒子拖尾。
 
 ![NEI 容器中的物品与拖尾](screenshots/ui/nei-trail.png)
 
-按 Immersive UI 的公开行为独立实现，没有复制其代码、粒子贴图或引入 OctoLib/ShatterLib。拖尾使用程序绘制的小菱形。此模块无需服务端安装，不增加数据包、不改槽位坐标、物品数据或点击逻辑。ModernNH 其他功能的安装要求见 README。
+按 Immersive UI 的公开行为独立实现，没有复制其代码、粒子贴图或引入 OctoLib/ShatterLib。拖尾使用程序绘制的小菱形。此模块无需服务端安装，不增加数据包、不改槽位坐标、物品数据或点击逻辑。LegacyVisualFix 其他功能的安装要求见 README。
 
 ## 配置
 
-首次启动生成 `config/modernnh/ui.cfg`，修改后重启。独立于背包入场动画的 `inventory.cfg` 和加载界面主题。
+首次启动生成 `config/legacyvisualfix/ui.cfg`，修改后重启。独立于背包入场动画的 `inventory.cfg` 和加载界面主题。
 
 | 字段（effects 分类） | 默认值 | 行为 |
 | --- | --- | --- |

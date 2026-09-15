@@ -1,4 +1,4 @@
-# ModernNH Reload Screen Implementation Plan
+# LegacyVisualFix Reload Screen Implementation Plan
 
 > **For agentic workers:** Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox syntax for tracking. The user has authorized implementation in this task.
 
@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Mod name ModernNH; mod ID modernnh.
+- Mod name LegacyVisualFix; mod ID legacyvisualfix.
 - Preserve original reload execution order, thread and exceptions.
 - Render only on the Minecraft thread after client startup.
 - Single opaque operations may pause rendering; no fabricated time percentage.
@@ -21,7 +21,7 @@
 
 ## Task 1: Build foundation and progress model
 
-Files: official starter build files, `src/main/java/com/modernnh/ModernNH.java`, `reload/ReloadProgress.java`, `src/test/java/com/modernnh/reload/ReloadProgressTest.java`.
+Files: official starter build files, `src/main/java/com/legacyvisualfix/LegacyVisualFix.java`, `reload/ReloadProgress.java`, `src/test/java/com/legacyvisualfix/reload/ReloadProgressTest.java`.
 
 Interface: `begin(int)`, `beforeListener(String)`, `afterListener()`, `finish()`, `isActive()`, `getCompleted()`, `getTotal()`.
 
@@ -32,7 +32,7 @@ Interface: `begin(int)`, `beforeListener(String)`, `afterListener()`, `finish()`
 
 ## Task 2: Theme and layout
 
-Files: `theme/Theme.java`, `theme/ThemeTextures.java`, `render/LoadingRenderer.java`, `src/test/java/com/modernnh/theme/ThemeTest.java`, default config and sample theme under `examples/`.
+Files: `theme/Theme.java`, `theme/ThemeTextures.java`, `render/LoadingRenderer.java`, `src/test/java/com/legacyvisualfix/theme/ThemeTest.java`, default config and sample theme under `examples/`.
 
 Interface: `Theme.parse(Properties)` returns immutable validated settings; `ReloadScreen` consumes the theme and cached textures.
 
@@ -43,7 +43,7 @@ Interface: `Theme.parse(Properties)` returns immutable validated settings; `Relo
 
 ## Task 3: Reload integration
 
-Files: `reload/ReloadScreen.java`, `core/ModernNHLoadingPlugin.java`, `mixin/MixinMinecraft.java`, `mixin/MixinReloadableResourceManager.java`, texture hooks chosen from decompiled source, Mixin configuration.
+Files: `reload/ReloadScreen.java`, `core/LegacyVisualFixLoadingPlugin.java`, `mixin/MixinMinecraft.java`, `mixin/MixinReloadableResourceManager.java`, texture hooks chosen from decompiled source, Mixin configuration.
 
 - [x] Wrap runtime refresh in begin/try/finally/end; observe listeners without reordering. Skip startup and recursive drawing.
 - [x] Draw initial frame, actual completed listener count and current stage. Observe Forge texture progress if the target exposes it; throttle redraw without skipping completion.

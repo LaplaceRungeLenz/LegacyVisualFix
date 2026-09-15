@@ -1,6 +1,6 @@
 # Waila tooltip animation implementation plan
 
-**Goal:** Add the user-approved first version of Waila size transitions to ModernNH; push source to GitHub and deliver a local JAR without a Release.
+**Goal:** Add the user-approved first version of Waila size transitions to LegacyVisualFix; push source to GitHub and deliver a local JAR without a Release.
 
 **Design:** Waila remains responsible for information and content layout. A persistent client animation tracks dimensions over render frames. A late Mixin wraps the existing renderer, temporarily moves the content origin, substitutes background dimensions, and clips content to the visible interior. Original tooltip fields and scissor state are restored in `finally`. Content is never stretched. No show/hide fade or old-content cache.
 
@@ -13,7 +13,7 @@
 - [x] Add `waila/TooltipAnimation.java`, with monotonic-time, fixed-duration smoothstep interpolation and explicit reset. New targets start at the currently displayed size. Repeated equal targets do not restart the transition.
 - [x] First add `TooltipAnimationTest`: assert initial size 100, midpoint 150 when moving to 200 over 100 ms, endpoint 200; retarget at midpoint without jumping; compare 30/144 FPS endpoint; reset and zero-duration snap.
 - [x] Run the test before and after implementation.
-- [x] Add independent startup configuration (`config/modernnh/waila-animation.cfg`): enabled and durationMs (150 default, 0 disables transitions, maximum 1000).
+- [x] Add independent startup configuration (`config/legacyvisualfix/waila-animation.cfg`): enabled and durationMs (150 default, 0 disables transitions, maximum 1000).
 
 ## 2. Optional Waila rendering adapter
 

@@ -1,10 +1,10 @@
 # FOV 平滑过渡
 
-ModernNH 0.5.0 在 Minecraft 1.7.10 原有的 FOV 插值上调整响应速度。只需安装在客户端，不修改移动速度、碰撞箱或服务器协议。
+LegacyVisualFix 0.5.0 在 Minecraft 1.7.10 原有的 FOV 插值上调整响应速度。只需安装在客户端，不修改移动速度、碰撞箱或服务器协议。
 
 ## 配置
 
-首次启动生成 `config/modernnh/fov.cfg`，修改后重启游戏：
+首次启动生成 `config/legacyvisualfix/fov.cfg`，修改后重启游戏：
 
 ```text
 fov {
@@ -33,6 +33,6 @@ fov {
 
 单元测试覆盖收敛时间、快速反向切换、关闭及零／负时长回退。
 
-`./gradlew runClient -PfovSmoke --no-configuration-cache` 启动真实 Forge 客户端，以临时 WorldClient 和真实 EntityPlayerSP 验证变换后的 EntityRenderer：疾跑倍率、连续过渡、前一 tick 值、退出疾跑及关闭／零时长的原版结果。报告位于测试游戏目录的 `modernnh-fov-smoke.txt`。
+`./gradlew runClient -PfovSmoke --no-configuration-cache` 启动真实 Forge 客户端，以临时 WorldClient 和真实 EntityPlayerSP 验证变换后的 EntityRenderer：疾跑倍率、连续过渡、前一 tick 值、退出疾跑及关闭／零时长的原版结果。报告位于测试游戏目录的 `legacyvisualfix-fov-smoke.txt`。
 
 现代环境使用 `runClient25 -PfovSmoke -PangelicaSmoke`。测试仅调用真实 FOV 更新管线，不替代完整 GTNH 存档内的主观手感、所有装备和实际光影包测试。正常交付构建不要使用 `-PfovSmoke`。

@@ -1,12 +1,12 @@
 # 玩家物品栏入场动画
 
-ModernNH 0.6.0 为原版生存和创造模式物品栏加入从下方向上飞入的动画。默认 250 毫秒，以 cubic ease-out 减速落位；按渲染帧和单调时钟推进，不受 20 TPS 步进限制。此版本同时包含 0.5.1 的 GTNH 启动兼容修复。
+LegacyVisualFix 0.6.0 为原版生存和创造模式物品栏加入从下方向上飞入的动画。默认 250 毫秒，以 cubic ease-out 减速落位；按渲染帧和单调时钟推进，不受 20 TPS 步进限制。此版本同时包含 0.5.1 的 GTNH 启动兼容修复。
 
 0.6.3 修复与 ModularUI2/BogoSorter 的输入冲突，以及饰品栏、时装盔甲界面返回背包时重复播放的问题；包含 0.6.2 的其他功能修复。
 
 ## 配置
 
-客户端启动时生成 `config/modernnh/inventory.cfg`，修改后重启：
+客户端启动时生成 `config/legacyvisualfix/inventory.cfg`，修改后重启：
 
 ```text
 inventory {
@@ -18,7 +18,7 @@ inventory {
 
 | 配置 | 含义 |
 | --- | --- |
-| `enabled` | 独立开关，不影响其他 ModernNH 功能 |
+| `enabled` | 独立开关，不影响其他 LegacyVisualFix 功能 |
 | `durationMs` | 动画时长，0–1000 毫秒；0 关闭 |
 | `distance` | 位移距离，0–1000 GUI 像素；0 自动从屏幕下沿之外进入 |
 

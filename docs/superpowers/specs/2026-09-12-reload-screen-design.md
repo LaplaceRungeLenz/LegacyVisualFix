@@ -1,10 +1,10 @@
-# ModernNH resource reload screen
+# LegacyVisualFix resource reload screen
 
 Approved in conversation on 2026-09-12; the user explicitly requested implementation.
 
 ## Scope and architecture
 
-Build a client-side Minecraft 1.7.10 / Forge 10.13.4.1614 mod named ModernNH (mod ID modernnh), using GTNH's official Project Starter and its pinned GTNHGradle build. Keep Java 8 bytecode compatibility. Use client-only Mixins for resource reload observation. Do not replace startup splash rendering or change resource listener order/thread affinity.
+Build a client-side Minecraft 1.7.10 / Forge 10.13.4.1614 mod named LegacyVisualFix (mod ID legacyvisualfix), using GTNH's official Project Starter and its pinned GTNHGradle build. Keep Java 8 bytecode compatibility. Use client-only Mixins for resource reload observation. Do not replace startup splash rendering or change resource listener order/thread affinity.
 
 Intercept runtime resource refresh (language changes, resource pack application, F3+T). Draw on the Minecraft thread before/after reload listeners and at available texture progress boundaries. Explicitly swap/pump the display while preserving GL state. Do not run resource listeners or GL work on a background thread. An indivisible third-party operation may still pause the screen.
 
@@ -16,7 +16,7 @@ Use completed listeners / total listeners for overall progress, labelled as stag
 
 ## Theme contract
 
-Read `config/modernnh/theme.properties`; default assets live under `assets/modernnh/textures/gui/`. Configurable background, track and fill PNG resource locations, normalized bar position, logical pixel size, colors, text visibility and background fit (cover/contain/stretch). Resource packs may override default asset paths. Optional PNG files under `config/modernnh/` support pack authors without repacking a jar. Reject path traversal, non-finite/out-of-bounds dimensions and invalid colors; fall back safely. Use an immutable theme snapshot throughout each reload; new theme applies to the next session.
+Read `config/legacyvisualfix/theme.properties`; default assets live under `assets/legacyvisualfix/textures/gui/`. Configurable background, track and fill PNG resource locations, normalized bar position, logical pixel size, colors, text visibility and background fit (cover/contain/stretch). Resource packs may override default asset paths. Optional PNG files under `config/legacyvisualfix/` support pack authors without repacking a jar. Reject path traversal, non-finite/out-of-bounds dimensions and invalid colors; fall back safely. Use an immutable theme snapshot throughout each reload; new theme applies to the next session.
 
 ## Verification and boundaries
 

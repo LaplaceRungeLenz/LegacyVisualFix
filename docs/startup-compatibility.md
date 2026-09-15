@@ -4,7 +4,7 @@
 
 用户提供的 [启动日志](https://mclo.gs/SHVsbrC) 中，第一个致命异常是 Better Loading Screen 1.7.16 在 Forge 模组列表初始化前调用资源重载。MyCTMLib 1.3.0 的 onClearResources 回调读取 Textures 的静态 Map，触发该类初始化。其静态 final GregTech 检测调用 Loader.isModLoaded，此时 namedMods 为 null，导致 ExceptionInInitializerError。后续 NoClassDefFoundError 是类初始化失败的连锁结果。
 
-日志中的 ModernNH reload 包装此时只调用原方法；这不是 FOV 系数注入失败。使用实例内相同版本的 MyCTMLib、Better Loading Screen、GTNHLib 在隔离开发环境复现了同样的空指针。
+日志中的 LegacyVisualFix reload 包装此时只调用原方法；这不是 FOV 系数注入失败。使用实例内相同版本的 MyCTMLib、Better Loading Screen、GTNHLib 在隔离开发环境复现了同样的空指针。
 
 ## 修复范围
 
@@ -26,4 +26,4 @@
 
 0.5.0 在同组合中复现 namedMods 空指针。修复后到达正常客户端循环，startup smoke 检查 GregTech 检测与实际模组列表一致，并实际调用已变换资源管理器的 clearResources，确认四个 CTM Map 在启动后仍会清空。FOV smoke 同时验证疾跑、反向变化、前一 tick 状态和禁用回退。
 
-报告位于运行目录的 modernnh-startup-smoke.txt 和 modernnh-fov-smoke.txt。正常构建不要传入任何 Smoke 参数；不包含第三方模组或测试类。本次不是完整 beta3 整合包／光影／存档测试，无法排除用户额外模组的其他独立问题。
+报告位于运行目录的 legacyvisualfix-startup-smoke.txt 和 legacyvisualfix-fov-smoke.txt。正常构建不要传入任何 Smoke 参数；不包含第三方模组或测试类。本次不是完整 beta3 整合包／光影／存档测试，无法排除用户额外模组的其他独立问题。

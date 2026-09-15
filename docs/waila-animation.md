@@ -2,7 +2,7 @@
 
 ## 范围与配置
 
-ModernNH 0.4.0 提供客户端尺寸过渡，不修改 Waila 文件或服务端协议。默认开启、150 ms；`config/modernnh/waila-animation.cfg` 中的 `animation.enabled` 和 `animation.durationMs` 在启动时读取。0 ms 等价于关闭动画。加载界面的 `theme.properties` 不控制此功能。
+LegacyVisualFix 0.4.0 提供客户端尺寸过渡，不修改 Waila 文件或服务端协议。默认开启、150 ms；`config/legacyvisualfix/waila-animation.cfg` 中的 `animation.enabled` 和 `animation.durationMs` 在启动时读取。0 ms 等价于关闭动画。加载界面的 `theme.properties` 不控制此功能。
 
 第一版只平滑外框尺寸和定位。文字和内容立即切换，不做整体缩放、旧内容交叉渐隐或出现/消失动画。扩张时暂时裁切超出背景的内容，收缩时保留新内容的正常布局。尺寸以 double 保存，最终落到整数 GUI 像素，避免文字与像素边缘抖动。
 
@@ -10,7 +10,7 @@ ModernNH 0.4.0 提供客户端尺寸过渡，不修改 Waila 文件或服务端�
 
 - `waila/TooltipAnimation`：不依赖 Minecraft 的时间插值；连续改变目标从当前尺寸继续，重复目标不会重启动画。
 - `waila/WailaAnimationConfig`：独立配置。
-- `core/ModernNHLateMixinLoader`、`mixins.modernnh.waila.json`：只在客户端且安装 Waila 时加载；依据 Compat 已在早期读取的 `wailaEnabled` 选择互斥路径。
+- `core/LegacyVisualFixLateMixinLoader`、`mixins.legacyvisualfix.waila.json`：只在客户端且安装 Waila 时加载；依据 Compat 已在早期读取的 `wailaEnabled` 选择互斥路径。
 - `mixin/waila/AccessorTooltip`、`MixinOverlayRenderer`、`waila/WailaAnimationRenderer`：普通 Waila。只临时移动内容原点，替换背景绘制宽高，保留 Waila 的内容度量；绘制后恢复字段和裁切状态。
 - `mixin/waila/chromatic/`、`waila/chromatic/`：Chromatic 路径，完全保留 Compat 对 Waila 的绘制替换。动画作用于最终主题根装饰器的尺寸和变换原点，正文仍按原始布局绘制。裁切坐标经过当前 GL 矩阵转换，包含 GUI Scale、Waila scale 和主题变换。
 
@@ -22,14 +22,14 @@ ModernNH 0.4.0 提供客户端尺寸过渡，不修改 Waila 文件或服务端�
 
 Compat 完整替换了 Waila 的 `doRenderOverlay()`，因此不能把普通 Waila 的背景注入同时应用到它。专门适配只在 Waila 的 `renderOverlay()` 调用范围内、且 context 为 `waila` 时执行，背包物品提示框不参与。
 
-Compat 原来会在新建上下文时继承旧 renderer。ModernNH 在 Waila 上下文创建时重新选择当前主题，避免资源包重载后一直沿用旧背景。正常 Waila 每个客户端 tick 重建提示框，所以新主题在下一次内容更新生效；不是每帧重新解析资源包。
+Compat 原来会在新建上下文时继承旧 renderer。LegacyVisualFix 在 Waila 上下文创建时重新选择当前主题，避免资源包重载后一直沿用旧背景。正常 Waila 每个客户端 tick 重建提示框，所以新主题在下一次内容更新生效；不是每帧重新解析资源包。
 
 已在真实客户端加载作者发布的以下资源包，执行默认 → simple → icon → 移除，验证新主题被选中、动画继续正常、无新增 GL 错误且裁切恢复：
 
 - [GregTech simple](https://github.com/user-attachments/files/24572133/gregtech-tooltips-simple.zip)
 - [GregTech icon](https://github.com/user-attachments/files/24591320/gregtech-tooltips-icon.zip)
 
-来源是 [ChromaticTooltips 作者的资源包汇总](https://github.com/slprime/ChromaticTooltips/issues/1)。资源包不随 ModernNH 分发。
+来源是 [ChromaticTooltips 作者的资源包汇总](https://github.com/slprime/ChromaticTooltips/issues/1)。资源包不随 LegacyVisualFix 分发。
 
 ## 验证与边界
 
@@ -46,4 +46,4 @@ gradlew runClient -PwailaSmoke --no-configuration-cache
 gradlew runClient -PwailaSmoke -PchromaticSmoke --no-configuration-cache
 ```
 
-测试会改变开发实例的 GUI Scale、Waila scale 和启用的资源包，自动保存 `modernnh-waila-smoke/` 结果与截图后退出。不要对正式游戏目录运行测试。最终 JAR 必须使用不带 smoke 参数的 `clean build` 生成。
+测试会改变开发实例的 GUI Scale、Waila scale 和启用的资源包，自动保存 `legacyvisualfix-waila-smoke/` 结果与截图后退出。不要对正式游戏目录运行测试。最终 JAR 必须使用不带 smoke 参数的 `clean build` 生成。

@@ -7,7 +7,7 @@ import javax.imageio.ImageIO;
 /** Original, reproducible gradient and pixel bevels; no raster concept artwork is shipped. */
 public class GenerateThemeAssets {
     public static void main(String[] args) throws Exception {
-        File directory = new File("src/main/resources/assets/modernnh/textures/gui");
+        File directory = new File("src/main/resources/assets/legacyvisualfix/textures/gui");
         directory.mkdirs();
         BufferedImage bg = new BufferedImage(1600, 900, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < 900; y++) {

@@ -26,4 +26,4 @@ $env:JAVA_HOME='C:/Program Files/Eclipse Adoptium/jdk-25.0.0.36-hotspot'
 
 Use local `chromaticRepository` mirror already provided by the workspace when needed. GUI smoke runs must use isolated development worlds; no user save modifications. Each test result must be observed before claiming support.
 
-Implementation, review, documentation, 34 JUnit tests, runtime checks and local JAR delivery are complete. The user explicitly confirmed source push to LaplaceRungeLenz/ModernNH, branch codex/immersive-ui-effects, after automatic approval review requested the exact target. No Release was created.
+Implementation, review, documentation, 34 JUnit tests, runtime checks and local JAR delivery are complete. The user explicitly confirmed source push to LaplaceRungeLenz/LegacyVisualFix, branch codex/immersive-ui-effects, after automatic approval review requested the exact target. No Release was created.

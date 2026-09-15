@@ -11,9 +11,9 @@
 
 ## 安装与配置
 
-- 多人游戏客户端和服务端均安装本版 ModernNH。单人游戏安装一个 JAR 即可。
+- 多人游戏客户端和服务端均安装本版 LegacyVisualFix。单人游戏安装一个 JAR 即可。
 - 集成在同时存在 GregTech、IC2 和 AE2 时注册，使用整合包自带依赖，不打包这些模组。
-- `config/modernnh/vajra.cfg` 中 `vajra.enabled=true`，设为 `false` 并重启可关闭。
+- `config/legacyvisualfix/vajra.cfg` 中 `vajra.enabled=true`，设为 `false` 并重启可关闭。
 - 未支持本功能的服务器不会启用客户端九宫格或拦截原始交互；其他视觉功能仍可仅装客户端。
 - 避免同时启用参考模组的 `vajraToolFunctions`，以免两个处理器争用同一次右键事件。
 
