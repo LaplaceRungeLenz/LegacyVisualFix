@@ -38,3 +38,10 @@ GT 原生方法负责 GT 工具消耗和具体机器/管道规则；通用方块
 来源及精确提交见 [NOTICE-Vajra](../src/main/resources/META-INF/NOTICE-Vajra.md)。
 移植模块采用 GPL-3.0-only；包含它的组合代码发行包按 GPL-3.0-only 提供。
 原有 MIT 代码与独立素材许可证保留。
+
+## 0.6.1 发布验证
+
+- `gradlew clean build --offline --no-daemon` 成功：26 项测试，0 失败。
+- Spotless、Checkstyle、重混淆通过；所有发布类均为 Java 8 字节码（major 52）。
+- JAR 包含金刚杵模块、refmap、来源说明及 GPL 文本，不含测试模组或 GT/AE2/IC2 依赖类。
+- 完整 GTNH 世界内的手动交互验收仍未执行。

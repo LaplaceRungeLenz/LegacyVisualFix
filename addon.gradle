@@ -15,3 +15,6 @@ if (project.hasProperty('fovSmoke')) {
 if (project.hasProperty('startupCompatSmoke')) {
     sourceSets.main.java.srcDir('src/startupSmokeTest/java')
 }
+if (project.hasProperty('inventorySmoke')) {
+    sourceSets.main.java.srcDir('src/inventorySmokeTest/java')
+}

@@ -30,7 +30,15 @@
 
 [配置与实现说明](docs/fov.md)
 
-### 金刚杵九宫格工具交互
+### 4. 玩家物品栏入场动画
+
+- 原版生存和创造物品栏从下方向上飞入，默认 **250 ms**；创造页签、搜索框与翻页控件同步移动。
+- NEI 面板和药水效果保持原位；首次操作会结束动画并被消费，随后恢复正常交互。
+- 可独立关闭、调整时长和距离；暂不适配其他模组的容器界面。
+
+[配置、交互与兼容范围](docs/inventory-animation.md)
+
+### 5. 金刚杵九宫格工具交互
 
 - 使用 GT 原生扳手/剪线钳九宫格选择机器朝向和线缆、管道连接方向。
 - 独立开关；多人游戏需客户端与服务端均安装。未支持此功能的服务器保留原始交互。
@@ -56,6 +64,7 @@
 | Waila 平滑过渡 | `config/modernnh/waila-animation.cfg` | 重启游戏 |
 | 金刚杵九宫格 | `config/modernnh/vajra.cfg` | 重启游戏/服务端 |
 | FOV 平滑过渡 | `config/modernnh/fov.cfg` | 重启游戏 |
+| 玩家物品栏动画 | `config/modernnh/inventory.cfg` | 重启游戏 |
 
 配置自动生成；Waila 动画配置仅在安装 Waila 时生成。资源重载界面的示例见 [theme.properties](examples/gtnh/theme.properties)。
 

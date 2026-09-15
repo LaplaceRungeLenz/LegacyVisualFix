@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.modernnh.fov.FovConfig;
+import com.modernnh.inventory.InventoryAnimationConfig;
 import com.modernnh.vajra.VajraConfig;
 import com.modernnh.vajra.VajraNetwork;
 import com.modernnh.vajra.client.VajraClient;
@@ -35,6 +36,8 @@ public final class ModernNH {
                     .isClient()) VajraClient.register();
             }
         }
+        if (event.getSide()
+            .isClient()) InventoryAnimationConfig.load(event.getModConfigurationDirectory());
         if (event.getSide()
             .isClient()) FovConfig.load(event.getModConfigurationDirectory());
         if (event.getSide()
