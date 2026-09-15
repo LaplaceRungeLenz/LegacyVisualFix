@@ -6,6 +6,8 @@ import org.apache.logging.log4j.Logger;
 import com.modernnh.fov.FovConfig;
 import com.modernnh.inventory.InventoryAnimationConfig;
 import com.modernnh.inventory.InventoryScreenEvents;
+import com.modernnh.ui.UiEffects;
+import com.modernnh.ui.UiEffectsConfig;
 import com.modernnh.vajra.VajraConfig;
 import com.modernnh.vajra.VajraNetwork;
 import com.modernnh.vajra.client.VajraClient;
@@ -29,6 +31,11 @@ public final class ModernNH {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+        if (event.getSide()
+            .isClient()) {
+            UiEffectsConfig.load(event.getModConfigurationDirectory());
+            UiEffects.register();
+        }
         if (Loader.isModLoaded("gregtech") && Loader.isModLoaded("IC2") && Loader.isModLoaded("appliedenergistics2")) {
             VajraConfig.load(event.getModConfigurationDirectory());
             if (VajraConfig.enabled) {

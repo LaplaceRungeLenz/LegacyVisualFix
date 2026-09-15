@@ -40,6 +40,13 @@ if (project.hasProperty('startupCompatSmoke') || project.hasProperty('inventoryC
 }
 
 dependencies {
+    if (project.hasProperty('uiMuiSmoke')) {
+        runtimeOnlyNonPublishable("com.github.GTNewHorizons:Baubles-Expanded:2.2.21-GTNH:dev") { transitive = false }
+        runtimeOnlyNonPublishable("com.github.GTNewHorizons:GTNHLib:0.11.37:dev")
+        runtimeOnlyNonPublishable("com.github.GTNewHorizons:ModularUI:1.3.4:dev") { transitive = false }
+        runtimeOnlyNonPublishable("com.github.GTNewHorizons:ModularUI2:2.3.85-1.7.10:dev") { transitive = false }
+    }
+    compileOnly("com.github.GTNewHorizons:NotEnoughItems:2.7.69-GTNH:dev") { transitive = false }
     if (project.hasProperty('inventoryCompatMods')) {
         def packMods = project.property('inventoryCompatMods')
         runtimeOnlyNonPublishable(project.files("${project.property('inventoryCompatLibraries')}/it/unimi/dsi/fastutil/8.5.18/fastutil-8.5.18.jar"))
@@ -78,6 +85,6 @@ dependencies {
         runtimeOnlyNonPublishable("com.github.GTNewHorizons:Angelica:2.1.25:dev")
     }
     if (project.hasProperty('neiSmoke')) {
-        runtimeOnlyNonPublishable("com.github.GTNewHorizons:NotEnoughItems:2.7.69-GTNH:dev")
+        runtimeOnlyNonPublishable("com.github.GTNewHorizons:NotEnoughItems:${project.findProperty('uiNeiVersion') ?: '2.7.69-GTNH'}:dev")
     }
 }
