@@ -13,14 +13,13 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
-import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
+import com.modernnh.vajra.VajraBlockTarget;
 import com.modernnh.vajra.VajraConfig;
 import com.modernnh.vajra.VajraEventHandler;
 import com.modernnh.vajra.VajraNetwork;
 
-import appeng.api.util.IOrientable;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
@@ -29,7 +28,6 @@ import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.MTECable;
 import gregtech.client.BlockOverlayRenderer;
-import ic2.api.tile.IWrenchable;
 
 /** Connects the Vajra to GT's own 3x3 wrench/cutter target overlay. */
 public final class VajraOverlayHandler {
@@ -53,7 +51,7 @@ public final class VajraOverlayHandler {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onDrawBlockHighlight(DrawBlockHighlightEvent event) {
-        if (event.target == null || !VajraEventHandler.isVajra(event.currentItem)) {
+        if (!VajraBlockTarget.isBlockHit(event.target) || !VajraEventHandler.isVajra(event.currentItem)) {
             return;
         }
 
@@ -63,18 +61,16 @@ public final class VajraOverlayHandler {
             .getTileEntity(event.target.blockX, event.target.blockY, event.target.blockZ);
         Block block = event.player.worldObj.getBlock(event.target.blockX, event.target.blockY, event.target.blockZ);
         boolean cable = false;
-        boolean wrenchTarget = tile instanceof IGregTechTileEntity || tile instanceof IOrientable
-            || tile instanceof IWrenchable;
+        boolean wrenchTarget = VajraEventHandler.isWrenchTarget(
+            tile,
+            block,
+            event.player.worldObj,
+            event.target.blockX,
+            event.target.blockY,
+            event.target.blockZ);
         if (tile instanceof IGregTechTileEntity gtTile) {
             IMetaTileEntity meta = gtTile.getMetaTileEntity();
             cable = meta instanceof MTECable;
-        } else if (!wrenchTarget && block != null) {
-            ForgeDirection[] rotations = block.getValidRotations(
-                event.player.worldObj,
-                event.target.blockX,
-                event.target.blockY,
-                event.target.blockZ);
-            wrenchTarget = rotations != null && rotations.length > 0;
         }
         if (!wrenchTarget || DRAW_GRID == null) {
             return;

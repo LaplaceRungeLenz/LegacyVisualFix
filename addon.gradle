@@ -1,5 +1,5 @@
 // GTNH extension point: leave the upstream convention build script unchanged.
-project.ext.modVersion = System.getenv('VERSION') ?: '0.6.1'
+project.ext.modVersion = System.getenv('VERSION') ?: '0.6.2'
 project.version = project.ext.modVersion
 
 // Explicit opt-in only. The smoke mod never belongs in a release jar.
@@ -17,4 +17,8 @@ if (project.hasProperty('startupCompatSmoke')) {
 }
 if (project.hasProperty('inventorySmoke')) {
     sourceSets.main.java.srcDir('src/inventorySmokeTest/java')
+}
+
+if (project.hasProperty('vajraSmoke')) {
+    sourceSets.main.java.srcDir('src/vajraSmokeTest/java')
 }
