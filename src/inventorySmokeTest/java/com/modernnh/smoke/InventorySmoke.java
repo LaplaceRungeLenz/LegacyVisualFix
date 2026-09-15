@@ -59,9 +59,12 @@ import cpw.mods.fml.common.gameevent.TickEvent;
 public final class InventorySmoke {
 
     private int ticks;
+    private static int mousePre;
+    private static int mousePost;
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(this);
         // Exercise Forge's extra creative pages and their buttons/counter.
         for (int i = 0; i < 3; i++) {
             new CreativeTabs("modernnhsmoke" + i) {
@@ -75,6 +78,14 @@ public final class InventorySmoke {
         FMLCommonHandler.instance()
             .bus()
             .register(this);
+    }
+
+    @SubscribeEvent
+    public void inputEvent(cpw.mods.fml.common.eventhandler.Event event) {
+        String name = event.getClass()
+            .getName();
+        if (name.equals("com.cleanroommc.modularui.api.event.MouseInputEvent$Pre")) mousePre++;
+        if (name.equals("com.cleanroommc.modularui.api.event.MouseInputEvent$Post")) mousePost++;
     }
 
     @SubscribeEvent
@@ -192,6 +203,8 @@ public final class InventorySmoke {
                     verify(new GuiContainerCreative(mc.thePlayer), "creative-inventory-" + scale);
                 }
                 mc.playerController.setGameType(WorldSettings.GameType.SURVIVAL);
+                verifyEarlyClick();
+                verifyScreenReturns();
                 require(
                     InventoryAnimations
                         .motion(new GuiChest(mc.thePlayer.inventory, new InventoryBasic("test", false, 27))) == null,
@@ -213,7 +226,7 @@ public final class InventorySmoke {
                 require(Math.abs(matrixY() - before) < 0.001, "exception leaked matrix");
                 require(GL11.glGetError() == 0, "animation-only scope added GL error");
                 finish(
-                    "PASS: survival/creative at scales 1/2; translated buttons and pixels; stationary potion pixels; stable guiTop; hover suppression; resize; unrelated containers excluded; exception scope restored; NEI="
+                    "PASS: survival/creative at scales 1/2; real left/right pickup/place; ModularUI input events; consumed press/release; world/creative redirect and companion returns; translated buttons/pixels; stationary potion/NEI; natural expiry; resize; unrelated containers excluded; exception scope restored; NEI="
                         + Loader.isModLoaded("NotEnoughItems")
                         + "; disabled-control GL="
                         + baselineError);
@@ -234,6 +247,57 @@ public final class InventorySmoke {
             ScaledResolution resolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
             mc.currentScreen = screen;
             screen.setWorldAndResolution(mc, resolution.getScaledWidth(), resolution.getScaledHeight());
+        }
+
+        private void verifyScreenReturns() throws Exception {
+            mc.currentScreen = null;
+            mc.displayGuiScreen(new GuiInventory(mc.thePlayer));
+            require(InventoryAnimations.entering(mc.currentScreen), "world opening did not animate");
+            mc.displayGuiScreen(new GuiScreen());
+            int before = mousePre;
+            click(mc.currentScreen, 4, 4, 0);
+            if (Loader.isModLoaded("modularui2")) require(mousePre > before, "unrelated GUI lost input events");
+            mc.displayGuiScreen(new GuiInventory(mc.thePlayer));
+            require(!InventoryAnimations.entering(mc.currentScreen), "return from another GUI replayed animation");
+            mc.currentScreen = null;
+            mc.playerController.setGameType(WorldSettings.GameType.CREATIVE);
+            mc.displayGuiScreen(new GuiInventory(mc.thePlayer));
+            require(
+                mc.currentScreen instanceof GuiContainerCreative && InventoryAnimations.entering(mc.currentScreen),
+                "initial creative redirect lost animation");
+            mc.displayGuiScreen(new GuiScreen());
+            mc.displayGuiScreen(new GuiInventory(mc.thePlayer));
+            require(!InventoryAnimations.entering(mc.currentScreen), "creative return replayed animation");
+            mc.playerController.setGameType(WorldSettings.GameType.SURVIVAL);
+            if (Loader.isModLoaded("Baubles")) {
+                GuiScreen baubles = (GuiScreen) Class.forName("baubles.client.gui.GuiPlayerExpanded")
+                    .getConstructor(net.minecraft.entity.player.EntityPlayer.class)
+                    .newInstance(mc.thePlayer);
+                verifyReturn(baubles, "Baubles");
+            }
+            if (Loader.isModLoaded("cosmeticarmorreworked")) {
+                Object manager = Class.forName("lain.mods.cos.CosmeticArmorReworked")
+                    .getField("invMan")
+                    .get(null);
+                Object armor = manager.getClass()
+                    .getMethod("getCosArmorInventoryClient", java.util.UUID.class)
+                    .invoke(manager, mc.thePlayer.getUniqueID());
+                Object container = Class.forName("lain.mods.cos.inventory.ContainerCosArmor")
+                    .getConstructors()[0].newInstance(mc.thePlayer.inventory, armor, mc.thePlayer);
+                GuiScreen cosmetic = (GuiScreen) Class.forName("lain.mods.cos.client.GuiCosArmorInventory")
+                    .getConstructor(net.minecraft.inventory.Container.class)
+                    .newInstance(container);
+                verifyReturn(cosmetic, "CosmeticArmor");
+            }
+            System.out.println("INVENTORY_LIFECYCLE world/return/creative redirect PASS");
+        }
+
+        private void verifyReturn(GuiScreen companion, String name) {
+            mc.displayGuiScreen(companion);
+            require(InventoryAnimations.motion(companion) == null, name + " was animated");
+            mc.displayGuiScreen(new GuiInventory(mc.thePlayer));
+            require(!InventoryAnimations.entering(mc.currentScreen), name + " return replayed animation");
+            System.out.println("INVENTORY_RETURN " + name + " PASS");
         }
 
         @SuppressWarnings("unchecked")
@@ -280,11 +344,13 @@ public final class InventorySmoke {
             region.setAccessible(true);
             require(!(Boolean) region.invoke(gui, 0, 0, 16, 16, left + 8, top + 8), "stale hover active");
             BufferedImage moving = capture(name + "-moving.png");
-            motion.finish();
+            Thread.sleep(InventoryAnimationConfig.durationMs + 30L);
             render(gui);
+            require(!motion.isEntering(), "animation did not expire naturally");
             require(Math.abs(buttonY - baseY) < 0.01, "button not settled");
             require((Boolean) region.invoke(gui, 0, 0, 16, 16, left + 8, top + 8), "hover not restored");
             BufferedImage settled = capture(name + "-settled.png");
+            if (name.startsWith("survival") || name.startsWith("creative-inventory")) verifyClicks(gui);
             int scale = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight).getScaleFactor();
             // A background pixel moves exactly 32 GUI pixels. The potion icon stays put.
             int sx = (left + 4) * scale, sy = (top + 4) * scale;
@@ -307,6 +373,97 @@ public final class InventorySmoke {
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
             mc.currentScreen = gui;
             gui.drawScreen(-1000, -1000, 0);
+        }
+
+        private void verifyClicks(GuiContainer gui) throws Exception {
+            int pre = mousePre, post = mousePost;
+            mc.thePlayer.openContainer = gui.inventorySlots;
+            mc.thePlayer.inventory.setItemStack(null);
+            mc.thePlayer.inventory.setInventorySlotContents(9, new ItemStack(Items.diamond, 32));
+            net.minecraft.inventory.Slot slot = gui.inventorySlots.getSlot(9);
+            int x = coordinate(gui, "guiLeft") + slot.xDisplayPosition + 8;
+            int y = coordinate(gui, "guiTop") + slot.yDisplayPosition + 8;
+            click(gui, x, y, 0);
+            require(mc.thePlayer.inventory.getItemStack() != null, "left click did not pick up stack");
+            require(mc.thePlayer.inventory.getItemStack().stackSize == 32, "left click picked wrong count");
+            click(gui, x, y, 1);
+            require(slot.getHasStack() && slot.getStack().stackSize == 1, "right click did not place one");
+            require(mc.thePlayer.inventory.getItemStack().stackSize == 31, "right click cursor count wrong");
+            click(gui, x, y, 0);
+            require(
+                mc.thePlayer.inventory.getItemStack() == null && slot.getStack().stackSize == 32,
+                "left click did not return stack");
+            click(gui, x, y, 1);
+            require(
+                mc.thePlayer.inventory.getItemStack().stackSize == 16 && slot.getStack().stackSize == 16,
+                "right click did not split stack");
+            click(gui, x, y, 0);
+            require(
+                mc.thePlayer.inventory.getItemStack() == null && slot.getStack().stackSize == 32,
+                "split stack did not merge back");
+            if (Loader.isModLoaded("modularui2")) {
+                require(mousePre > pre && mousePost > post, "ModularUI input events were bypassed");
+            }
+            System.out.println("INVENTORY_INPUT left/right pickup/place PASS");
+        }
+
+        private void verifyEarlyClick() throws Exception {
+            for (int button : new int[] { 0, 1 }) {
+                GuiInventory gui = new GuiInventory(mc.thePlayer);
+                initialize(gui);
+                render(gui);
+                InventoryMotion motion = InventoryAnimations.motion(gui);
+                require(motion.isEntering(), "early-click test did not start animation");
+                net.minecraft.inventory.Slot slot = gui.inventorySlots.getSlot(9);
+                click(
+                    gui,
+                    coordinate(gui, "guiLeft") + slot.xDisplayPosition + 8,
+                    coordinate(gui, "guiTop") + slot.yDisplayPosition + 8,
+                    button);
+                require(!motion.isEntering() && !motion.blocksHeldMouse(), "consumed click left input latched");
+                require(mc.thePlayer.inventory.getItemStack() == null, "early click moved items");
+                verifyClicks(gui);
+                gui.onGuiClosed();
+            }
+            System.out.println("INVENTORY_INPUT early press/release and subsequent click PASS");
+        }
+
+        private void click(GuiScreen gui, int x, int y, int button) throws Exception {
+            // Feed the real LWJGL event queue, including GuiScreen.handleInput virtual dispatch.
+            int nativeX = x * mc.displayWidth / gui.width;
+            int nativeY = (gui.height - y - 1) * mc.displayHeight / gui.height;
+            if (Loader.isModLoaded("lwjgl3ify")) {
+                Class<?> mouse = Class.forName("org.lwjglx.input.Mouse");
+                for (String axis : new String[] { "latestX", "latestY" }) {
+                    Field coordinate = mouse.getDeclaredField(axis);
+                    coordinate.setAccessible(true);
+                    coordinate.setInt(null, axis.endsWith("X") ? nativeX : nativeY);
+                }
+                Method add = mouse.getMethod("addButtonEvent", int.class, boolean.class);
+                add.invoke(null, button, true);
+                add.invoke(null, button, false);
+                gui.handleInput();
+                return;
+            }
+            Field field = org.lwjgl.input.Mouse.class.getDeclaredField("readBuffer");
+            field.setAccessible(true);
+            ByteBuffer original = (ByteBuffer) field.get(null);
+            ByteBuffer events = BufferUtils.createByteBuffer(44);
+            for (int down : new int[] { 1, 0 }) {
+                events.put((byte) button)
+                    .put((byte) down)
+                    .putInt(nativeX)
+                    .putInt(nativeY)
+                    .putInt(0)
+                    .putLong(System.nanoTime());
+            }
+            events.flip();
+            try {
+                field.set(null, events);
+                gui.handleInput();
+            } finally {
+                field.set(null, original);
+            }
         }
 
         private BufferedImage capture(String name) throws Exception {

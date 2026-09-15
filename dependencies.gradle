@@ -33,7 +33,7 @@
  *
  * For more details, see https://docs.gradle.org/8.0.1/userguide/java_library_plugin.html#sec:java_library_configurations_graph
  */
-if (project.hasProperty('startupCompatSmoke')) {
+if (project.hasProperty('startupCompatSmoke') || project.hasProperty('inventoryCompatMods')) {
     configurations.configureEach {
         exclude group: 'com.github.GTNewHorizons', module: 'GTNHLib'
     }
@@ -47,6 +47,16 @@ dependencies {
         runtimeOnlyNonPublishable("com.github.GTNewHorizons:ModularUI2:2.3.85-1.7.10:dev") { transitive = false }
     }
     compileOnly("com.github.GTNewHorizons:NotEnoughItems:2.7.69-GTNH:dev") { transitive = false }
+    if (project.hasProperty('inventoryCompatMods')) {
+        def packMods = project.property('inventoryCompatMods')
+        runtimeOnlyNonPublishable(project.files("${project.property('inventoryCompatLibraries')}/it/unimi/dsi/fastutil/8.5.18/fastutil-8.5.18.jar"))
+        ['gtnhlib-0.11.46.jar', 'CodeChickenCore-1.4.19.jar', 'NotEnoughItems-2.8.130-GTNH.jar',
+         'MouseTweaks-2.5.2-GTNH.jar', 'BaublesExpanded-2.2.22-GTNH.jar',
+         'cosmeticarmorreworked-1.0.6-GTNH.jar', 'modularui2-2.3.88-1.7.10.jar',
+         'bogosorter-1.3.50-GTNH.jar'].each { name ->
+            devOnlyNonPublishable(rfg.deobf(project.files("${packMods}/${name}")))
+        }
+    }
     compileOnly("com.github.GTNewHorizons:GT5-Unofficial:5.09.54.79:dev") { transitive = false }
     compileOnly("com.github.GTNewHorizons:Applied-Energistics-2-Unofficial:rv3-beta-1029-GTNH:dev") { transitive = false }
     compileOnly("net.industrial-craft:industrialcraft-2:2.2.828-experimental:dev") { transitive = false }

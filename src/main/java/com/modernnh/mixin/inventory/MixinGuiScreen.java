@@ -11,6 +11,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.modernnh.inventory.InventoryAnimations;
 import com.modernnh.inventory.InventoryMotion;
 
@@ -37,21 +39,21 @@ public abstract class MixinGuiScreen {
         InventoryAnimations.draw((GuiScreen) (Object) this, () -> label.func_146159_a(mc, x, y));
     }
 
-    // Intercept BEFORE virtual dispatch: covers creative overrides and NEI's injected handlers.
-    @Redirect(
+    // Preserve other mods' dispatchers (notably ModularUI's Pre/Post input events).
+    @WrapOperation(
         method = "handleInput",
         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiScreen;handleMouseInput()V"))
-    private void modernnh$mouse(GuiScreen screen) {
+    private void modernnh$mouse(GuiScreen screen, Operation<Void> original) {
         InventoryMotion motion = InventoryAnimations.motion(screen);
         if (motion == null
             || !motion.mouse(Mouse.getEventButton(), Mouse.getEventButtonState(), Mouse.getEventDWheel()))
-            screen.handleMouseInput();
+            original.call(screen);
     }
 
-    @Redirect(
+    @WrapOperation(
         method = "handleInput",
         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiScreen;handleKeyboardInput()V"))
-    private void modernnh$key(GuiScreen screen) {
+    private void modernnh$key(GuiScreen screen, Operation<Void> original) {
         InventoryMotion motion = InventoryAnimations.motion(screen);
         int key = Keyboard.getEventKey();
         boolean close = key == Keyboard.KEY_ESCAPE
@@ -63,6 +65,6 @@ public abstract class MixinGuiScreen {
             || key == Keyboard.KEY_RMENU;
         if (motion != null
             && motion.key(Keyboard.getEventKeyState(), key, Keyboard.getEventCharacter(), close || modifier)) return;
-        screen.handleKeyboardInput();
+        original.call(screen);
     }
 }

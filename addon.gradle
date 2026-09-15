@@ -21,3 +21,7 @@ if (project.hasProperty('inventorySmoke')) {
 if (project.hasProperty('uiSmoke')) {
     sourceSets.main.java.srcDir('src/uiSmokeTest/java')
 }
+
+if (project.hasProperty('vajraSmoke')) {
+    sourceSets.main.java.srcDir('src/vajraSmokeTest/java')
+}

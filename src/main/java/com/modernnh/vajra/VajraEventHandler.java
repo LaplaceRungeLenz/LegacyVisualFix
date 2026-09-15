@@ -256,14 +256,13 @@ public final class VajraEventHandler {
     }
 
     public static boolean isWrenchTarget(TileEntity tile, Block block, World world, int x, int y, int z) {
-        if (tile instanceof IGregTechTileEntity || tile instanceof IOrientable || tile instanceof IWrenchable) {
-            return true;
+        if (block == null || block.isAir(world, x, y, z)) return false;
+        if (tile instanceof IGregTechTileEntity) {
+            return ((IGregTechTileEntity) tile).getMetaTileEntity() != null;
         }
-        if (block == null) {
-            return false;
-        }
-        ForgeDirection[] rotations = block.getValidRotations(world, x, y, z);
-        return rotations != null && rotations.length > 0;
+        if (tile instanceof IOrientable) return ((IOrientable) tile).canBeRotated();
+        if (tile instanceof IWrenchable) return true;
+        return VajraBlockTarget.canRotate(block, world, x, y, z);
     }
 
     public static boolean isVajra(ItemStack stack) {

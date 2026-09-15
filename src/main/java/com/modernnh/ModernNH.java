@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.modernnh.fov.FovConfig;
 import com.modernnh.inventory.InventoryAnimationConfig;
+import com.modernnh.inventory.InventoryScreenEvents;
 import com.modernnh.ui.UiEffects;
 import com.modernnh.ui.UiEffectsConfig;
 import com.modernnh.vajra.VajraConfig;
@@ -44,7 +45,10 @@ public final class ModernNH {
             }
         }
         if (event.getSide()
-            .isClient()) InventoryAnimationConfig.load(event.getModConfigurationDirectory());
+            .isClient()) {
+            InventoryAnimationConfig.load(event.getModConfigurationDirectory());
+            InventoryScreenEvents.register();
+        }
         if (event.getSide()
             .isClient()) FovConfig.load(event.getModConfigurationDirectory());
         if (event.getSide()
