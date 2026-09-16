@@ -1,7 +1,5 @@
 # LegacyVisualFix
 
-作者：**LaplaceRungeLenz** · 当前版本：**0.1.0**
-
 面向 **Minecraft 1.7.10 / GT New Horizons** 的视觉与交互改进模组，各项功能可独立配置。
 
 ## 功能
@@ -17,9 +15,7 @@
 
 需要 **Forge 10.13.4.1614** 与 **UniMixins 0.2.1+**；GTNH 请使用整合包配套的 Mixin 环境。
 
-将 LegacyVisualFix JAR 放入 `mods/`，替换旧文件，不要同时保留多个版本。视觉功能只需客户端安装；金刚杵九宫格需要客户端与服务端均安装。Waila、Chromatic Tooltips 和 Angelica 为可选集成。
-
-本次更名从 **0.1.0** 重新计版。升级时移除旧名称的模组 JAR；配置目录与资源包命名空间已改为 `legacyvisualfix`，旧配置需手动迁移并更新其中的资源路径。使用金刚杵九宫格时，客户端与服务端需同时更新。
+视觉功能只需客户端安装；金刚杵九宫格需要客户端与服务端均安装。Waila、Chromatic Tooltips 和 Angelica 为可选集成。
 
 ## 配置
 
