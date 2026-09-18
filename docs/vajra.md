@@ -61,3 +61,17 @@ Forge 1.7.10 的 `getValidRotations()` 默认返回六个方向，包括空气�
 - 此回归测试验证目标判定；不等同于完整 GTNH 2.9.0 beta3 世界内全部机器的手动验收。
 - Java 8 / Forge 10.13.4.1614 及 Java 25 / Angelica 2.1.25 的同一目标判定回归测试均 PASS。
 - 正常 `clean build` 成功，26 项单元测试全通过；JAR 已确认包含修复类、Java 8 字节码且不含 Smoke 类。
+
+## LegacyVisualFix 0.1.2 ME 接口输出方向修复
+
+AE2 的 `TileInterface.setOrientation(Forward, Up)` 将输出方向设为 `Up.getOpposite()`。
+此前金刚杵对所有 AE 方块共用 `Forward` 朝向算法，导致 ME 接口输出受旧 `Up` 影响，
+与九宫格选择的目标面不一致。
+
+- 方块形式的 ME 接口单独按目标输出面设置 `Up` 的反方向，并使用 AE2 原生的垂直 `Forward` 约定。
+- 普通右键和潜行右键均直接选择接口输出面；重复选择同一面不会循环到其他方向。
+- 调用原生 `setOrientation`，保留接口连接面更新及邻居、客户端同步；其他 AE 方块与 GT 操作逻辑不变。
+- 对照 AE2 rv3-beta-1029-GTNH 源码及编译依赖字节码确认方向约定。
+- 自动测试使用真实 `IOrientable` API 的记录对象，覆盖六个目标方向、七种初始输出状态、
+  潜行与非潜行及重复点击；另验证通用 AE 朝向/潜行旋转与不可旋转目标。
+- 已先用旧算法复现回归测试失败，再验证修复后通过；尚未进行完整 GTNH 世界内手动交互验收。

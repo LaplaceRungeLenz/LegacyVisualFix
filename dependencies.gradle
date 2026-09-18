@@ -70,6 +70,7 @@ dependencies {
         }
     }
     testImplementation("junit:junit:4.13.2")
+    testImplementation("com.github.GTNewHorizons:Applied-Energistics-2-Unofficial:rv3-beta-1029-GTNH:dev") { transitive = false }
     compileOnly("com.github.GTNewHorizons:waila:1.19.34:dev") { transitive = false }
     compileOnly("upstream.chromatic:chromatictooltips:1.0.35-GTNH:dev") { transitive = false }
     compileOnly("upstream.chromatic:chromatictooltipscompat:1.0.36-GTNH:dev") { transitive = false }
