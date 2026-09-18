@@ -6,7 +6,7 @@
 
 ![NEI 容器中的物品与拖尾](screenshots/ui/nei-trail.png)
 
-按 Immersive UI 的公开行为独立实现，没有复制其代码、粒子贴图或引入 OctoLib/ShatterLib。拖尾使用程序绘制的小菱形。此模块无需服务端安装，不增加数据包、不改槽位坐标、物品数据或点击逻辑。LegacyVisualFix 其他功能的安装要求见 README。
+按 Immersive UI 的公开行为独立实现，没有复制其代码、粒子贴图或引入 OctoLib/ShatterLib。拖尾使用程序绘制的闪烁四角星、亮芯和淡光晕。此模块无需服务端安装，不增加数据包、不改槽位坐标、物品数据或点击逻辑。LegacyVisualFix 其他功能的安装要求见 README。
 
 ## 配置
 
@@ -69,3 +69,17 @@ GUI 粒子处于屏幕坐标，在已接入的原版/MUI/NEI 工具提示前绘�
 交付 JAR 不带 `uiSmoke` / `uiMuiSmoke` 等测试参数构建，不包含测试类或任何可选模组的代码。最终测试版本和实测结果记录于 `docs/testing.md`。
 
 0.1.1：普通稀有度物品默认发射银白色 `#D8DEE9` 粒子，沿用 `trails` 开关、数量上限和发射速率；其他稀有度仍使用 `rarityColor`。已核查的彩色物品见 [清单](trail-items.md)。
+
+## 0.1.2 星光拖尾
+
+调查对象为 Immersive UI 的 1.21 分支提交 `a1582794590b512aedc60ecaf52c62dda8091f3c`：
+
+- [RarityUIParticle](https://github.com/Octo-Studios/immersive-ui/blob/a1582794590b512aedc60ecaf52c62dda8091f3c/common/src/main/java/it/hurts/octostudios/immersiveui/client/particle/RarityUIParticle.java) 使用四角星 sprite，随寿命缩小并淡出。
+- [CommonCode](https://github.com/Octo-Studios/immersive-ui/blob/a1582794590b512aedc60ecaf52c62dda8091f3c/common/src/main/java/it/hurts/octostudios/immersiveui/util/CommonCode.java) 根据鼠标位移发射带随机旋转的反向运动粒子；该分支还读取物品显示名的颜色。
+- [官方项目页](https://modrinth.com/mod/immersive-ui) 展示光效并标注 ARR。此处独立实现视觉行为，不复制源码或 spark.png，也不引入 OctoLib。
+
+本模组将原菱形替换为四角星，增加柔和光晕、亮芯及错相明暗闪烁；反向散开、旋转、缩小后消失。闪烁曲线与光晕是本实现的视觉增强，不声称上游使用同一算法。图形由三角形渐变绘制，无外部粒子贴图。
+
+继续保留普通银白/稀有度颜色规则；不会改为按 GT 电压文字取色。现有 trails、particleRate、maxParticles 配置继续生效。渲染仍位于工具提示下方，退出界面清理；深度、混合与平滑着色状态在绘制后恢复。
+
+![游戏内星光拖尾](screenshots/ui/sparkle-trail.png)

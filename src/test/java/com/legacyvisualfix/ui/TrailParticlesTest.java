@@ -8,6 +8,38 @@ import org.junit.Test;
 
 public class TrailParticlesTest {
 
+    @Test
+    public void starsTwinkleWithinBoundsAndShrinkToNothing() {
+        TrailParticles.Particle p = new TrailParticles.Particle();
+        p.lifetime = .7;
+        p.size = 4;
+        assertEquals(0, p.opacity(), 0);
+        double previous = 0;
+        boolean brightenedAfterFadeIn = false;
+        for (int i = 1; i <= 70; i++) {
+            p.age = i * .01;
+            double opacity = p.opacity();
+            assertTrue(opacity >= 0 && opacity <= 1);
+            if (i > 15 && opacity > previous + .005) brightenedAfterFadeIn = true;
+            previous = opacity;
+        }
+        assertTrue("brightness should twinkle, not only fade", brightenedAfterFadeIn);
+        assertEquals(0, p.opacity(), 1e-9);
+        assertEquals(0, p.radius(), 1e-9);
+    }
+
+    @Test
+    public void starsDriftBackwardsAndRotateAfterEmission() {
+        TrailParticles trail = new TrailParticles();
+        trail.emit(0, 0, 60, 0, 0xffffff, .05, 20, 60);
+        TrailParticles.Particle p = trail.particles()
+            .get(0);
+        double x = p.x, rotation = p.rotation;
+        trail.update(.1);
+        assertTrue("stars should drift behind the cursor", p.x < x);
+        assertTrue("stars should rotate", Math.abs(p.rotation - rotation) > .001);
+    }
+
     private TrailParticles line(int frames) {
         TrailParticles trail = new TrailParticles();
         for (int i = 0; i < frames; i++)
