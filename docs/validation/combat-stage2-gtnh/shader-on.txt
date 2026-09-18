@@ -1,5 +1,0 @@
-white PASS pixel=201,201,201 ageMs=109
-gold PASS pixel=207,171,86 ageMs=101
-special PASS pixel=201,201,201 ageMs=109
-thaumcraft PASS pixel=202,202,202 ageMs=110
-twilight PASS pixel=207,207,207 ageMs=101

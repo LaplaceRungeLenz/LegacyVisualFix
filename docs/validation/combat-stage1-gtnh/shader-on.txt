@@ -1,2 +1,0 @@
-white PASS pixel=222,222,222 ageMs=115
-gold PASS pixel=208,172,86 ageMs=104

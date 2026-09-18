@@ -1,1 +1,0 @@
-PASS: survival/creative at scales 1/2; translated buttons and pixels; stationary potion pixels; stable guiTop; hover suppression; resize; unrelated containers excluded; exception scope restored; NEI=true; disabled-control GL=1280

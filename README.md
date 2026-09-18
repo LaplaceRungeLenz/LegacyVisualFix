@@ -34,7 +34,7 @@
 
 `ui.cfg` 还可调整：`hoverScale` / `carriedScale` 放大倍数（默认 1.2）、`rotationDegrees` 倾角、`floatAmplitude` 浮动幅度、`responseSpeed` 响应速度、`maxParticles` / `particleRate` 粒子上限与速率，以及 `excludedScreens` 排除界面的完整类名。
 
-`combat.cfg` 新增 `feedbackPreset=custom/light/standard/strong`；默认 custom 保留已有单项参数。`particleMinLight=6` 改善暗处粒子辨识，设为 0 恢复环境光照；`particleScale` 调整自定义粒子大小。粒子、模型和回弹分别可用 `particleExcludedEntities`、`reactionExcludedEntities`、`recoilExcludedItems` 排除特定对象。完整预设数值与验证边界见[近战反馈文档](docs/combat-feedback.md)。
+`combat.cfg` 新增 `feedbackPreset=custom/light/standard/strong`；默认 custom 保留已有单项参数。`particleMinLight=6` 改善暗处粒子辨识，设为 0 恢复环境光照；`particleScale` 调整自定义粒子大小。粒子、模型和回弹分别可用 `particleExcludedEntities`、`reactionExcludedEntities`、`recoilExcludedItems` 排除特定对象。
 
 悬停时仅放大，拿起物品后移动鼠标才会晃动。同类匹配比较物品、metadata 和 NBT，忽略数量；NEI 目录、配方图标、幽灵槽和流体槽不添加这些物品效果。
 
