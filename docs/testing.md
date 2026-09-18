@@ -158,3 +158,6 @@ Java 25 / Angelica 组合中，重复绘制原版容器和 MUI2 GUI 的等价禁
 
 PR #6 合入 main 的 0.6.3 修复后再次验证：spotlessApply build 通过，37 项 JUnit 测试通过；NEI 2.8.130 + MUI 1.3.4 / MUI2 2.3.85 的实际 GUI 冒烟测试全部 PASS，测试场景 GL 错误为 0。首次 clean 因 Windows 文件占用失败，停止 Gradle 守护进程后重新构建通过。
 - 0.7.1 最终 spotlessApply clean build、37 项 JUnit 测试及实际发布包校验全部通过。CI 在构建后执行相同产物检查。
+
+## 2026-09-18 普通物品银白色拖尾（LegacyVisualFix 0.1.1）
+普通物品改为发射 #D8DEE9 银白粒子，其他稀有度颜色不变，沿用已有 trails 开关、发射速率和数量上限。新增实际客户端断言先在旧代码下以 common item silver trail missing 失败，修复后 Java 25 + Angelica/beta3 相关依赖测试通过；逐粒子验证普通钻石为 #D8DEE9、稀有测试物品为 #55FFFF。完整 spotlessApply clean build 和发布包完整性校验通过。物品清单来自本地 JAR 的稀有度方法核查，非完整整合包注册表穷尽枚举。

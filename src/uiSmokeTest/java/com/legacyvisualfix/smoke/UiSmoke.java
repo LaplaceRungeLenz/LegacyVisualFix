@@ -167,6 +167,20 @@ public final class UiSmoke {
                 require(
                     !UiEffects.isMatching(new ItemStack(Items.dye, 1, 1), new ItemStack(Items.dye, 1, 2)),
                     "metadata matched");
+                UiEffects.clear();
+                mc.thePlayer.inventory.setItemStack(new ItemStack(Items.diamond, 1));
+                for (int i = 0; i < 12; i++) {
+                    Thread.sleep(16);
+                    panel.drawScreen(panel.left() + 35 + i * 5, panel.top() + 75, 0);
+                }
+                require(UiEffects.particleCount() > 0, "common item silver trail missing");
+                java.lang.reflect.Field trailField = UiEffects.class.getDeclaredField("TRAIL");
+                trailField.setAccessible(true);
+                com.legacyvisualfix.ui.TrailParticles trail = (com.legacyvisualfix.ui.TrailParticles) trailField
+                    .get(null);
+                for (com.legacyvisualfix.ui.TrailParticles.Particle particle : trail.particles())
+                    require(particle.rgb == 0xd8dee9, "common trail must be silver-white");
+                UiEffects.clear();
                 ItemStack rare = new ItemStack(Items.nether_star, 2);
                 rare.addEnchantment(net.minecraft.enchantment.Enchantment.unbreaking, 1);
                 mc.thePlayer.inventory.setItemStack(rare);
@@ -180,6 +194,8 @@ public final class UiSmoke {
                     UiEffects.particleCount() > 0 && UiEffects.particleCount() <= UiEffectsConfig.maxParticles,
                     "trail emission missing/unbounded");
                 int oldParticles = UiEffects.particleCount();
+                for (com.legacyvisualfix.ui.TrailParticles.Particle particle : trail.particles())
+                    require(particle.rgb == 0x55ffff, "rare trail color changed");
                 Thread.sleep(16);
                 UiEffects.frame(panel, panel.left() + 110, panel.top() + 75);
                 int mode = GL11.glGetInteger(GL11.GL_MATRIX_MODE),
