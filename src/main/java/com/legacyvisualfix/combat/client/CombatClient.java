@@ -48,9 +48,11 @@ public final class CombatClient {
             connection = mc.getNetHandler();
             feedback.reset();
             particles.reset();
+            CombatReactions.reset();
             lastSoundMs = 0;
         }
         long now = System.nanoTime();
+        CombatReactions.tick(mc, now / 1_000_000);
         CombatInbox.Entry entry;
         for (int i = 0; i < 256 && (entry = CombatInbox.poll()) != null; i++) {
             if (!CombatConfig.enabled || mc.thePlayer == null
@@ -60,6 +62,7 @@ public final class CombatClient {
             long nowMs = now / 1_000_000;
             if (!feedback.accept(hit, nowMs)) continue;
             particles.spawn(mc, hit, nowMs);
+            CombatReactions.accept(mc, hit, nowMs);
             if (soundEnabled() && nowMs - lastSoundMs >= 50) {
                 // Rate-limit sound only, never attacks or confirmed results.
                 mc.thePlayer

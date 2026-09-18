@@ -6,6 +6,6 @@
   "refmap": "mixins.legacyvisualfix.refmap.json",
   "compatibilityLevel": "JAVA_8",
   "mixins": ["combat.MixinEntityLivingBase"],
-  "client": ["MixinMinecraft", "MixinReloadableResourceManager", "MixinTextureMap", "ui.MixinGuiItems", "ui.MixinHotbar", "inventory.MixinGuiContainer", "inventory.MixinGuiScreen", "inventory.MixinGuiContainerCreative", "fov.MixinEntityRenderer", "compat.MixinMyCtmStartup", "angelica.MixinIris", "angelica.MixinGlShader", "angelica.MixinPipelineManager"],
+  "client": ["combat.MixinRendererLivingEntity", "MixinMinecraft", "MixinReloadableResourceManager", "MixinTextureMap", "ui.MixinGuiItems", "ui.MixinHotbar", "inventory.MixinGuiContainer", "inventory.MixinGuiScreen", "inventory.MixinGuiContainerCreative", "fov.MixinEntityRenderer", "compat.MixinMyCtmStartup", "angelica.MixinIris", "angelica.MixinGlShader", "angelica.MixinPipelineManager"],
   "injectors": { "defaultRequire": 1 }
 }

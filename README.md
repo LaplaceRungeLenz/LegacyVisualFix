@@ -4,7 +4,7 @@
 
 ## 功能
 
-- **近战反馈（0.2.0-combat.2 预发布）**：实际扣血后显示白色准星标记和目标附近的短粒子，仅消耗吸收心时为金色。粒子有数量上限，默认避免与 EFR 伤害粒子叠加；保留原有连击、伤害和击退。见[第二阶段测试方法](docs/combat-stage2-testing.md)。
+- **近战反馈（0.2.0-combat.3 预发布，第三阶段待用户实测）**：实际扣血后显示白色准星标记和目标附近的短粒子，仅消耗吸收心时为金色；新增确认命中后的轻微定向模型倾斜。保留原有连击、伤害、碰撞箱和击退。见[第三阶段测试方法与兼容边界](docs/combat-stage3-testing.md)。
 
 - **资源重载界面**：显示语言、资源包及 Angelica 光影重载进度，可自定义背景、Logo、颜色和淡入淡出。
 - **Waila 动画**：提示框大小与位置平滑过渡，适配 Chromatic Tooltips + Compat。
@@ -31,7 +31,7 @@
 | `inventory.cfg` | `enabled` 开关；`durationMs` 飞入时长，默认 250 ms；`distance` 飞入距离，0 为自动 |
 | `ui.cfg` | `enabled` 总开关；`hotbar`、`hover`、`carried`、`matching`、`trails` 分别控制快捷栏、悬停、携带、同类浮动和拖尾 |
 | `vajra.cfg` | `enabled` 金刚杵九宫格开关 |
-| `combat.cfg` | `enabled` 总开关；`marker` 命中标记；`durationMs` 时长；`debug` 显示 HP/ABS；`soundMode=auto/always/off`、`soundVolume` 控制可选提示音；`particleMode=auto/always/off`、`particlesPerHit` 控制局部粒子 |
+| `combat.cfg` | `enabled` 总开关；`marker` 命中标记；`durationMs` 时长；`debug` 显示 HP/ABS；`soundMode=auto/always/off`、`soundVolume` 控制可选提示音；`particleMode=auto/always/off`、`particlesPerHit` 控制局部粒子；`modelReaction`、`reactionDegrees`、`reactionDurationMs`、`reactionExcludedEntities` 控制模型反应 |
 
 `ui.cfg` 还可调整：`hoverScale` / `carriedScale` 放大倍数（默认 1.2）、`rotationDegrees` 倾角、`floatAmplitude` 浮动幅度、`responseSpeed` 响应速度、`maxParticles` / `particleRate` 粒子上限与速率，以及 `excludedScreens` 排除界面的完整类名。
 

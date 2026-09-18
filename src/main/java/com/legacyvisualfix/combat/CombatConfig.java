@@ -14,6 +14,10 @@ public final class CombatConfig {
     public static float soundVolume = 0.2F;
     public static String particleMode = "auto";
     public static int particlesPerHit = 6;
+    public static boolean modelReaction = true;
+    public static float reactionDegrees = 3F;
+    public static int reactionDurationMs = 140;
+    public static String[] reactionExcludedEntities = new String[0];
 
     private CombatConfig() {}
 
@@ -63,6 +67,30 @@ public final class CombatConfig {
             1,
             8,
             "Maximum particles per confirmed melee result. Global burst budget applies; never affects damage.");
+        modelReaction = config.getBoolean(
+            "modelReaction",
+            "client",
+            true,
+            "Small server-confirmed visual tilt. Never changes hitboxes, motion, AI or attack timing.");
+        reactionDegrees = config.getFloat(
+            "reactionDegrees",
+            "client",
+            3F,
+            0F,
+            4F,
+            "Maximum visual tilt in degrees; repeated hits do not stack beyond this angle.");
+        reactionDurationMs = config.getInt(
+            "reactionDurationMs",
+            "client",
+            140,
+            80,
+            300,
+            "Visual reaction duration in milliseconds. Independent of hurtTime and invulnerability.");
+        reactionExcludedEntities = config.getStringList(
+            "reactionExcludedEntities",
+            "client",
+            new String[0],
+            "Skip model reaction for exact entity registry IDs or full Java class names. Players, bosses, mounts and oversized entities are always skipped.");
         if (config.hasChanged()) config.save();
     }
 }
