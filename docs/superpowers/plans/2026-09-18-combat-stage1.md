@@ -45,5 +45,7 @@ Files: src/combatSmokeTest/java/.../CombatSmoke.java, addon.gradle, scripts/veri
 - [x] Validate Java 8 and Java 25 + Angelica integrated-server/client launches. Dedicated launch stopped at the launcher EULA prompt; no agreement accepted on the user's behalf. Document this unverified scope.
 - [x] Run unit suite, formatting/build, release-jar verification (no smoke classes, Java 8, mapped mixin entry, matching version).
 - [x] Independent review; fix actionable findings and rerun affected checks.
-- [ ] Commit source and testing documentation, push branch, create a stage prerelease with jar/checksum if GitHub permits, link both local and remote artifacts.
-- [ ] Stop. Stage 2 requires the user's feedback.
+- [x] Commit source and testing documentation, push branch, create a stage prerelease with jar/checksum if GitHub permits, link both local and remote artifacts.
+- [x] Stop. Stage 2 requires the user's feedback.
+
+Release delivered: v0.2.0-combat.1, source commit 76193284aedf1c3afc0a1520d47995033566aa28. GitHub asset SHA-256 matches the verified local build. Stage 2 remains pending user feedback.
