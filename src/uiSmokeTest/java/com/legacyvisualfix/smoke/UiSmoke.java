@@ -200,6 +200,8 @@ public final class UiSmoke {
                 UiEffects.frame(panel, panel.left() + 110, panel.top() + 75);
                 int mode = GL11.glGetInteger(GL11.GL_MATRIX_MODE),
                     stackDepth = GL11.glGetInteger(GL11.GL_MODELVIEW_STACK_DEPTH);
+                int shade = GL11.glGetInteger(GL11.GL_SHADE_MODEL), blendSource = GL11.glGetInteger(GL11.GL_BLEND_SRC),
+                    blendDestination = GL11.glGetInteger(GL11.GL_BLEND_DST);
                 boolean blend = GL11.glIsEnabled(GL11.GL_BLEND), depth = GL11.glIsEnabled(GL11.GL_DEPTH_TEST),
                     texture = GL11.glIsEnabled(GL11.GL_TEXTURE_2D);
                 FloatBuffer color = BufferUtils.createFloatBuffer(16);
@@ -217,6 +219,11 @@ public final class UiSmoke {
                         && texture == GL11.glIsEnabled(GL11.GL_TEXTURE_2D),
                     "particle enable state leak");
                 for (int i = 0; i < 4; i++) require(color.get(i) == after.get(i), "particle color leak");
+                require(
+                    shade == GL11.glGetInteger(GL11.GL_SHADE_MODEL)
+                        && blendSource == GL11.glGetInteger(GL11.GL_BLEND_SRC)
+                        && blendDestination == GL11.glGetInteger(GL11.GL_BLEND_DST),
+                    "sparkle blend/shade state leak");
                 glCheck("particle state restoration");
                 float tilted = probe.angle;
                 for (int i = 0; i < 55; i++) {
@@ -407,12 +414,19 @@ public final class UiSmoke {
         mc.thePlayer.inventory.setItemStack(star.copy());
         mc.entityRenderer.setupOverlayRendering();
         int cy = res.getScaledHeight() / 2;
-        for (int i = 0; i < 24; i++) {
+        for (int i = 0; i < 44; i++) {
             Thread.sleep(16);
             GL11.glClearColor(.08f, .11f, .16f, 1);
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-            chest.drawScreen(res.getScaledWidth() / 2 - 60 + i * 4, cy - 20 + (int) (Math.sin(i * .22) * 16), 0);
+            int path = Math.min(i, 23);
+            chest.drawScreen(res.getScaledWidth() / 2 - 60 + path * 4, cy - 20 + (int) (Math.sin(path * .22) * 16), 0);
+            if (i % 2 == 0) captureFrame(mc, new File(directory, String.format("sparkle-%02d.png", i / 2)));
+            if (i == 23) captureFrame(mc, new File(directory, "five-effects.png"));
         }
+        mc.thePlayer.inventory.setItemStack(null);
+    }
+
+    private static void captureFrame(Minecraft mc, File file) throws Exception {
         ByteBuffer pixels = BufferUtils.createByteBuffer(mc.displayWidth * mc.displayHeight * 4);
         GL11.glReadPixels(0, 0, mc.displayWidth, mc.displayHeight, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
         BufferedImage image = new BufferedImage(mc.displayWidth, mc.displayHeight, BufferedImage.TYPE_INT_RGB);
@@ -421,8 +435,7 @@ public final class UiSmoke {
             image
                 .setRGB(x, y, (pixels.get(n) & 255) << 16 | (pixels.get(n + 1) & 255) << 8 | (pixels.get(n + 2) & 255));
         }
-        ImageIO.write(image, "png", new File(directory, "five-effects.png"));
-        mc.thePlayer.inventory.setItemStack(null);
+        ImageIO.write(image, "png", file);
     }
 
     private static void require(boolean v, String s) {

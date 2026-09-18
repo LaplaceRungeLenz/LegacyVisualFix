@@ -12,7 +12,19 @@ public final class TrailParticles {
     public static final class Particle {
 
         public double x, y, age, lifetime, size, rotation;
+        private double velocityX, velocityY, spin, phase;
         public int rgb;
+
+        public double opacity() {
+            double progress = Math.max(0, Math.min(1, age / lifetime));
+            double appear = Math.min(1, age / .045);
+            double twinkle = Math.sin(phase + age * 13);
+            return appear * appear * (3 - 2 * appear) * Math.pow(1 - progress, .8) * (.45 + .55 * twinkle * twinkle);
+        }
+
+        public double radius() {
+            return size * Math.max(0, 1 - age / lifetime);
+        }
     }
 
     private final List<Particle> active = new ArrayList<Particle>();
@@ -26,7 +38,17 @@ public final class TrailParticles {
         for (Iterator<Particle> it = active.iterator(); it.hasNext();) {
             Particle particle = it.next();
             particle.age += dt;
-            if (particle.age >= particle.lifetime) it.remove();
+            if (particle.age >= particle.lifetime) {
+                it.remove();
+            } else {
+                double damping = Math.exp(-3.5 * dt);
+                double travel = (1 - damping) / 3.5;
+                particle.x += particle.velocityX * travel;
+                particle.y += particle.velocityY * travel;
+                particle.velocityX *= damping;
+                particle.velocityY *= damping;
+                particle.rotation += particle.spin * dt;
+            }
         }
     }
 
@@ -66,8 +88,15 @@ public final class TrailParticles {
             particle.x = fromX * (1 - fraction) + toX * fraction;
             particle.y = fromY * (1 - fraction) + toY * fraction;
             particle.lifetime = .4 + random.nextDouble() * .3;
-            particle.size = 1.5 + random.nextDouble() * 1.5;
-            particle.rotation = random.nextDouble() * 360;
+            particle.size = 2.4 + random.nextDouble() * 2.0;
+            particle.rotation = random.nextDouble() * Math.PI * 2;
+            particle.spin = (random.nextBoolean() ? 1 : -1) * (1.0 + random.nextDouble() * 2.8);
+            particle.phase = random.nextDouble() * Math.PI;
+            double speed = Math.min(65, distance / dt * .18) * (.7 + random.nextDouble() * .3);
+            double sideways = (random.nextDouble() - .5) * 22;
+            double dx = (toX - fromX) / distance, dy = (toY - fromY) / distance;
+            particle.velocityX = -dx * speed - dy * sideways;
+            particle.velocityY = -dy * speed + dx * sideways;
             particle.rgb = rgb & 0xFFFFFF;
             if (active.size() == limit) active.remove(0);
             active.add(particle);

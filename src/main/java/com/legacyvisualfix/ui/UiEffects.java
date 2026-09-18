@@ -236,7 +236,10 @@ public final class UiEffects {
         // Called at screen-space Post (or before vanilla tooltip); no GUI-local transform is active.
         int mode = GL11.glGetInteger(GL11.GL_MATRIX_MODE);
         GL11.glPushAttrib(
-            GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_CURRENT_BIT);
+            GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT
+                | GL11.GL_DEPTH_BUFFER_BIT
+                | GL11.GL_CURRENT_BIT
+                | GL11.GL_LIGHTING_BIT);
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
         GL11.glPushMatrix();
         try {
@@ -246,17 +249,23 @@ public final class UiEffects {
             GL11.glDisable(GL11.GL_DEPTH_TEST);
             GL11.glDepthMask(false);
             GL11.glEnable(GL11.GL_BLEND);
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
             GL11.glDisable(GL11.GL_ALPHA_TEST);
-            GL11.glBegin(GL11.GL_QUADS);
+            GL11.glShadeModel(GL11.GL_SMOOTH);
+            GL11.glBegin(GL11.GL_TRIANGLES);
             for (TrailParticles.Particle p : TRAIL.particles()) {
-                double fade = Math.max(0, 1 - p.age / p.lifetime), size = p.size * fade;
-                GL11.glColor4d((p.rgb >> 16 & 255) / 255d, (p.rgb >> 8 & 255) / 255d, (p.rgb & 255) / 255d, fade * 0.8);
-                double c = Math.cos(p.rotation) * size, s = Math.sin(p.rotation) * size;
-                GL11.glVertex3d(p.x - c, p.y - s, 350);
-                GL11.glVertex3d(p.x + s, p.y - c, 350);
-                GL11.glVertex3d(p.x + c, p.y + s, 350);
-                GL11.glVertex3d(p.x - s, p.y + c, 350);
+                double opacity = p.opacity(), radius = p.radius();
+                double r = (p.rgb >> 16 & 255) / 255d, g = (p.rgb >> 8 & 255) / 255d, b = (p.rgb & 255) / 255d;
+                // Soft low-intensity halo, independently drawn four-point star and bright core.
+                for (int i = 0; i < 12; i++) {
+                    GL11.glColor4d(r, g, b, opacity * .18);
+                    GL11.glVertex3d(p.x, p.y, 350);
+                    GL11.glColor4d(r, g, b, 0);
+                    sparkleVertex(p, i * Math.PI / 6, radius * 1.7);
+                    sparkleVertex(p, (i + 1) * Math.PI / 6, radius * 1.7);
+                }
+                sparkleStar(p, radius, r, g, b, opacity, .22);
+                sparkleStar(p, radius * .32, .8 + r * .2, .8 + g * .2, .8 + b * .2, opacity, .45);
             }
             GL11.glEnd();
         } finally {
@@ -264,5 +273,20 @@ public final class UiEffects {
             GL11.glMatrixMode(mode);
             GL11.glPopAttrib();
         }
+    }
+
+    private static void sparkleStar(TrailParticles.Particle p, double radius, double r, double g, double b,
+        double opacity, double waist) {
+        for (int i = 0; i < 8; i++) {
+            GL11.glColor4d(.65 + r * .35, .65 + g * .35, .65 + b * .35, opacity);
+            GL11.glVertex3d(p.x, p.y, 350);
+            GL11.glColor4d(r, g, b, opacity * .75);
+            sparkleVertex(p, p.rotation + i * Math.PI / 4, radius * (i % 2 == 0 ? 1 : waist));
+            sparkleVertex(p, p.rotation + (i + 1) * Math.PI / 4, radius * (i % 2 == 0 ? waist : 1));
+        }
+    }
+
+    private static void sparkleVertex(TrailParticles.Particle p, double angle, double radius) {
+        GL11.glVertex3d(p.x + Math.cos(angle) * radius, p.y + Math.sin(angle) * radius, 350);
     }
 }
