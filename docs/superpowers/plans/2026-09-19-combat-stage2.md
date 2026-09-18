@@ -26,9 +26,9 @@ changes. The research document remains the broader design reference.
   Launch via Prism UI and use only the disposable QA world.
 - [x] Run with Photon on/off, inspect screenshots and logs, fix observed bugs.
 - [x] Remove temporary QA, restore user shader/settings, leave stage-2 JAR active.
-- [ ] Publish source on development branch and stage prerelease JAR with checksum;
+- [x] Publish source on development branch and stage prerelease JAR with checksum;
   report actual compatibility samples, limitations and manual test instructions.
-- [ ] Stop after this stage for user feedback.
+- [x] Stop after this stage for user feedback.
 
 Ruling: Keep protocol v1 unchanged. Missing client targets get the HUD confirmation
 but no guessed world particle; this avoids a wire migration and false positions.
