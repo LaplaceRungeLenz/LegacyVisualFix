@@ -15,6 +15,9 @@ def verify(path):
             "com/legacyvisualfix/inventory/InventoryScreenEvents.class",
             "com/legacyvisualfix/ui/UiEffects.class",
             "mixins.legacyvisualfix.ui.compat.json",
+            "com/legacyvisualfix/combat/CombatServer.class",
+            "com/legacyvisualfix/combat/client/CombatClient.class",
+            "com/legacyvisualfix/mixin/combat/MixinEntityLivingBase.class",
         ):
             if name not in names:
                 raise ValueError("Distribution is missing required fix/effects entry: " + name)
@@ -27,6 +30,13 @@ def verify(path):
             data = jar.read(name)
             if marker not in data:
                 raise ValueError("Distribution lacks inventory regression fix: " + name)
+        mixins = json.loads(jar.read("mixins.legacyvisualfix.json"))
+        if "combat.MixinEntityLivingBase" not in mixins["mixins"]:
+            raise ValueError("Combat observation must load on both logical sides")
+        refmap = json.loads(jar.read("mixins.legacyvisualfix.refmap.json"))
+        combat_mapping = refmap["mappings"].get("com/legacyvisualfix/mixin/combat/MixinEntityLivingBase", {})
+        if not any("damageEntity" in entry for entry in combat_mapping):
+            raise ValueError("Combat mixin lacks damage method remapping")
         for name in names:
             if name.startswith("com/legacyvisualfix/") and name.endswith(".class"):
                 if int.from_bytes(jar.read(name)[6:8], "big") != 52:
