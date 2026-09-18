@@ -35,11 +35,13 @@ public final class UiEffects {
     private static int depth, matrixMode;
     private static boolean pushed;
     private static boolean nei, obscured;
+    private static boolean gregtech;
 
     private UiEffects() {}
 
     public static void register() {
         nei = Loader.isModLoaded("NotEnoughItems");
+        gregtech = Loader.isModLoaded("gregtech");
         UiEffects events = new UiEffects();
         MinecraftForge.EVENT_BUS.register(events);
         FMLCommonHandler.instance()
@@ -184,6 +186,10 @@ public final class UiEffects {
     }
 
     private static int rarityColor(ItemStack stack) {
+        if (gregtech && UiEffectsConfig.voltageColors) {
+            int voltageColor = GregTechTrailColors.color(stack);
+            if (voltageColor >= 0) return voltageColor;
+        }
         if (stack.getRarity() == EnumRarity.common) return 0xd8dee9;
         String format = stack.getRarity().rarityColor.toString();
         int index = format.length() > 1 ? "0123456789abcdef".indexOf(format.charAt(1)) : -1;
