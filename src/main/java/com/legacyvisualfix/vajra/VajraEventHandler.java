@@ -15,6 +15,7 @@ import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
 import appeng.api.util.IOrientable;
+import appeng.tile.misc.TileInterface;
 import cpw.mods.fml.common.eventhandler.Event;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.SoundResource;
@@ -194,7 +195,8 @@ public final class VajraEventHandler {
 
         boolean handled = false;
         if (tile instanceof IOrientable) {
-            handled = rotateOrientable((IOrientable) tile, direction, player.isSneaking());
+            handled = VajraAeOrientation
+                .rotate((IOrientable) tile, direction, player.isSneaking(), tile instanceof TileInterface);
         } else if (tile instanceof IWrenchable) {
             IWrenchable wrenchable = (IWrenchable) tile;
             if (wrenchable.wrenchCanSetFacing(player, direction.ordinal())) {
@@ -217,31 +219,6 @@ public final class VajraEventHandler {
             spendEnergy(vajra, player);
         }
         return handled;
-    }
-
-    private static boolean rotateOrientable(IOrientable orientable, ForgeDirection direction, boolean sneaking) {
-        if (!orientable.canBeRotated()) {
-            return false;
-        }
-
-        ForgeDirection front = orientable.getForward();
-        ForgeDirection up = orientable.getUp();
-        if (front == ForgeDirection.UNKNOWN) {
-            front = direction.offsetY == 0 ? ForgeDirection.UP : ForgeDirection.NORTH;
-        }
-        if (up == ForgeDirection.UNKNOWN || up == front || up == front.getOpposite()) {
-            up = front.offsetY == 0 ? ForgeDirection.UP : ForgeDirection.NORTH;
-        }
-        if (sneaking) {
-            up = up.getRotation(front);
-        } else {
-            front = direction;
-            if (up == front || up == front.getOpposite()) {
-                up = front.offsetY == 0 ? ForgeDirection.UP : ForgeDirection.NORTH;
-            }
-        }
-        orientable.setOrientation(front, up);
-        return true;
     }
 
     private static boolean canSpendEnergy(ItemStack stack, EntityPlayer player) {
