@@ -13,6 +13,7 @@ public final class UiEffectsConfig {
     public static boolean carried = true;
     public static boolean matching = true;
     public static boolean trails = true;
+    public static boolean voltageColors = true;
     public static float hoverScale = 1.2f;
     public static float carriedScale = 1.2f;
     public static float rotation = 18;
@@ -38,7 +39,12 @@ public final class UiEffectsConfig {
             "trails",
             "effects",
             true,
-            "Silver-white trails for common items; rarity-colored trails otherwise.");
+            "Voltage-colored trails for supported GT items; otherwise silver-white for common items or rarity colors.");
+        voltageColors = c.getBoolean(
+            "voltageColors",
+            "effects",
+            true,
+            "Use GT voltage colors for tiered machines, components and circuits. Requires trails.");
         hoverScale = c.getFloat("hoverScale", "effects", 1.2f, 1, 1.6f, "Hovered item size multiplier.");
         carriedScale = c.getFloat("carriedScale", "effects", 1.2f, 1, 1.6f, "Mouse-carried item size multiplier.");
         rotation = c.getFloat("rotationDegrees", "effects", 18, 0, 25, "Maximum carried item tilt in degrees.");
