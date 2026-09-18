@@ -23,6 +23,7 @@ def verify(path):
             "com/legacyvisualfix/combat/client/HitParticle.class",
             "com/legacyvisualfix/combat/client/CombatReactions.class",
             "com/legacyvisualfix/combat/client/WeaponRecoil.class",
+            "com/legacyvisualfix/combat/FeedbackStyle.class",
             "com/legacyvisualfix/mixin/combat/MixinItemRenderer.class",
             "com/legacyvisualfix/mixin/combat/MixinRendererLivingEntity.class",
             "com/legacyvisualfix/mixin/combat/MixinEntityLivingBase.class",
