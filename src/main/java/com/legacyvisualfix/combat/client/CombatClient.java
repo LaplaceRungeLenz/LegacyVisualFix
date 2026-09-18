@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
 
 import org.lwjgl.opengl.GL11;
 
@@ -49,10 +50,12 @@ public final class CombatClient {
             feedback.reset();
             particles.reset();
             CombatReactions.reset();
+            WeaponRecoil.reset();
             lastSoundMs = 0;
         }
         long now = System.nanoTime();
         CombatReactions.tick(mc, now / 1_000_000);
+        WeaponRecoil.tick(mc, now / 1_000_000);
         CombatInbox.Entry entry;
         for (int i = 0; i < 256 && (entry = CombatInbox.poll()) != null; i++) {
             if (!CombatConfig.enabled || mc.thePlayer == null
@@ -63,6 +66,7 @@ public final class CombatClient {
             if (!feedback.accept(hit, nowMs)) continue;
             particles.spawn(mc, hit, nowMs);
             CombatReactions.accept(mc, hit, nowMs);
+            WeaponRecoil.accept(mc, hit, nowMs);
             if (soundEnabled() && nowMs - lastSoundMs >= 50) {
                 // Rate-limit sound only, never attacks or confirmed results.
                 mc.thePlayer
@@ -75,6 +79,23 @@ public final class CombatClient {
 
     private boolean soundEnabled() {
         return "always".equals(CombatConfig.soundMode) || ("auto".equals(CombatConfig.soundMode) && !etFuturum);
+    }
+
+    @SubscribeEvent
+    public void attack(AttackEntityEvent event) {
+        // The integrated server also posts on this bus; never touch client state there.
+        if (!event.entityPlayer.worldObj.isRemote) return;
+        Minecraft mc = Minecraft.getMinecraft();
+        if (event.entityPlayer == mc.thePlayer && !event.isCanceled()) {
+            WeaponRecoil.attempt(mc, event.target, System.nanoTime() / 1_000_000);
+        }
+    }
+
+    @SubscribeEvent
+    public void renderTick(TickEvent.RenderTickEvent event) {
+        if (event.phase == TickEvent.Phase.START) {
+            WeaponRecoil.frame(Minecraft.getMinecraft(), System.nanoTime() / 1_000_000);
+        }
     }
 
     @SubscribeEvent

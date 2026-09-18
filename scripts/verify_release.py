@@ -22,6 +22,8 @@ def verify(path):
             "com/legacyvisualfix/combat/client/CombatParticles.class",
             "com/legacyvisualfix/combat/client/HitParticle.class",
             "com/legacyvisualfix/combat/client/CombatReactions.class",
+            "com/legacyvisualfix/combat/client/WeaponRecoil.class",
+            "com/legacyvisualfix/mixin/combat/MixinItemRenderer.class",
             "com/legacyvisualfix/mixin/combat/MixinRendererLivingEntity.class",
             "com/legacyvisualfix/mixin/combat/MixinEntityLivingBase.class",
         ):
@@ -41,6 +43,8 @@ def verify(path):
             raise ValueError("Combat observation must load on both logical sides")
         if "combat.MixinRendererLivingEntity" not in mixins["client"]:
             raise ValueError("Model reaction must load on the client")
+        if "combat.MixinItemRenderer" not in mixins["client"]:
+            raise ValueError("Weapon recoil must load on the client")
         refmap = json.loads(jar.read("mixins.legacyvisualfix.refmap.json"))
         combat_mapping = refmap["mappings"].get("com/legacyvisualfix/mixin/combat/MixinEntityLivingBase", {})
         if not any("damageEntity" in entry for entry in combat_mapping):

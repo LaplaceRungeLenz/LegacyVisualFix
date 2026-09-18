@@ -18,6 +18,9 @@ public final class CombatConfig {
     public static float reactionDegrees = 3F;
     public static int reactionDurationMs = 140;
     public static String[] reactionExcludedEntities = new String[0];
+    public static boolean weaponRecoil = true;
+    public static float recoilDegrees = 3F;
+    public static int recoilDurationMs = 120;
 
     private CombatConfig() {}
 
@@ -91,6 +94,25 @@ public final class CombatConfig {
             "client",
             new String[0],
             "Skip model reaction for exact entity registry IDs or full Java class names. Players, bosses, mounts and oversized entities are always skipped.");
+        weaponRecoil = config.getBoolean(
+            "weaponRecoil",
+            "client",
+            true,
+            "Brief first-person held-item recoil after confirmed local melee. Never changes swing timing or input.");
+        recoilDegrees = config.getFloat(
+            "recoilDegrees",
+            "client",
+            3F,
+            0F,
+            5F,
+            "Maximum held-item recoil angle. Repeated hits refresh rather than stack the effect.");
+        recoilDurationMs = config.getInt(
+            "recoilDurationMs",
+            "client",
+            120,
+            60,
+            240,
+            "Visual recoil duration in milliseconds. Does not delay the next attack.");
         if (config.hasChanged()) config.save();
     }
 }
