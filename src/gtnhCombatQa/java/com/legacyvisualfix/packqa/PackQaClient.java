@@ -24,6 +24,7 @@ public final class PackQaClient {
 
     public static void register() {
         MinecraftForge.EVENT_BUS.register(new PackQaClient());
+        MinecraftForge.EVENT_BUS.register(new ParticleQa());
     }
 
     private boolean pending() {
@@ -49,7 +50,7 @@ public final class PackQaClient {
         ByteBuffer pixel = BufferUtils.createByteBuffer(4);
         GL11.glReadPixels(x, y, 1, 1, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixel);
         int r = pixel.get(0) & 255, g = pixel.get(1) & 255, b = pixel.get(2) & 255;
-        boolean pass = PackQa.capture.equals("white") ? r > 90 && g > 90 && b > 90 : r > 90 && g > r * .7 && b < r * .6;
+        boolean pass = !PackQa.capture.equals("gold") ? r > 90 && g > 90 && b > 90 : r > 90 && g > r * .7 && b < r * .6;
         if (!pass && age < 450_000_000L) return;
         saved = PackQa.capture;
         ScreenShotHelper.saveScreenshot(

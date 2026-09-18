@@ -78,6 +78,13 @@ public final class PackQa {
         ++ticks;
         if (!ran && ticks >= 100) {
             ran = true;
+            // Remove previous QA targets only inside the explicitly disposable world.
+            for (Object entity : new ArrayList<>(world.loadedEntityList)) {
+                if (entity instanceof EntityLivingBase
+                    && !(entity instanceof net.minecraft.entity.player.EntityPlayer)) {
+                    ((EntityLivingBase) entity).setDead();
+                }
+            }
             batch(player);
             for (int x = -6; x <= 6; x++) for (int z = -6; z <= 8; z++) world.setBlock(x, 239, z, Blocks.stone);
             world.getGameRules()
@@ -105,8 +112,8 @@ public final class PackQa {
             float before = active.getHealth(), absorption = active.getAbsorptionAmount();
             player.attackTargetEntityWithCurrentItem(active);
             record(ticks == 205 ? "NETWORK_WHITE" : "NETWORK_GOLD", before, absorption, active);
-            capture = ticks == 205 ? "white" : "gold";
             captureAt = System.nanoTime();
+            capture = ticks == 205 ? "white" : "gold";
             save();
         }
         if (ticks == 240 || ticks == 300) {
@@ -149,6 +156,38 @@ public final class PackQa {
             report.add("combo enabled=" + enabledCombo);
             report.add("combo disabled=" + disabledCombo);
             save();
+        }
+        if (ticks == 460 || ticks == 520 || ticks == 580) {
+            for (Object entity : new ArrayList<>(world.loadedEntityList)) {
+                if (entity instanceof EntityLivingBase
+                    && !(entity instanceof net.minecraft.entity.player.EntityPlayer)) {
+                    ((EntityLivingBase) entity).setDead();
+                }
+            }
+            player.setPositionAndUpdate(0.5, 240, 0.5);
+            player.playerNetServerHandler.setPlayerLocation(0.5, 240, 0.5, 0, 18);
+            player.motionX = player.motionY = player.motionZ = 0;
+            world.setWorldTime(18000);
+            String id = ticks == 460 ? "SpecialMobs.BrutishZombie"
+                : ticks == 520 ? "Thaumcraft.BrainyZombie" : "TwilightForest.Helmet Crab";
+            active = (EntityLivingBase) EntityList.createEntityByName(id, world);
+            active.setLocationAndAngles(player.posX, player.posY, player.posZ + 2, 180, 0);
+            active.getEntityAttribute(SharedMonsterAttributes.movementSpeed)
+                .setBaseValue(0);
+            world.spawnEntityInWorld(active);
+        }
+        if (ticks == 465 || ticks == 525 || ticks == 585) {
+            hits.clear();
+            float before = active.getHealth(), absorption = active.getAbsorptionAmount();
+            player.attackTargetEntityWithCurrentItem(active);
+            String name = ticks == 465 ? "special" : ticks == 525 ? "thaumcraft" : "twilight";
+            record("NETWORK_" + name, before, absorption, active);
+            captureAt = System.nanoTime();
+            capture = name;
+            save();
+        }
+        if (ticks == 500 || ticks == 560 || ticks == 620) {
+            if (active != null) active.setDead();
         }
     }
 

@@ -19,10 +19,11 @@ import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 
-/** The server confirms the hit; only the attacking player's HUD is changed. */
+/** Server-confirmed feedback is presented only to the attacking client. */
 public final class CombatClient {
 
     private final FeedbackState feedback = new FeedbackState();
+    private final CombatParticles particles = new CombatParticles();
     private Object world, connection;
     private final boolean etFuturum = Loader.isModLoaded("etfuturum");
     private long lastSoundMs;
@@ -46,6 +47,7 @@ public final class CombatClient {
             world = mc.theWorld;
             connection = mc.getNetHandler();
             feedback.reset();
+            particles.reset();
             lastSoundMs = 0;
         }
         long now = System.nanoTime();
@@ -56,7 +58,9 @@ public final class CombatClient {
                 || !entry.matches(connection, mc.thePlayer.dimension, now)) continue;
             HitFeedbackMessage hit = entry.message;
             long nowMs = now / 1_000_000;
-            if (feedback.accept(hit, nowMs) && soundEnabled() && nowMs - lastSoundMs >= 50) {
+            if (!feedback.accept(hit, nowMs)) continue;
+            particles.spawn(mc, hit, nowMs);
+            if (soundEnabled() && nowMs - lastSoundMs >= 50) {
                 // Rate-limit sound only, never attacks or confirmed results.
                 mc.thePlayer
                     .playSound("random.successful_hit", CombatConfig.soundVolume, hit.health > 0 ? 1.15F : 0.8F);

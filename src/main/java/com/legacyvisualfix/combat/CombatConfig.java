@@ -12,6 +12,8 @@ public final class CombatConfig {
     public static int durationMs = 160;
     public static String soundMode = "auto";
     public static float soundVolume = 0.2F;
+    public static String particleMode = "auto";
+    public static int particlesPerHit = 6;
 
     private CombatConfig() {}
 
@@ -48,6 +50,19 @@ public final class CombatConfig {
             0,
             1,
             "Volume of the optional vanilla successful-hit chime. EFR audio is never modified.");
+        particleMode = config.getString(
+            "particleMode",
+            "client",
+            "auto",
+            "auto: confirmed local impact particles unless EFR damage particles are enabled or unknown; always: allow both; off: none. Respects Minimal particles.",
+            new String[] { "auto", "always", "off" });
+        particlesPerHit = config.getInt(
+            "particlesPerHit",
+            "client",
+            6,
+            1,
+            8,
+            "Maximum particles per confirmed melee result. Global burst budget applies; never affects damage.");
         if (config.hasChanged()) config.save();
     }
 }

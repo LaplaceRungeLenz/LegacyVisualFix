@@ -1,5 +1,5 @@
 // GTNH extension point: leave the upstream convention build script unchanged.
-project.ext.modVersion = System.getenv('VERSION') ?: '0.2.0-combat.1'
+project.ext.modVersion = System.getenv('VERSION') ?: '0.2.0-combat.2'
 project.version = project.ext.modVersion
 
 // Explicit opt-in only. The smoke mod never belongs in a release jar.

@@ -19,6 +19,8 @@ def verify(path):
             "mixins.legacyvisualfix.ui.compat.json",
             "com/legacyvisualfix/combat/CombatServer.class",
             "com/legacyvisualfix/combat/client/CombatClient.class",
+            "com/legacyvisualfix/combat/client/CombatParticles.class",
+            "com/legacyvisualfix/combat/client/HitParticle.class",
             "com/legacyvisualfix/mixin/combat/MixinEntityLivingBase.class",
         ):
             if name not in names:
