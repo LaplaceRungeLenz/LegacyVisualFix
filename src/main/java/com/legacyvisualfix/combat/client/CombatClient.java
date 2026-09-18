@@ -13,6 +13,7 @@ import org.lwjgl.opengl.GL11;
 import com.legacyvisualfix.combat.CombatConfig;
 import com.legacyvisualfix.combat.CombatInbox;
 import com.legacyvisualfix.combat.FeedbackState;
+import com.legacyvisualfix.combat.FeedbackStyle;
 import com.legacyvisualfix.combat.HitFeedbackMessage;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -54,6 +55,7 @@ public final class CombatClient {
             lastSoundMs = 0;
         }
         long now = System.nanoTime();
+        particles.tick(mc, now / 1_000_000);
         CombatReactions.tick(mc, now / 1_000_000);
         WeaponRecoil.tick(mc, now / 1_000_000);
         CombatInbox.Entry entry;
@@ -70,7 +72,7 @@ public final class CombatClient {
             if (soundEnabled() && nowMs - lastSoundMs >= 50) {
                 // Rate-limit sound only, never attacks or confirmed results.
                 mc.thePlayer
-                    .playSound("random.successful_hit", CombatConfig.soundVolume, hit.health > 0 ? 1.15F : 0.8F);
+                    .playSound("random.successful_hit", FeedbackStyle.soundVolume(), hit.health > 0 ? 1.15F : 0.8F);
                 lastSoundMs = nowMs;
             }
         }
@@ -94,7 +96,9 @@ public final class CombatClient {
     @SubscribeEvent
     public void renderTick(TickEvent.RenderTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
-            WeaponRecoil.frame(Minecraft.getMinecraft(), System.nanoTime() / 1_000_000);
+            long now = System.nanoTime() / 1_000_000;
+            CombatReactions.frame(now);
+            WeaponRecoil.frame(Minecraft.getMinecraft(), now);
         }
     }
 
@@ -103,7 +107,7 @@ public final class CombatClient {
         if (event.type != RenderGameOverlayEvent.ElementType.CROSSHAIRS || !CombatConfig.enabled) return;
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.thePlayer == null || mc.gameSettings.hideGUI || mc.currentScreen != null) return;
-        float alpha = feedback.alpha(System.nanoTime() / 1_000_000, CombatConfig.durationMs);
+        float alpha = feedback.alpha(System.nanoTime() / 1_000_000, FeedbackStyle.markerDuration());
         if (alpha <= 0) return;
         int x = event.resolution.getScaledWidth() / 2;
         int y = event.resolution.getScaledHeight() / 2;

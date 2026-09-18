@@ -7,9 +7,11 @@ import java.util.Random;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.util.AxisAlignedBB;
 
 import com.legacyvisualfix.combat.CombatConfig;
+import com.legacyvisualfix.combat.FeedbackStyle;
 import com.legacyvisualfix.combat.HitFeedbackMessage;
 import com.legacyvisualfix.combat.ParticleBudget;
 
@@ -53,6 +55,12 @@ public final class CombatParticles {
             || !finite(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ)
             || mc.thePlayer.getDistanceSqToEntity(target) > 256
             || !mc.thePlayer.canEntityBeSeen(target)) return;
+        if (FeedbackStyle.excluded(
+            CombatConfig.particleExcludedEntities,
+            EntityList.getEntityString(target),
+            target.getClass()
+                .getName()))
+            return;
         AxisAlignedBB box = target.boundingBox;
         if (box == null || !finite(box.minX, box.minY, box.minZ) || !finite(box.maxX, box.maxY, box.maxZ)) return;
         double width = box.maxX - box.minX, depth = box.maxZ - box.minZ, height = box.maxY - box.minY;
@@ -67,7 +75,8 @@ public final class CombatParticles {
         double tz = Math.abs(dz) < 0.00001 ? Double.POSITIVE_INFINITY : depth * 0.5 / Math.abs(dz);
         double side = Math.min(tx, tz);
         // Models (notably cows) can protrude beyond their collision box.
-        double x = cx + dx * (side + 0.25), z = cz + dz * (side + 0.25);
+        double surfaceOffset = Math.max(0.04, Math.min(0.25, Math.min(width, depth) * 0.4));
+        double x = cx + dx * (side + surfaceOffset), z = cz + dz * (side + surfaceOffset);
         // A compact patch on the facing side, with height/scatter bounded even for giant mobs.
         double margin = Math.min(0.1, height * 0.25);
         double y = Math.max(
@@ -76,12 +85,13 @@ public final class CombatParticles {
         if (!finite(x, y, z) || mc.thePlayer.getDistanceSq(x, y, z) > 256) return;
         expireActive(nowMs);
         int count = budget.claim(
-            Math.min(CombatConfig.particlesPerHit, 32 - active.size()),
+            Math.min(FeedbackStyle.particles(), 32 - active.size()),
             mc.gameSettings.particleSetting,
             hit.health,
             hit.absorbed,
             nowMs);
-        double scatter = Math.min(0.18, Math.min(width, depth) * 0.2);
+        double scatter = Math.min(0.22, Math.min(width, depth) * 0.2);
+        float targetScale = (float) Math.min(1, Math.sqrt(Math.min(width, depth) / 0.6));
         for (int i = 0; i < count; i++) {
             double tangent = (random.nextDouble() - 0.5) * scatter * 2;
             double py = Math.max(
@@ -95,7 +105,8 @@ public final class CombatParticles {
                 dx * 0.025 + (random.nextDouble() - 0.5) * 0.025,
                 0.015 + random.nextDouble() * 0.02,
                 dz * 0.025 + (random.nextDouble() - 0.5) * 0.025,
-                hit.health == 0);
+                hit.health == 0,
+                targetScale);
             active.add(new ActiveParticle(particle, nowMs));
             mc.effectRenderer.addEffect(particle);
         }
@@ -116,6 +127,17 @@ public final class CombatParticles {
                 entry.particle.setDead();
                 iterator.remove();
             }
+        }
+    }
+
+    public void tick(Minecraft mc, long now) {
+        if (!CombatConfig.enabled || "off".equals(CombatConfig.particleMode)
+            || mc.theWorld == null
+            || mc.thePlayer == null
+            || mc.gameSettings.particleSetting >= 2) {
+            reset();
+        } else {
+            expireActive(now);
         }
     }
 

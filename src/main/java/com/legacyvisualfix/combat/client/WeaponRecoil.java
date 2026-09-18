@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import org.lwjgl.opengl.GL11;
 
 import com.legacyvisualfix.combat.CombatConfig;
+import com.legacyvisualfix.combat.FeedbackStyle;
 import com.legacyvisualfix.combat.HitFeedbackMessage;
 
 /** Presentation only. Protocol v1 has no weapon ID, so uncertain associations are skipped. */
@@ -78,6 +79,17 @@ public final class WeaponRecoil {
             reset();
             return;
         }
+        String id = Item.itemRegistry.getNameForObject(held.getItem());
+        String className = held.getItem()
+            .getClass()
+            .getName();
+        if (FeedbackStyle.excluded(CombatConfig.recoilExcludedItems, id, className) || FeedbackStyle.excluded(
+            CombatConfig.recoilExcludedItems,
+            id + "@" + held.getItemDamage(),
+            className + "@" + held.getItemDamage())) {
+            reset();
+            return;
+        }
         if (world != mc.theWorld || connection != mc.getNetHandler() || !heldMatches(mc)) reset();
         world = mc.theWorld;
         connection = mc.getNetHandler();
@@ -97,12 +109,12 @@ public final class WeaponRecoil {
             || mc.theWorld.getEntityByID(hit.targetId) != attemptedTarget) return;
         // At most one recoil per local attempt, even if a weapon reports several damage results.
         attemptedTarget = null;
-        float degrees = CombatConfig.recoilDegrees;
+        float degrees = FeedbackStyle.recoilDegrees();
         if (!Float.isFinite(degrees) || degrees <= 0) return;
         from = angle(now);
         peak = Math.min(5F, degrees);
         from = Math.min(from, peak);
-        duration = Math.max(60, Math.min(240, CombatConfig.recoilDurationMs));
+        duration = Math.max(60, Math.min(240, FeedbackStyle.recoilDuration()));
         started = now;
         active = true;
     }

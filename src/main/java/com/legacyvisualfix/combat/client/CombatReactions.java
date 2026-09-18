@@ -14,6 +14,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import org.lwjgl.opengl.GL11;
 
 import com.legacyvisualfix.combat.CombatConfig;
+import com.legacyvisualfix.combat.FeedbackStyle;
 import com.legacyvisualfix.combat.HitFeedbackMessage;
 
 /** Client-thread state keyed by entity identity, never writes gameplay or model fields. */
@@ -21,6 +22,7 @@ public final class CombatReactions {
 
     private static final int MAX_TARGETS = 128;
     private static final Map<EntityLivingBase, Pulse> pulses = new IdentityHashMap<EntityLivingBase, Pulse>();
+    private static long frameTime;
 
     private CombatReactions() {}
 
@@ -58,6 +60,11 @@ public final class CombatReactions {
 
     public static void reset() {
         pulses.clear();
+        frameTime = 0;
+    }
+
+    public static void frame(long now) {
+        frameTime = now;
     }
 
     public static void tick(Minecraft mc, long now) {
@@ -85,15 +92,15 @@ public final class CombatReactions {
         EntityLivingBase target = (EntityLivingBase) entity;
         if (!eligible(mc, target) || !mc.thePlayer.canEntityBeSeen(target)) return;
         String id = EntityList.getEntityString(target);
-        for (String excluded : CombatConfig.reactionExcludedEntities) {
-            if (excluded.equals(id) || excluded.equals(
-                target.getClass()
-                    .getName()))
-                return;
-        }
+        if (FeedbackStyle.excluded(
+            CombatConfig.reactionExcludedEntities,
+            id,
+            target.getClass()
+                .getName()))
+            return;
         double dx = target.posX - mc.thePlayer.posX, dz = target.posZ - mc.thePlayer.posZ;
         double length = Math.sqrt(dx * dx + dz * dz);
-        float degrees = CombatConfig.reactionDegrees;
+        float degrees = FeedbackStyle.reactionDegrees();
         if (!Double.isFinite(length) || length < 0.001 || !Float.isFinite(degrees) || degrees <= 0) return;
         degrees = Math.min(degrees, 4F);
         Pulse previous = pulses.remove(target);
@@ -114,7 +121,7 @@ public final class CombatReactions {
             target,
             new Pulse(
                 now,
-                Math.max(80, Math.min(300, CombatConfig.reactionDurationMs)),
+                Math.max(80, Math.min(300, FeedbackStyle.reactionDuration())),
                 fromX,
                 fromZ,
                 (float) (dz / length * degrees),
@@ -150,7 +157,7 @@ public final class CombatReactions {
         if (mc.theWorld == null || mc.thePlayer == null || !eligible(mc, target)) return;
         Pulse pulse = pulses.get(target);
         if (pulse == null) return;
-        long now = System.nanoTime() / 1_000_000;
+        long now = frameTime == 0 ? System.nanoTime() / 1_000_000 : frameTime;
         float x = pulse.component(now, pulse.fromX, pulse.peakX);
         float z = pulse.component(now, pulse.fromZ, pulse.peakZ);
         float angle = (float) Math.sqrt(x * x + z * z);

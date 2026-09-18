@@ -21,6 +21,11 @@ public final class CombatConfig {
     public static boolean weaponRecoil = true;
     public static float recoilDegrees = 3F;
     public static int recoilDurationMs = 120;
+    public static String feedbackPreset = "custom";
+    public static int particleMinLight = 6;
+    public static float particleScale = 0.65F;
+    public static String[] particleExcludedEntities = new String[0];
+    public static String[] recoilExcludedItems = new String[0];
 
     private CombatConfig() {}
 
@@ -113,6 +118,36 @@ public final class CombatConfig {
             60,
             240,
             "Visual recoil duration in milliseconds. Does not delay the next attack.");
+        feedbackPreset = config.getString(
+            "feedbackPreset",
+            "client",
+            "custom",
+            "custom preserves individual settings; light/standard/strong choose coordinated intensity without rewriting them. Feature toggles and minimum light always apply.",
+            new String[] { "custom", "light", "standard", "strong" });
+        particleMinLight = config.getInt(
+            "particleMinLight",
+            "client",
+            6,
+            0,
+            15,
+            "Minimum block-light level for hit particles only. 0 follows scene lighting; never changes world lighting or depth testing. Shader appearance may vary.");
+        particleScale = config.getFloat(
+            "particleScale",
+            "client",
+            0.65F,
+            0.25F,
+            1F,
+            "Base hit-particle scale in custom preset; additionally reduced for small targets.");
+        particleExcludedEntities = config.getStringList(
+            "particleExcludedEntities",
+            "client",
+            new String[0],
+            "Disable local hit particles for exact entity registry IDs or full Java class names.");
+        recoilExcludedItems = config.getStringList(
+            "recoilExcludedItems",
+            "client",
+            new String[0],
+            "Disable recoil for exact item registry IDs or full Java class names. Optional @metadata suffix selects one subtype (for example gregtech:gt.metatool.01@34).");
         if (config.hasChanged()) config.save();
     }
 }
