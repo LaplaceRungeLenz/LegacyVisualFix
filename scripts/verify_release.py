@@ -11,10 +11,22 @@ def verify(path):
         names = jar.namelist()
         if any("Smoke" in name for name in names):
             raise ValueError("Distribution contains smoke test classes")
+        if any(name.startswith("com/legacyvisualfix/packqa/") for name in names):
+            raise ValueError("Distribution contains temporary pack QA classes")
         for name in (
             "com/legacyvisualfix/inventory/InventoryScreenEvents.class",
             "com/legacyvisualfix/ui/UiEffects.class",
             "mixins.legacyvisualfix.ui.compat.json",
+            "com/legacyvisualfix/combat/CombatServer.class",
+            "com/legacyvisualfix/combat/client/CombatClient.class",
+            "com/legacyvisualfix/combat/client/CombatParticles.class",
+            "com/legacyvisualfix/combat/client/HitParticle.class",
+            "com/legacyvisualfix/combat/client/CombatReactions.class",
+            "com/legacyvisualfix/combat/client/WeaponRecoil.class",
+            "com/legacyvisualfix/combat/FeedbackStyle.class",
+            "com/legacyvisualfix/mixin/combat/MixinItemRenderer.class",
+            "com/legacyvisualfix/mixin/combat/MixinRendererLivingEntity.class",
+            "com/legacyvisualfix/mixin/combat/MixinEntityLivingBase.class",
         ):
             if name not in names:
                 raise ValueError("Distribution is missing required fix/effects entry: " + name)
@@ -27,6 +39,20 @@ def verify(path):
             data = jar.read(name)
             if marker not in data:
                 raise ValueError("Distribution lacks inventory regression fix: " + name)
+        mixins = json.loads(jar.read("mixins.legacyvisualfix.json"))
+        if "combat.MixinEntityLivingBase" not in mixins["mixins"]:
+            raise ValueError("Combat observation must load on both logical sides")
+        if "combat.MixinRendererLivingEntity" not in mixins["client"]:
+            raise ValueError("Model reaction must load on the client")
+        if "combat.MixinItemRenderer" not in mixins["client"]:
+            raise ValueError("Weapon recoil must load on the client")
+        refmap = json.loads(jar.read("mixins.legacyvisualfix.refmap.json"))
+        combat_mapping = refmap["mappings"].get("com/legacyvisualfix/mixin/combat/MixinEntityLivingBase", {})
+        if not any("damageEntity" in entry for entry in combat_mapping):
+            raise ValueError("Combat mixin lacks damage method remapping")
+        reaction_mapping = refmap["mappings"].get("com/legacyvisualfix/mixin/combat/MixinRendererLivingEntity", {})
+        if not any("rotateCorpse" in entry for entry in reaction_mapping):
+            raise ValueError("Model reaction lacks renderer call remapping")
         for name in names:
             if name.startswith("com/legacyvisualfix/") and name.endswith(".class"):
                 if int.from_bytes(jar.read(name)[6:8], "big") != 52:

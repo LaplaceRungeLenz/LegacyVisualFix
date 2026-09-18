@@ -3,6 +3,9 @@ package com.legacyvisualfix;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.legacyvisualfix.combat.CombatConfig;
+import com.legacyvisualfix.combat.CombatNetwork;
+import com.legacyvisualfix.combat.client.CombatClient;
 import com.legacyvisualfix.fov.FovConfig;
 import com.legacyvisualfix.inventory.InventoryAnimationConfig;
 import com.legacyvisualfix.inventory.InventoryScreenEvents;
@@ -16,6 +19,7 @@ import com.legacyvisualfix.waila.WailaAnimationConfig;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerStoppedEvent;
 
 @Mod(
     modid = LegacyVisualFix.MODID,
@@ -31,6 +35,10 @@ public final class LegacyVisualFix {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+        CombatConfig.load(event.getModConfigurationDirectory());
+        CombatNetwork.register();
+        if (event.getSide()
+            .isClient()) CombatClient.register();
         if (event.getSide()
             .isClient()) {
             UiEffectsConfig.load(event.getModConfigurationDirectory());
@@ -55,5 +63,10 @@ public final class LegacyVisualFix {
             .isClient() && Loader.isModLoaded("Waila")) {
             WailaAnimationConfig.load(event.getModConfigurationDirectory());
         }
+    }
+
+    @Mod.EventHandler
+    public void serverStopped(FMLServerStoppedEvent event) {
+        CombatNetwork.clearPeers();
     }
 }

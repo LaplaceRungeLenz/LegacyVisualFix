@@ -1,0 +1,16 @@
+PASS network white count=6 ageMs=103
+PASS network gold count=6 ageMs=93
+PASS expired remaining=0
+PASS mode off count=0 expected=0
+PASS minimal count=0 expected=0
+PASS EFR enabled auto count=0 expected=0
+PASS EFR enabled always count=6 expected=6
+PASS EFR disabled auto count=6 expected=6
+PASS decreased count=3 expected=3
+PASS invisible count=0 expected=0
+PASS missing count=0 expected=0
+PASS invalid count=0 expected=0
+PASS burst cap count=32
+PASS network special count=6 ageMs=91
+PASS network thaumcraft count=6 ageMs=91
+PASS network twilight count=6 ageMs=93
