@@ -28,3 +28,7 @@ if (project.hasProperty('vajraSmoke')) {
 if (project.hasProperty('combatSmoke')) {
     sourceSets.main.java.srcDir('src/combatSmokeTest/java')
 }
+// Pack QA classes are extracted to a separate temporary test mod, never shipped.
+if (project.hasProperty('gtnhCombatQa')) {
+    sourceSets.main.java.srcDir('src/gtnhCombatQa/java')
+}

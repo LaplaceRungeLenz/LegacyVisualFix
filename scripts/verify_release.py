@@ -11,6 +11,8 @@ def verify(path):
         names = jar.namelist()
         if any("Smoke" in name for name in names):
             raise ValueError("Distribution contains smoke test classes")
+        if any(name.startswith("com/legacyvisualfix/packqa/") for name in names):
+            raise ValueError("Distribution contains temporary pack QA classes")
         for name in (
             "com/legacyvisualfix/inventory/InventoryScreenEvents.class",
             "com/legacyvisualfix/ui/UiEffects.class",
