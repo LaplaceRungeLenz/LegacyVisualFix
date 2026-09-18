@@ -10,9 +10,11 @@ VajraToolClickMessage.java, ServerVajraClickQueue.java. Modified by LegacyVisual
 contributors in September 2026. Changes isolate rotation and connection interactions,
 remove offhand replacement, held-mining protection and AE part dismantling,
 and add LegacyVisualFix configuration, server capability detection and input/permission checks.
+VajraAeOrientation.java extracts the generic AE orientation logic and adds the
+ME interface output-direction mapping.
 
 The combined code distribution is provided under GPL-3.0-only, with complete
-corresponding source available in the matching LegacyVisualFix Git tag and source archive:
+corresponding source available in the matching LegacyVisualFix source commit and source archive:
 https://github.com/LaplaceRungeLenz/LegacyVisualFix
 The existing MIT notices remain applicable to the original LegacyVisualFix code.
 The separately licensed GTNH logo retains its existing asset notice.
