@@ -162,7 +162,7 @@ public final class UiEffects {
         if (!isMatching(stack, held)) return;
         if (!emitted) {
             emitted = true;
-            if (UiEffectsConfig.trails && moving && stack.getRarity() != EnumRarity.common) {
+            if (UiEffectsConfig.trails && moving) {
                 int color = rarityColor(stack);
                 TRAIL.emit(
                     oldX,
@@ -184,6 +184,7 @@ public final class UiEffects {
     }
 
     private static int rarityColor(ItemStack stack) {
+        if (stack.getRarity() == EnumRarity.common) return 0xd8dee9;
         String format = stack.getRarity().rarityColor.toString();
         int index = format.length() > 1 ? "0123456789abcdef".indexOf(format.charAt(1)) : -1;
         if (index < 0 || index > 15) return 0xffffff;

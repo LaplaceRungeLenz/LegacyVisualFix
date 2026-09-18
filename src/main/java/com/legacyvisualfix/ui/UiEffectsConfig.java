@@ -34,7 +34,11 @@ public final class UiEffectsConfig {
         carried = c.getBoolean("carried", "effects", true, "Scale and gently rotate the mouse-carried item.");
         matching = c
             .getBoolean("matching", "effects", true, "Float matching item, metadata and NBT stacks. Ignores count.");
-        trails = c.getBoolean("trails", "effects", true, "Colored trails for non-common rarity mouse-carried items.");
+        trails = c.getBoolean(
+            "trails",
+            "effects",
+            true,
+            "Silver-white trails for common items; rarity-colored trails otherwise.");
         hoverScale = c.getFloat("hoverScale", "effects", 1.2f, 1, 1.6f, "Hovered item size multiplier.");
         carriedScale = c.getFloat("carriedScale", "effects", 1.2f, 1, 1.6f, "Mouse-carried item size multiplier.");
         rotation = c.getFloat("rotationDegrees", "effects", 18, 0, 25, "Maximum carried item tilt in degrees.");
