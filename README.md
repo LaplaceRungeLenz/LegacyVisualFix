@@ -9,11 +9,8 @@
 - **资源重载界面**：显示语言、资源包及 Angelica 光影重载进度，可自定义背景、Logo、颜色和淡入淡出。
 <img width="2560" height="1331" alt="image" src="https://github.com/user-attachments/assets/38e7ea0a-5b3d-4854-8af0-6c04ef6d1a33" />
 - **FOV 动画**：平滑处理疾跑、飞行和拉弓等视野变化。
-<img width="1280" height="684" alt="image" src="https://github.com/user-attachments/assets/31062fee-43d9-4648-962e-883e154bef9e" />
 - **背包入场动画**：生存与创造物品栏从下方飞入，NEI 面板和药水效果保持原位。
-<img width="1280" height="684" alt="image" src="https://github.com/user-attachments/assets/3ed2ebeb-4a2e-4b56-95e1-9fe720279bea" />
 - **物品动效**：快捷栏选择框平滑移动；悬停物品放大；拿起后随鼠标移动倾斜；同类物品浮动；普通物品带银白色星光拖尾，其他物品按稀有度显示彩色星光拖尾；GT 分级机器与部件优先使用电压颜色。支持原版容器、NEI 容器槽位及 ModularUI 1/2。
-<img width="1280" height="684" alt="image" src="https://github.com/user-attachments/assets/aaf2a4c6-22ba-43ac-8daf-851ea35976b4" />
 - **金刚杵九宫格**：使用 GT 扳手与剪线钳式九宫格调整机器朝向及线缆、管道连接。
 <img width="2560" height="1334" alt="2026-09-19_14 50 26" src="https://github.com/user-attachments/assets/fb2b944d-5127-4677-8072-a70fe92f3976" />
 - **Waila 动画**：提示框大小与位置平滑过渡，适配 Chromatic Tooltips + Compat。
