@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.gtnewhorizon.gtnhmixins.ILateMixinLoader;
 import com.gtnewhorizon.gtnhmixins.LateMixin;
+import com.legacyvisualfix.waila.WailaBackend;
 import com.slprime.chromatictooltipscompat.CompatConfig;
 
 import cpw.mods.fml.relauncher.FMLLaunchHandler;
@@ -23,7 +24,12 @@ public final class LegacyVisualFixLateMixinLoader implements ILateMixinLoader {
     @Override
     public List<String> getMixins(Set<String> loadedMods) {
         if (!FMLLaunchHandler.side()
-            .isClient() || !loadedMods.contains("Waila")) return Collections.emptyList();
+            .isClient()) return Collections.emptyList();
+        WailaBackend backend = WailaBackend.select(loadedMods);
+        if (backend == WailaBackend.NONE) return Collections.emptyList();
+        if (backend == WailaBackend.WDMLA) {
+            return Arrays.asList("wdmla.MixinRootComponent", "wdmla.MixinWDMlaTickHandler");
+        }
         if (loadedMods.contains("chromatictooltipscompat") && loadedMods.contains("chromatictooltips")
             && CompatConfig.wailaEnabled) {
             return Arrays.asList(

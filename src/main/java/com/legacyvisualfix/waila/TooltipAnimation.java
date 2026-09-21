@@ -7,7 +7,7 @@ public final class TooltipAnimation {
     private long started;
     private double width, height, startWidth, startHeight, targetWidth, targetHeight;
 
-    public void update(int nextWidth, int nextHeight, long now, int durationMs) {
+    public void update(double nextWidth, double nextHeight, long now, int durationMs) {
         if (!initialized || durationMs <= 0) {
             width = startWidth = targetWidth = nextWidth;
             height = startHeight = targetHeight = nextHeight;

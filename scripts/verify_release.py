@@ -16,6 +16,8 @@ def verify(path):
         for name in (
             "com/legacyvisualfix/inventory/InventoryScreenEvents.class",
             "com/legacyvisualfix/ui/UiEffects.class",
+            "com/legacyvisualfix/ui/GregTechTrailColors.class",
+            "com/legacyvisualfix/ui/VoltageTrailRules.class",
             "mixins.legacyvisualfix.ui.compat.json",
             "com/legacyvisualfix/combat/CombatServer.class",
             "com/legacyvisualfix/combat/client/CombatClient.class",
@@ -27,6 +29,10 @@ def verify(path):
             "com/legacyvisualfix/mixin/combat/MixinItemRenderer.class",
             "com/legacyvisualfix/mixin/combat/MixinRendererLivingEntity.class",
             "com/legacyvisualfix/mixin/combat/MixinEntityLivingBase.class",
+            "com/legacyvisualfix/waila/WailaBackend.class",
+            "com/legacyvisualfix/waila/WdmlaAnimationRenderer.class",
+            "com/legacyvisualfix/mixin/waila/wdmla/MixinRootComponent.class",
+            "com/legacyvisualfix/mixin/waila/wdmla/MixinWDMlaTickHandler.class",
         ):
             if name not in names:
                 raise ValueError("Distribution is missing required fix/effects entry: " + name)

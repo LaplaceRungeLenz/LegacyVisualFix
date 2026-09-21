@@ -16,7 +16,7 @@ public final class WailaAnimationConfig {
         Configuration config = new Configuration(new File(configDirectory, "legacyvisualfix/waila-animation.cfg"));
         config.load();
         enabled = config
-            .getBoolean("enabled", "animation", true, "Smooth Waila tooltip size changes. Restart to apply.");
+            .getBoolean("enabled", "animation", true, "Smooth Waila / WDMla tooltip size changes. Restart to apply.");
         durationMs = config.getInt(
             "durationMs",
             "animation",

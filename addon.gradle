@@ -1,5 +1,5 @@
 // GTNH extension point: leave the upstream convention build script unchanged.
-project.ext.modVersion = System.getenv('VERSION') ?: '0.2.0'
+project.ext.modVersion = System.getenv('VERSION') ?: '0.2.1'
 project.version = project.ext.modVersion
 
 // Optional locally built ModernSplash runtime API, used only by client compatibility tests.
@@ -15,6 +15,9 @@ if (project.hasProperty('clientSmoke')) {
 }
 if (project.hasProperty('wailaSmoke')) {
     sourceSets.main.java.srcDir('src/wailaSmokeTest/java')
+}
+if (project.hasProperty('wdmlaSmoke')) {
+    sourceSets.main.java.srcDir('src/wdmlaSmokeTest/java')
 }
 if (project.hasProperty('fovSmoke')) {
     sourceSets.main.java.srcDir('src/fovSmokeTest/java')
