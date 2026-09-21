@@ -14,6 +14,8 @@ def verify(path):
         if any(name.startswith("com/legacyvisualfix/packqa/") for name in names):
             raise ValueError("Distribution contains temporary pack QA classes")
         for name in (
+            "com/legacyvisualfix/reload/ModernSplashAccess.class",
+            "com/legacyvisualfix/render/ModernSplashRenderer.class",
             "com/legacyvisualfix/inventory/InventoryScreenEvents.class",
             "com/legacyvisualfix/ui/UiEffects.class",
             "com/legacyvisualfix/ui/GregTechTrailColors.class",

@@ -79,10 +79,33 @@ final class ModernSplashSmoke {
                 .getField("doneTime")
                 .getLong(null))
             throw new AssertionError("Runtime sessions modified startup state");
+        assertFailedTextureIsDeleted();
         Files.write(
             new File(results, "modernsplash-result.txt").toPath(),
             "PASS: real runtime backend, nested shaders, render failure fallback, GL stack recovery, session cleanup and startup state isolation\n"
                 .getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static void assertFailedTextureIsDeleted() throws Exception {
+        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+        try {
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+            while (GL11.glGetError() != GL11.GL_NO_ERROR) {}
+            GL11.glEnable(-1); // Force upstream's post-allocation checkGLError to fail.
+            try {
+                Class.forName("gkappa.modernsplash.CustomSplash$Texture")
+                    .getConstructor(net.minecraft.util.ResourceLocation.class)
+                    .newInstance(new net.minecraft.util.ResourceLocation("textures/font/ascii.png"));
+                throw new AssertionError("Expected texture allocation failure");
+            } catch (java.lang.reflect.InvocationTargetException expected) {
+                if (!(expected.getCause() instanceof IllegalStateException)) throw expected;
+            }
+            if (GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D) != 0)
+                throw new AssertionError("Failed texture constructor leaked its GPU texture");
+        } finally {
+            while (GL11.glGetError() != GL11.GL_NO_ERROR) {}
+            GL11.glPopAttrib();
+        }
     }
 
     private static Field field(Class<?> type, String name) throws Exception {

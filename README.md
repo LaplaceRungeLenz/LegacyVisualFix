@@ -10,6 +10,8 @@
 
 - **资源重载界面**：显示语言、资源包及 Angelica 光影重载进度，可自定义背景、Logo、颜色和淡入淡出。
 
+  安装 [ModernSplash 运行时适配版](https://github.com/LaplaceRungeLenz/ModernSplash)后，自动使用其高版本 Mojang Studios 加载界面。需要带 `RuntimeSplash` API v1 的版本（`1.0.0-runtime.1` 起）；原版 ModernSplash 没有该接口，会继续使用本模组原界面。ModernSplash 的图片、颜色、日夜主题及内存显示沿用 `config/splash.properties`，修改后重启；本模组 `theme.properties` 的 `enabled` 和淡入淡出时长仍生效。绘制失败时自动回退原界面，不中断重载。
+
   ![资源重载界面演示](https://github.com/user-attachments/assets/38e7ea0a-5b3d-4854-8af0-6c04ef6d1a33)
 
 - **FOV 动画**：平滑处理疾跑、飞行和拉弓等视野变化。
