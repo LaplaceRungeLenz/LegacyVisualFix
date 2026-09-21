@@ -7,6 +7,16 @@ import org.junit.Test;
 public class TooltipAnimationTest {
 
     @Test
+    public void preservesFractionalWdmlaComponentSizes() {
+        TooltipAnimation animation = new TooltipAnimation();
+        animation.update(100.25, 40.5, 0, 100);
+        animation.update(200.75, 80.25, 0, 100);
+        animation.update(200.75, 80.25, 100_000_000, 100);
+        assertEquals(200.75, animation.width(), 0.0001);
+        assertEquals(80.25, animation.height(), 0.0001);
+    }
+
+    @Test
     public void interpolatesThenFinishesWithoutRestartingForEqualTargets() {
         TooltipAnimation animation = new TooltipAnimation();
         animation.update(100, 40, 0, 100);

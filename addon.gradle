@@ -9,6 +9,9 @@ if (project.hasProperty('clientSmoke')) {
 if (project.hasProperty('wailaSmoke')) {
     sourceSets.main.java.srcDir('src/wailaSmokeTest/java')
 }
+if (project.hasProperty('wdmlaSmoke')) {
+    sourceSets.main.java.srcDir('src/wdmlaSmokeTest/java')
+}
 if (project.hasProperty('fovSmoke')) {
     sourceSets.main.java.srcDir('src/fovSmokeTest/java')
 }

@@ -28,13 +28,13 @@
 
   ![金刚杵九宫格演示](https://github.com/user-attachments/assets/fb2b944d-5127-4677-8072-a70fe92f3976)
 
-- **Waila 动画**：提示框大小与位置平滑过渡，适配 Chromatic Tooltips + Compat。
+- **Waila / WDMla 动画**：提示框大小与位置平滑过渡，自动识别 WDMla；原 Waila 支持 Chromatic Tooltips + Compat。
 
 ## 安装
 
 需要 **Forge 10.13.4.1614** 与 **UniMixins 0.2.1+**；GTNH 请使用整合包配套的 Mixin 环境。
 
-资源重载、Waila、FOV、背包和物品动效只需客户端安装；金刚杵九宫格和近战命中确认需要客户端与服务端均安装（单机包含本地服务器）。Waila、Chromatic Tooltips 和 Angelica 为可选集成。替换旧 JAR 时只保留一个版本。
+资源重载、Waila / WDMla、FOV、背包和物品动效只需客户端安装；金刚杵九宫格和近战命中确认需要客户端与服务端均安装（单机包含本地服务器）。Waila / WDMla、Chromatic Tooltips 和 Angelica 为可选集成。替换旧 JAR 时只保留一个版本。
 
 ## 配置
 
@@ -43,7 +43,7 @@
 | 文件 | 主要配置项 |
 | --- | --- |
 | `theme.properties` | `enabled` 总开关；`showText`、`showDetails`、`showLogo` 显示内容；`texture.*` 贴图；`color.*` 颜色；`logo.*`、`bar.*` 布局；`animation.fadeInMs` / `animation.fadeOutMs` 淡入淡出 |
-| `waila-animation.cfg` | `enabled` 开关；`durationMs` 过渡时长，默认 150 ms |
+| `waila-animation.cfg` | Waila 与 WDMla 共用：`enabled` 开关；`durationMs` 过渡时长，默认 150 ms |
 | `fov.cfg` | `enabled` 开关；`transitionMs` 响应时长，默认 300 ms |
 | `inventory.cfg` | `enabled` 开关；`durationMs` 飞入时长，默认 250 ms；`distance` 飞入距离，0 为自动 |
 | `ui.cfg` | `enabled` 总开关；`hotbar`、`hover`、`carried`、`matching`、`trails` 分别控制快捷栏、悬停、携带、同类浮动和拖尾 |

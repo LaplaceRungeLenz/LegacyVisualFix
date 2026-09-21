@@ -29,6 +29,10 @@ def verify(path):
             "com/legacyvisualfix/mixin/combat/MixinItemRenderer.class",
             "com/legacyvisualfix/mixin/combat/MixinRendererLivingEntity.class",
             "com/legacyvisualfix/mixin/combat/MixinEntityLivingBase.class",
+            "com/legacyvisualfix/waila/WailaBackend.class",
+            "com/legacyvisualfix/waila/WdmlaAnimationRenderer.class",
+            "com/legacyvisualfix/mixin/waila/wdmla/MixinRootComponent.class",
+            "com/legacyvisualfix/mixin/waila/wdmla/MixinWDMlaTickHandler.class",
         ):
             if name not in names:
                 raise ValueError("Distribution is missing required fix/effects entry: " + name)
