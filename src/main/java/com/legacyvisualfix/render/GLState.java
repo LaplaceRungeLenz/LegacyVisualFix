@@ -12,6 +12,9 @@ import org.lwjgl.opengl.GLContext;
 final class GLState implements AutoCloseable {
 
     private final int matrixMode = GL11.glGetInteger(GL11.GL_MATRIX_MODE);
+    private final int modelDepth = GL11.glGetInteger(GL11.GL_MODELVIEW_STACK_DEPTH);
+    private final int projectionDepth = GL11.glGetInteger(GL11.GL_PROJECTION_STACK_DEPTH);
+    private final int textureDepth;
     private final int activeTexture = GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE);
     private final boolean shaders = GLContext.getCapabilities().OpenGL20;
     private final int program = shaders ? GL11.glGetInteger(GL20.GL_CURRENT_PROGRAM) : 0;
@@ -28,6 +31,7 @@ final class GLState implements AutoCloseable {
         OpenGlHelper.setActiveTexture(OpenGlHelper.lightmapTexUnit);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
+        textureDepth = GL11.glGetInteger(GL11.GL_TEXTURE_STACK_DEPTH);
         GL11.glMatrixMode(GL11.GL_TEXTURE);
         GL11.glPushMatrix();
         GL11.glLoadIdentity();
@@ -59,15 +63,20 @@ final class GLState implements AutoCloseable {
     public void close() {
         OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
-        GL11.glPopMatrix();
+        restoreStack(GL11.GL_MODELVIEW_STACK_DEPTH, modelDepth);
         GL11.glMatrixMode(GL11.GL_PROJECTION);
-        GL11.glPopMatrix();
+        restoreStack(GL11.GL_PROJECTION_STACK_DEPTH, projectionDepth);
         GL11.glMatrixMode(GL11.GL_TEXTURE);
-        GL11.glPopMatrix();
+        restoreStack(GL11.GL_TEXTURE_STACK_DEPTH, textureDepth);
         if (fbo) OpenGlHelper.func_153171_g(framebufferTarget, framebuffer);
         if (shaders) GL20.glUseProgram(program);
         GL11.glPopAttrib();
         OpenGlHelper.setActiveTexture(activeTexture);
         GL11.glMatrixMode(matrixMode);
+    }
+
+    private static void restoreStack(int parameter, int depth) {
+        // Optional renderers may throw between glPushMatrix and glPopMatrix.
+        for (int current = GL11.glGetInteger(parameter); current > depth; current--) GL11.glPopMatrix();
     }
 }

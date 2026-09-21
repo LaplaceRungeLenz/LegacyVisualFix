@@ -2,6 +2,13 @@
 project.ext.modVersion = System.getenv('VERSION') ?: '0.2.0'
 project.version = project.ext.modVersion
 
+// Optional locally built ModernSplash runtime API, used only by client compatibility tests.
+if (project.hasProperty('modernSplashJar')) {
+    dependencies {
+        devOnlyNonPublishable(rfg.deobf(project.files(project.property('modernSplashJar'))))
+    }
+}
+
 // Explicit opt-in only. The smoke mod never belongs in a release jar.
 if (project.hasProperty('clientSmoke')) {
     sourceSets.main.java.srcDir('src/smokeTest/java')

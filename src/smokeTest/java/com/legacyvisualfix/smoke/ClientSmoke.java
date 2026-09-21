@@ -128,6 +128,7 @@ public class ClientSmoke {
                             GL11.glGetInteger(GL11.GL_VIEWPORT, vp);
                             vp.get(viewport);
                             ReloadScreen.textureProgress();
+                            ModernSplashSmoke.assertActive();
                             java.lang.reflect.Field failed = ReloadScreen.class.getDeclaredField("failed");
                             failed.setAccessible(true);
                             if (failed.getBoolean(null)) throw new AssertionError("Renderer disabled by an error");
@@ -236,6 +237,7 @@ public class ClientSmoke {
             Thread.sleep(1000);
             if (listeners.get() != 6) throw new AssertionError("Reload did not recover");
             CaptureSmoke.run();
+            ModernSplashSmoke.run(results);
             ShaderSmoke.run(mc, results);
             waitingForFade = true;
             Files.write(

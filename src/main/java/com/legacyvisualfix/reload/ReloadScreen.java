@@ -13,6 +13,7 @@ import org.lwjgl.opengl.Display;
 
 import com.legacyvisualfix.LegacyVisualFix;
 import com.legacyvisualfix.render.LoadingRenderer;
+import com.legacyvisualfix.render.ModernSplashRenderer;
 import com.legacyvisualfix.render.Transitions;
 import com.legacyvisualfix.theme.Theme;
 import com.legacyvisualfix.theme.ThemeMigration;
@@ -26,6 +27,7 @@ public final class ReloadScreen {
     private static final ReloadProgress PROGRESS = new ReloadProgress();
     private static final ReloadScope SCOPE = new ReloadScope();
     private static final LoadingRenderer RENDERER = new LoadingRenderer();
+    private static final ModernSplashRenderer MODERN_SPLASH = new ModernSplashRenderer();
     private static final Transitions TRANSITIONS = new Transitions();
     private static boolean shaderSession;
     private static int shaderSessions;
@@ -47,6 +49,7 @@ public final class ReloadScreen {
         clientThread = Thread.currentThread();
         directory = new File(mc.mcDataDir, "config/legacyvisualfix");
         reloadTheme();
+        MODERN_SPLASH.initialize();
         LegacyVisualFix.LOG.info("LegacyVisualFix runtime reload screen ready");
     }
 
@@ -92,6 +95,7 @@ public final class ReloadScreen {
                 PROGRESS.begin(listeners);
                 detail = shaders ? "Preparing shaders" : "Preparing resource packs";
                 lastFrame = 0;
+                if (theme.enabled) MODERN_SPLASH.begin();
                 enter();
             }
             original.run();
@@ -107,6 +111,8 @@ public final class ReloadScreen {
                     if (theme.enabled && !failed) TRANSITIONS.finish(theme.fadeOutMs);
                 } catch (RuntimeException | LinkageError e) {
                     LegacyVisualFix.LOG.warn("Cannot start reload fade-out", e);
+                } finally {
+                    MODERN_SPLASH.close();
                 }
                 PROGRESS.finish();
                 // A broken new resource pack must not replace the last valid cache.
@@ -164,14 +170,7 @@ public final class ReloadScreen {
         if (!force && now - lastFrame < 50_000_000L) return;
         drawing = true;
         try {
-            RENDERER.draw(
-                minecraft,
-                theme,
-                textures,
-                PROGRESS,
-                detail,
-                shaderSession ? "Reloading shaders" : "Reloading resources",
-                true);
+            renderFrame(true);
             lastFrame = System.nanoTime();
         } catch (RuntimeException | LinkageError e) {
             failed = true;
@@ -181,21 +180,19 @@ public final class ReloadScreen {
         }
     }
 
+    private static void renderFrame(boolean present) {
+        String title = shaderSession ? "Reloading shaders" : "Reloading resources";
+        if (!MODERN_SPLASH.draw(PROGRESS, detail, title, present)) {
+            RENDERER.draw(minecraft, theme, textures, PROGRESS, detail, title, present);
+        }
+    }
+
     private static void enter() {
         try {
             TRANSITIONS.close();
             if (!theme.enabled) return;
             drawing = true;
-            TRANSITIONS.enter(
-                theme.fadeInMs,
-                () -> RENDERER.draw(
-                    minecraft,
-                    theme,
-                    textures,
-                    PROGRESS,
-                    detail,
-                    shaderSession ? "Reloading shaders" : "Reloading resources",
-                    false));
+            TRANSITIONS.enter(theme.fadeInMs, () -> renderFrame(false));
         } catch (RuntimeException | LinkageError e) {
             LegacyVisualFix.LOG.warn("Cannot animate reload entry; using normal loading screen", e);
         } finally {
@@ -270,6 +267,7 @@ public final class ReloadScreen {
     public static void shutdown() {
         if (Thread.currentThread() != clientThread || !Display.isCreated()) return;
         try {
+            MODERN_SPLASH.close();
             RENDERER.close();
             TRANSITIONS.close();
             if (textures != null) textures.close();
