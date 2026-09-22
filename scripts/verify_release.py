@@ -35,6 +35,8 @@ def verify(path):
             "com/legacyvisualfix/waila/WdmlaAnimationRenderer.class",
             "com/legacyvisualfix/mixin/waila/wdmla/MixinRootComponent.class",
             "com/legacyvisualfix/mixin/waila/wdmla/MixinWDMlaTickHandler.class",
+            "com/legacyvisualfix/mixin/waila/wdmla/MixinGuiBlockDraw.class",
+            "com/legacyvisualfix/waila/TooltipContentTransform.class",
         ):
             if name not in names:
                 raise ValueError("Distribution is missing required fix/effects entry: " + name)

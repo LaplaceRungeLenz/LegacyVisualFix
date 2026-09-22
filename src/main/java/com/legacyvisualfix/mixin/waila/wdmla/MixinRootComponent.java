@@ -39,14 +39,14 @@ public abstract class MixinRootComponent {
             value = "INVOKE",
             target = "Lcom/gtnewhorizons/wdmla/util/GLStateHelper;prepareFGDraw()V",
             shift = At.Shift.AFTER))
-    private void legacyvisualfix$clip(CallbackInfo ci) {
-        WdmlaAnimationRenderer.clipContent();
+    private void legacyvisualfix$beginContent(CallbackInfo ci) {
+        WdmlaAnimationRenderer.beginContent();
     }
 
     @Inject(
         method = "renderHUD",
         at = @At(value = "INVOKE", target = "Lcom/gtnewhorizons/wdmla/util/GLStateHelper;endDraw()V"))
-    private void legacyvisualfix$unclip(CallbackInfo ci) {
-        WdmlaAnimationRenderer.finishClip();
+    private void legacyvisualfix$endContent(CallbackInfo ci) {
+        WdmlaAnimationRenderer.endContent();
     }
 }

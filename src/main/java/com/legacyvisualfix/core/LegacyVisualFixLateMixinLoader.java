@@ -28,7 +28,7 @@ public final class LegacyVisualFixLateMixinLoader implements ILateMixinLoader {
         WailaBackend backend = WailaBackend.select(loadedMods);
         if (backend == WailaBackend.NONE) return Collections.emptyList();
         if (backend == WailaBackend.WDMLA) {
-            return Arrays.asList("wdmla.MixinRootComponent", "wdmla.MixinWDMlaTickHandler");
+            return Arrays.asList("wdmla.MixinRootComponent", "wdmla.MixinWDMlaTickHandler", "wdmla.MixinGuiBlockDraw");
         }
         if (loadedMods.contains("chromatictooltipscompat") && loadedMods.contains("chromatictooltips")
             && CompatConfig.wailaEnabled) {

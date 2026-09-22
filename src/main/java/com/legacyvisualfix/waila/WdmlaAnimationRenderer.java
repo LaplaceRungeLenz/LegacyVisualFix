@@ -1,12 +1,9 @@
 package com.legacyvisualfix.waila;
 
-import java.nio.IntBuffer;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.common.config.Configuration;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import com.gtnewhorizons.wdmla.impl.ui.sizer.Area;
@@ -24,7 +21,6 @@ public final class WdmlaAnimationRenderer {
     // Keep only the previous dimensions, not the old tooltip content, across short gaps.
     private static final int TARGET_GAP_GRACE_MS = 500;
     private static final TooltipAnimation ANIMATION = new TooltipAnimation();
-    private static final IntBuffer SCISSOR = BufferUtils.createIntBuffer(16);
     private static Frame current;
     private static boolean drawn;
     private static Object world, screen;
@@ -108,58 +104,64 @@ public final class WdmlaAnimationRenderer {
         return current == null ? measured : current.size;
     }
 
-    public static void clipContent() {
-        if (current != null) current.clip();
+    public static void beginContent() {
+        if (current != null) current.beginContent();
     }
 
-    public static void finishClip() {
-        if (current != null) current.unclip();
+    public static void endContent() {
+        if (current != null) current.endContent();
+    }
+
+    public static TooltipContentTransform contentTransform() {
+        return current == null ? null : current.content;
+    }
+
+    public static double pixelScale() {
+        return guiScale * overlayScale;
     }
 
     public static final class Frame implements AutoCloseable {
 
         private final Size size = new Size((float) ANIMATION.width(), (float) ANIMATION.height());
         private final float targetWidth, targetHeight;
-        private boolean clipped;
+        private TooltipContentTransform content;
+        private boolean transformed;
 
         private Frame(float width, float height) {
             targetWidth = width;
             targetHeight = height;
         }
 
-        private void clip() {
-            if (clipped || (size.getW() >= targetWidth && size.getH() >= targetHeight)) return;
-            Area bg = new HUDRenderArea(size).computeBackground();
-            double pixels = guiScale * overlayScale;
-            int left = (int) Math.ceil((bg.getX() + 1) * pixels);
-            int right = (int) Math.floor((bg.getX() + bg.getW() - 1) * pixels);
-            int bottom = displayHeight - (int) Math.floor((bg.getY() + bg.getH() - 1) * pixels);
-            int top = displayHeight - (int) Math.ceil((bg.getY() + 1) * pixels);
-            if (GL11.glIsEnabled(GL11.GL_SCISSOR_TEST)) {
-                SCISSOR.clear();
-                GL11.glGetInteger(GL11.GL_SCISSOR_BOX, SCISSOR);
-                left = Math.max(left, SCISSOR.get(0));
-                bottom = Math.max(bottom, SCISSOR.get(1));
-                right = Math.min(right, SCISSOR.get(0) + SCISSOR.get(2));
-                top = Math.min(top, SCISSOR.get(1) + SCISSOR.get(3));
-            }
-            GL11.glPushAttrib(GL11.GL_SCISSOR_BIT);
-            clipped = true;
-            GL11.glEnable(GL11.GL_SCISSOR_TEST);
-            GL11.glScissor(left, bottom, Math.max(0, right - left), Math.max(0, top - bottom));
+        private void beginContent() {
+            if (content != null) return;
+            Area fg = new HUDRenderArea(size).computeForeground();
+            content = new TooltipContentTransform(
+                fg.getX(),
+                fg.getY(),
+                size.getW(),
+                size.getH(),
+                targetWidth,
+                targetHeight);
+            if (content.scale == 1) return;
+            GL11.glPushMatrix();
+            transformed = true;
+            GL11.glTranslatef(content.x, content.y, 0);
+            GL11.glScalef(content.scale, content.scale, 1);
+            GL11.glTranslatef(-content.x, -content.y, 0);
         }
 
-        private void unclip() {
-            if (clipped) {
-                GL11.glPopAttrib();
-                clipped = false;
+        private void endContent() {
+            if (transformed) {
+                GL11.glPopMatrix();
+                transformed = false;
             }
+            content = null;
         }
 
         @Override
         public void close() {
             try {
-                unclip();
+                endContent();
             } finally {
                 current = null;
             }

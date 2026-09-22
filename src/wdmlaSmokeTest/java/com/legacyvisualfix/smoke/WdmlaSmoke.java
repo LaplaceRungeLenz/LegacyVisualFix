@@ -2,6 +2,8 @@ package com.legacyvisualfix.smoke;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -10,17 +12,24 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ScreenShotHelper;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.common.config.Configuration;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import com.gtnewhorizons.wdmla.api.ui.IDrawable;
 import com.gtnewhorizons.wdmla.api.ui.sizer.IArea;
+import com.gtnewhorizons.wdmla.impl.ui.component.HPanelComponent;
+import com.gtnewhorizons.wdmla.impl.ui.component.ItemComponent;
 import com.gtnewhorizons.wdmla.impl.ui.component.RootComponent;
 import com.gtnewhorizons.wdmla.impl.ui.component.TextComponent;
 import com.gtnewhorizons.wdmla.impl.ui.sizer.Size;
 import com.gtnewhorizons.wdmla.impl.ui.value.HUDRenderArea;
+import com.gtnewhorizons.wdmla.overlay.GuiBlockDraw;
 import com.gtnewhorizons.wdmla.overlay.WDMlaTickHandler;
 import com.legacyvisualfix.waila.WailaAnimationConfig;
 import com.legacyvisualfix.waila.WdmlaAnimationRenderer;
@@ -30,7 +39,9 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
+import mcp.mobius.waila.api.impl.ConfigHandler;
 import mcp.mobius.waila.overlay.OverlayConfig;
+import mcp.mobius.waila.utils.Constants;
 
 /** Opt-in test of actual WDMla mixin transformation and OpenGL rendering. */
 @Mod(
@@ -59,6 +70,7 @@ public final class WdmlaSmoke {
     private static final class TestScreen extends GuiScreen {
 
         private RootComponent small, large;
+        private RootComponent activeRoot;
         private IArea rendered;
         private boolean finished;
 
@@ -134,6 +146,29 @@ public final class WdmlaSmoke {
                 OverlayConfig.scale = 1.5f;
                 render(small);
                 require(close(rendered.getW(), small.getWidth() + 10), "scale reset");
+                for (float scale : new float[] { 0.75f, 1.5f }) {
+                    for (int anchor : new int[] { 0, 10000 }) {
+                        OverlayConfig.scale = scale;
+                        ConfigHandler.instance()
+                            .setConfig(Configuration.CATEGORY_GENERAL, Constants.CFG_WAILA_POSX, anchor);
+                        ConfigHandler.instance()
+                            .setConfig(Configuration.CATEGORY_GENERAL, Constants.CFG_WAILA_POSY, anchor);
+                        render(small);
+                        render(large);
+                        advance(250);
+                        GL11.glClearColor(0.08f, 0.10f, 0.13f, 1);
+                        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+                        render(large);
+                        ScreenShotHelper.saveScreenshot(
+                            mc.mcDataDir,
+                            "wdmla-content-" + scale + "-" + anchor + ".png",
+                            mc.displayWidth,
+                            mc.displayHeight,
+                            mc.getFramebuffer());
+                        advance(600);
+                        render(large);
+                    }
+                }
                 finish(null);
             } catch (Throwable failure) {
                 finish(failure);
@@ -160,7 +195,27 @@ public final class WdmlaSmoke {
 
         private RootComponent root(String text) throws Exception {
             RootComponent root = new RootComponent();
-            root.child(new TextComponent(text));
+            HPanelComponent header = new HPanelComponent();
+            header.child(new ItemComponent(new ItemStack(Blocks.stone)));
+            header.child(new TextComponent(text) {
+
+                @Override
+                public void tick(float x, float y) {
+                    FloatBuffer matrix = BufferUtils.createFloatBuffer(16);
+                    GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, matrix);
+                    float expected = Math.min(
+                        1,
+                        Math.min(
+                            (rendered.getW() - 10) / activeRoot.getWidth(),
+                            (rendered.getH() - 10) / activeRoot.getHeight()));
+                    require(
+                        close(matrix.get(0) / OverlayConfig.scale, expected),
+                        "complete text must fit the animated box from the first frame");
+                    probeViewport(x, y, expected);
+                    super.tick(x, y);
+                }
+            });
+            root.child(header);
             Field field = RootComponent.class.getDeclaredField("background");
             field.setAccessible(true);
             IDrawable original = (IDrawable) field.get(root);
@@ -169,6 +224,42 @@ public final class WdmlaSmoke {
                 original.draw(area);
             });
             return root;
+        }
+
+        private void probeViewport(float x, float y, float scale) {
+            double pixels = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight).getScaleFactor()
+                * OverlayConfig.scale;
+            int rawX = (int) (x * pixels), rawY = mc.displayHeight - (int) ((y + 16) * pixels);
+            int rawSize = (int) (16 * pixels);
+            double pivotX = (rendered.getX() + 5) * pixels;
+            double pivotY = mc.displayHeight - (rendered.getY() + 5) * pixels;
+            int expectedX = (int) Math.round(pivotX + (rawX - pivotX) * scale);
+            int expectedY = (int) Math.round(pivotY + (rawY - pivotY) * scale);
+            int expectedSize = Math.round(rawSize * scale);
+            try {
+                GuiBlockDraw probe = new GuiBlockDraw() {
+
+                    @Override
+                    protected void drawWorld() {
+                        IntBuffer viewport = BufferUtils.createIntBuffer(16);
+                        GL11.glGetInteger(GL11.GL_VIEWPORT, viewport);
+                        require(
+                            viewport.get(0) == expectedX && viewport.get(1) == expectedY
+                                && viewport.get(2) == expectedSize
+                                && viewport.get(3) == expectedSize,
+                            "3D model viewport must follow the same scale and anchor as text");
+                        if (WailaAnimationConfig.enabled && WailaAnimationConfig.durationMs > 0) {
+                            require(GL11.glIsEnabled(GL11.GL_SCISSOR_TEST), "model must not disable caller clipping");
+                        }
+                    }
+                };
+                Method render = GuiBlockDraw.class
+                    .getDeclaredMethod("render", int.class, int.class, int.class, int.class);
+                render.setAccessible(true);
+                render.invoke(probe, rawX, rawY, rawSize, rawSize);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
 
         private void overlay(RootComponent root) throws Exception {
@@ -191,13 +282,21 @@ public final class WdmlaSmoke {
         }
 
         private void render(RootComponent root) throws Exception {
+            activeRoot = root;
             float width = root.getWidth(), height = root.getHeight();
             boolean scissor = GL11.glIsEnabled(GL11.GL_SCISSOR_TEST);
             int depth = GL11.glGetInteger(GL11.GL_ATTRIB_STACK_DEPTH);
+            int matrices = GL11.glGetInteger(GL11.GL_MODELVIEW_STACK_DEPTH);
+            IntBuffer viewportBefore = BufferUtils.createIntBuffer(16);
+            GL11.glGetInteger(GL11.GL_VIEWPORT, viewportBefore);
             overlay(root);
             require(width == root.getWidth() && height == root.getHeight(), "component layout untouched");
             require(scissor == GL11.glIsEnabled(GL11.GL_SCISSOR_TEST), "scissor restored");
             require(depth == GL11.glGetInteger(GL11.GL_ATTRIB_STACK_DEPTH), "attribute stack restored");
+            require(matrices == GL11.glGetInteger(GL11.GL_MODELVIEW_STACK_DEPTH), "foreground matrix stack restored");
+            IntBuffer viewportAfter = BufferUtils.createIntBuffer(16);
+            GL11.glGetInteger(GL11.GL_VIEWPORT, viewportAfter);
+            for (int i = 0; i < 4; i++) require(viewportBefore.get(i) == viewportAfter.get(i), "viewport restored");
             IArea expected = new HUDRenderArea(new Size(rendered.getW() - 10, rendered.getH() - 10))
                 .computeBackground();
             require(close(expected.getX(), rendered.getX()), "horizontal anchor");
@@ -207,7 +306,7 @@ public final class WdmlaSmoke {
         private void finish(Throwable failure) {
             finished = true;
             String result = failure == null
-                ? "PASS: WDMla real overlay events, grow/shrink across 250ms target-data gaps, long hidden/render pause/HUD hide resets, layout, anchors, disabled/zero duration, scale reset, GL restoration"
+                ? "PASS: synchronized item/text/3D viewport transforms, top-left/bottom-right anchors, overlay scales, viewport/matrix/scissor restoration, real overlay events and target-data gaps, hide/disable resets"
                 : "FAIL: " + failure;
             if (failure != null) failure.printStackTrace();
             try {
