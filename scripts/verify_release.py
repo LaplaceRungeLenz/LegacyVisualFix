@@ -39,6 +39,7 @@ def verify(path):
             if name not in names:
                 raise ValueError("Distribution is missing required fix/effects entry: " + name)
         contracts = {
+            "com/legacyvisualfix/waila/WdmlaAnimationRenderer.class": b"resetIfIdle",
             "com/legacyvisualfix/inventory/InventoryMotion.class": b"openingFrom",
             "com/legacyvisualfix/mixin/inventory/MixinGuiScreen.class":
                 b"com/llamalad7/mixinextras/injector/wrapoperation/WrapOperation",

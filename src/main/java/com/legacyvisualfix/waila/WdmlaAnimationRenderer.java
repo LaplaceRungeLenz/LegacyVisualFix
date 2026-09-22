@@ -20,6 +20,9 @@ import mcp.mobius.waila.utils.Constants;
 /** Animates only the HUD render area, leaving WDMla component measurements untouched. */
 public final class WdmlaAnimationRenderer {
 
+    // WDMla temporarily clears mainHUD while a new target's server data is in flight.
+    // Keep only the previous dimensions, not the old tooltip content, across short gaps.
+    private static final int TARGET_GAP_GRACE_MS = 500;
     private static final TooltipAnimation ANIMATION = new TooltipAnimation();
     private static final IntBuffer SCISSOR = BufferUtils.createIntBuffer(16);
     private static Frame current;
@@ -35,7 +38,26 @@ public final class WdmlaAnimationRenderer {
     }
 
     public static void endFrame() {
-        if (!drawn) reset();
+        if (drawn) return;
+        Minecraft mc = Minecraft.getMinecraft();
+        if (world != mc.theWorld || screen != mc.currentScreen
+            || !Minecraft.isGuiEnabled()
+            || mc.gameSettings.keyBindPlayerList.getIsKeyPressed()
+            || !ConfigHandler.instance()
+                .showTooltip()
+            || !WailaAnimationConfig.enabled
+            || WailaAnimationConfig.durationMs <= 0) {
+            reset();
+        } else {
+            expire(System.nanoTime());
+        }
+    }
+
+    private static void expire(long now) {
+        if (ANIMATION.resetIfIdle(now, TARGET_GAP_GRACE_MS)) {
+            world = null;
+            screen = null;
+        }
     }
 
     private static void reset() {
@@ -51,6 +73,9 @@ public final class WdmlaAnimationRenderer {
             reset();
             return null;
         }
+        long now = System.nanoTime();
+        // Also cover a pause in rendering where no empty-frame callback was delivered.
+        expire(now);
         Minecraft mc = Minecraft.getMinecraft();
         int scale = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight).getScaleFactor();
         int x = ConfigHandler.instance()
@@ -74,7 +99,7 @@ public final class WdmlaAnimationRenderer {
         overlayScale = OverlayConfig.scale;
         anchorX = x;
         anchorY = y;
-        ANIMATION.update(width, height, System.nanoTime(), WailaAnimationConfig.durationMs);
+        ANIMATION.update(width, height, now, WailaAnimationConfig.durationMs);
         current = new Frame(width, height);
         return current;
     }

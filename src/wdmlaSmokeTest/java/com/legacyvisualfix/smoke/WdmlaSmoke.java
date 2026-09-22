@@ -8,7 +8,9 @@ import java.nio.file.Files;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -19,6 +21,7 @@ import com.gtnewhorizons.wdmla.impl.ui.component.RootComponent;
 import com.gtnewhorizons.wdmla.impl.ui.component.TextComponent;
 import com.gtnewhorizons.wdmla.impl.ui.sizer.Size;
 import com.gtnewhorizons.wdmla.impl.ui.value.HUDRenderArea;
+import com.gtnewhorizons.wdmla.overlay.WDMlaTickHandler;
 import com.legacyvisualfix.waila.WailaAnimationConfig;
 import com.legacyvisualfix.waila.WdmlaAnimationRenderer;
 
@@ -90,10 +93,36 @@ public final class WdmlaSmoke {
                     require(close(rendered.getW(), target.getWidth() + 10), "settled width");
                     require(close(rendered.getH(), target.getHeight() + 10), "settled height");
                 }
-                WdmlaAnimationRenderer.beginFrame();
-                WdmlaAnimationRenderer.endFrame();
+                // WDMla leaves mainHUD null while awaiting a new target's server data.
+                // Exercise the real event hook, including several empty frames, in both directions.
+                for (RootComponent target : new RootComponent[] { large, small }) {
+                    float previousWidth = rendered.getW();
+                    idle(250);
+                    for (int i = 0; i < 5; i++) overlay(null);
+                    render(target);
+                    require(close(rendered.getW(), previousWidth), "short target-data gap must preserve size");
+                    advance(250);
+                    render(target);
+                    require(rendered.getW() > small.getWidth() + 10, "gap transition lower bound");
+                    require(rendered.getW() < large.getWidth() + 10, "gap transition upper bound");
+                    advance(600);
+                    render(target);
+                }
+                idle(600);
+                overlay(null);
                 render(large);
-                require(close(rendered.getW(), large.getWidth() + 10), "hidden reset");
+                require(close(rendered.getW(), large.getWidth() + 10), "long hidden reset");
+                idle(600);
+                render(small);
+                require(close(rendered.getW(), small.getWidth() + 10), "render pause reset");
+                mc.gameSettings.hideGUI = true;
+                try {
+                    overlay(null);
+                } finally {
+                    mc.gameSettings.hideGUI = false;
+                }
+                render(large);
+                require(close(rendered.getW(), large.getWidth() + 10), "explicit HUD hide reset");
                 WailaAnimationConfig.enabled = false;
                 render(small);
                 require(close(rendered.getW(), small.getWidth() + 10), "disabled size");
@@ -112,11 +141,19 @@ public final class WdmlaSmoke {
         }
 
         private void advance(int milliseconds) throws Exception {
+            ageAnimationField("started", milliseconds);
+        }
+
+        private void idle(int milliseconds) throws Exception {
+            ageAnimationField("lastUpdated", milliseconds);
+        }
+
+        private void ageAnimationField(String name, int milliseconds) throws Exception {
             Field animation = WdmlaAnimationRenderer.class.getDeclaredField("ANIMATION");
             animation.setAccessible(true);
             Object state = animation.get(null);
             Field started = state.getClass()
-                .getDeclaredField("started");
+                .getDeclaredField(name);
             started.setAccessible(true);
             started.setLong(state, System.nanoTime() - milliseconds * 1_000_000L);
         }
@@ -134,11 +171,30 @@ public final class WdmlaSmoke {
             return root;
         }
 
-        private void render(RootComponent root) {
+        private void overlay(RootComponent root) throws Exception {
+            Field hud = WDMlaTickHandler.class.getDeclaredField("mainHUD");
+            hud.setAccessible(true);
+            hud.set(null, root);
+            GuiScreen screen = mc.currentScreen;
+            mc.currentScreen = null;
+            try {
+                RenderGameOverlayEvent parent = new RenderGameOverlayEvent(
+                    0,
+                    new ScaledResolution(mc, mc.displayWidth, mc.displayHeight),
+                    0,
+                    0);
+                new WDMlaTickHandler()
+                    .overlayRender(new RenderGameOverlayEvent.Post(parent, RenderGameOverlayEvent.ElementType.ALL));
+            } finally {
+                mc.currentScreen = screen;
+            }
+        }
+
+        private void render(RootComponent root) throws Exception {
             float width = root.getWidth(), height = root.getHeight();
             boolean scissor = GL11.glIsEnabled(GL11.GL_SCISSOR_TEST);
             int depth = GL11.glGetInteger(GL11.GL_ATTRIB_STACK_DEPTH);
-            root.renderHUD();
+            overlay(root);
             require(width == root.getWidth() && height == root.getHeight(), "component layout untouched");
             require(scissor == GL11.glIsEnabled(GL11.GL_SCISSOR_TEST), "scissor restored");
             require(depth == GL11.glGetInteger(GL11.GL_ATTRIB_STACK_DEPTH), "attribute stack restored");
@@ -151,7 +207,7 @@ public final class WdmlaSmoke {
         private void finish(Throwable failure) {
             finished = true;
             String result = failure == null
-                ? "PASS: WDMla transformed renderer, grow/shrink, layout, anchors, hidden reset, disabled/zero duration, scale reset, GL restoration"
+                ? "PASS: WDMla real overlay events, grow/shrink across 250ms target-data gaps, long hidden/render pause/HUD hide resets, layout, anchors, disabled/zero duration, scale reset, GL restoration"
                 : "FAIL: " + failure;
             if (failure != null) failure.printStackTrace();
             try {

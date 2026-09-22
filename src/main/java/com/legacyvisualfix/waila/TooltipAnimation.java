@@ -4,10 +4,11 @@ package com.legacyvisualfix.waila;
 public final class TooltipAnimation {
 
     private boolean initialized;
-    private long started;
+    private long started, lastUpdated;
     private double width, height, startWidth, startHeight, targetWidth, targetHeight;
 
     public void update(double nextWidth, double nextHeight, long now, int durationMs) {
+        lastUpdated = now;
         if (!initialized || durationMs <= 0) {
             width = startWidth = targetWidth = nextWidth;
             height = startHeight = targetHeight = nextHeight;
@@ -38,5 +39,12 @@ public final class TooltipAnimation {
 
     public void reset() {
         initialized = false;
+    }
+
+    /** Empty render frames must not move the deadline forward. */
+    public boolean resetIfIdle(long now, int timeoutMs) {
+        if (!initialized || now - lastUpdated < timeoutMs * 1_000_000L) return false;
+        reset();
+        return true;
     }
 }

@@ -1,10 +1,53 @@
 package com.legacyvisualfix.waila;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 public class TooltipAnimationTest {
+
+    @Test
+    public void shortServerDataGapsKeepThePreviousSizeInBothDirections() {
+        TooltipAnimation animation = new TooltipAnimation();
+        animation.update(100, 40, 0, 150);
+        for (long time = 16_000_000; time < 250_000_000; time += 16_000_000) {
+            assertFalse(animation.resetIfIdle(time, 500));
+        }
+        animation.update(200, 80, 250_000_000, 150);
+        assertEquals(100, animation.width(), 0.001);
+        animation.update(200, 80, 325_000_000, 150);
+        assertEquals(150, animation.width(), 0.001);
+        animation.update(200, 80, 400_000_000, 150);
+        assertFalse(animation.resetIfIdle(600_000_000, 500));
+        animation.update(100, 40, 600_000_000, 150);
+        assertEquals(200, animation.width(), 0.001);
+        animation.update(100, 40, 675_000_000, 150);
+        assertEquals(150, animation.width(), 0.001);
+    }
+
+    @Test
+    public void emptyFramesDoNotExtendTheIdleDeadline() {
+        TooltipAnimation animation = new TooltipAnimation();
+        animation.update(100, 40, 0, 150);
+        assertFalse(animation.resetIfIdle(250_000_000, 500));
+        assertFalse(animation.resetIfIdle(499_999_999, 500));
+        assertTrue(animation.resetIfIdle(500_000_000, 500));
+        animation.update(200, 80, 510_000_000, 150);
+        assertEquals(200, animation.width(), 0.001);
+    }
+
+    @Test
+    public void activeFramesRefreshIdleDeadlineAndExplicitResetStillSnaps() {
+        TooltipAnimation animation = new TooltipAnimation();
+        animation.update(100, 40, 0, 150);
+        animation.update(100, 40, 400_000_000, 150);
+        assertFalse(animation.resetIfIdle(700_000_000, 500));
+        animation.reset();
+        animation.update(200, 80, 710_000_000, 150);
+        assertEquals(200, animation.width(), 0.001);
+    }
 
     @Test
     public void preservesFractionalWdmlaComponentSizes() {
