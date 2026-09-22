@@ -9,7 +9,7 @@ import zipfile
 def verify(path):
     with zipfile.ZipFile(path) as jar:
         names = jar.namelist()
-        if any("Smoke" in name for name in names):
+        if any("Smoke" in name or name.startswith("com/legacyvisualfix/smoke/") for name in names):
             raise ValueError("Distribution contains smoke test classes")
         if any(name.startswith("com/legacyvisualfix/packqa/") for name in names):
             raise ValueError("Distribution contains temporary pack QA classes")
@@ -37,6 +37,7 @@ def verify(path):
             "com/legacyvisualfix/mixin/waila/wdmla/MixinWDMlaTickHandler.class",
             "com/legacyvisualfix/mixin/waila/wdmla/MixinGuiBlockDraw.class",
             "com/legacyvisualfix/waila/TooltipContentTransform.class",
+            "com/legacyvisualfix/waila/PendingTooltip.class",
         ):
             if name not in names:
                 raise ValueError("Distribution is missing required fix/effects entry: " + name)

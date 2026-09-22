@@ -169,6 +169,7 @@ public final class WdmlaSmoke {
                         render(large);
                     }
                 }
+                WdmlaPendingProbe.run(this::overlay);
                 finish(null);
             } catch (Throwable failure) {
                 finish(failure);
@@ -306,7 +307,7 @@ public final class WdmlaSmoke {
         private void finish(Throwable failure) {
             finished = true;
             String result = failure == null
-                ? "PASS: synchronized item/text/3D viewport transforms, top-left/bottom-right anchors, overlay scales, viewport/matrix/scissor restoration, real overlay events and target-data gaps, hide/disable resets"
+                ? "PASS: pending-data HUD continuity on all axes, response replacement, timeout/hide/disable resets, synchronized item/text/3D viewport transforms, anchors, scales, GL restoration"
                 : "FAIL: " + failure;
             if (failure != null) failure.printStackTrace();
             try {

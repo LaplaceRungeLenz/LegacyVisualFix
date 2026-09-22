@@ -18,7 +18,7 @@ import mcp.mobius.waila.utils.Constants;
 public final class WdmlaAnimationRenderer {
 
     // WDMla temporarily clears mainHUD while a new target's server data is in flight.
-    // Keep only the previous dimensions, not the old tooltip content, across short gaps.
+    // Preserve animation dimensions across short gaps; pending HUD content is handled by the tick mixin.
     private static final int TARGET_GAP_GRACE_MS = 500;
     private static final TooltipAnimation ANIMATION = new TooltipAnimation();
     private static Frame current;
