@@ -11,9 +11,9 @@ import org.lwjgl.opengl.GL11;
 
 import com.legacyvisualfix.combat.CombatConfig;
 import com.legacyvisualfix.combat.FeedbackStyle;
-import com.legacyvisualfix.combat.HitFeedback;
+import com.legacyvisualfix.combat.HitFeedbackMessage;
 
-/** Presentation only. Local attempts track held-item identity; uncertain associations are skipped. */
+/** Presentation only. Protocol v1 has no weapon ID, so uncertain associations are skipped. */
 public final class WeaponRecoil {
 
     private static Entity attemptedTarget;
@@ -62,7 +62,7 @@ public final class WeaponRecoil {
             reset();
             return;
         }
-        if (attemptedTarget != null && (now < attemptedAt || now - attemptedAt > 500)) attemptedTarget = null;
+        if (attemptedTarget != null && (now < attemptedAt || now - attemptedAt > 250)) attemptedTarget = null;
         if (active && (now < started || now - started >= duration)) {
             active = false;
             frameAngle = 0;
@@ -100,7 +100,7 @@ public final class WeaponRecoil {
         attemptedAt = now;
     }
 
-    public static void accept(Minecraft mc, HitFeedback hit, long now) {
+    public static void accept(Minecraft mc, HitFeedbackMessage hit, long now) {
         tick(mc, now);
         if (attemptedTarget == null || hit == null
             || !hit.valid()

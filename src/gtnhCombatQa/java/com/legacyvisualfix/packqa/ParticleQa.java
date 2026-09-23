@@ -23,7 +23,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import com.legacyvisualfix.combat.CombatConfig;
-import com.legacyvisualfix.combat.HitFeedback;
+import com.legacyvisualfix.combat.HitFeedbackMessage;
 import com.legacyvisualfix.combat.client.CombatParticles;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -123,7 +123,7 @@ public final class ParticleQa {
         boolean efrBefore = efr.getBoolean(null);
         try {
             CombatConfig.particlesPerHit = 6;
-            HitFeedback hit = new HitFeedback(1, mc.thePlayer.dimension, target.getEntityId(), 4, 0);
+            HitFeedbackMessage hit = new HitFeedbackMessage(1, mc.thePlayer.dimension, target.getEntityId(), 4, 0);
             mc.gameSettings.particleSetting = 0;
             CombatConfig.particleMode = "off";
             checkSpawn(mc, hit, "mode off", 0);
@@ -145,10 +145,10 @@ public final class ParticleQa {
             target.setInvisible(true);
             checkSpawn(mc, hit, "invisible", 0);
             target.setInvisible(false);
-            checkSpawn(mc, new HitFeedback(2, mc.thePlayer.dimension, Integer.MIN_VALUE, 4, 0), "missing", 0);
+            checkSpawn(mc, new HitFeedbackMessage(2, mc.thePlayer.dimension, Integer.MIN_VALUE, 4, 0), "missing", 0);
             checkSpawn(
                 mc,
-                new HitFeedback(3, mc.thePlayer.dimension, target.getEntityId(), Float.NaN, 0),
+                new HitFeedbackMessage(3, mc.thePlayer.dimension, target.getEntityId(), Float.NaN, 0),
                 "invalid",
                 0);
             CombatParticles fx = new CombatParticles();
@@ -166,7 +166,7 @@ public final class ParticleQa {
         }
     }
 
-    private void checkSpawn(Minecraft mc, HitFeedback hit, String name, int expected) throws Exception {
+    private void checkSpawn(Minecraft mc, HitFeedbackMessage hit, String name, int expected) throws Exception {
         new CombatParticles().spawn(mc, hit, System.nanoTime() / 1_000_000);
         int actual = particles(mc).size();
         log(name, actual == expected, "count=" + actual + " expected=" + expected);

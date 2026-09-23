@@ -15,7 +15,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.legacyvisualfix.combat.CombatConfig;
 import com.legacyvisualfix.combat.FeedbackStyle;
-import com.legacyvisualfix.combat.HitFeedback;
+import com.legacyvisualfix.combat.HitFeedbackMessage;
 
 /** Client-thread state keyed by entity identity, never writes gameplay or model fields. */
 public final class CombatReactions {
@@ -80,7 +80,7 @@ public final class CombatReactions {
         }
     }
 
-    public static void accept(Minecraft mc, HitFeedback hit, long now) {
+    public static void accept(Minecraft mc, HitFeedbackMessage hit, long now) {
         if (!CombatConfig.enabled || !CombatConfig.modelReaction
             || mc.theWorld == null
             || mc.thePlayer == null

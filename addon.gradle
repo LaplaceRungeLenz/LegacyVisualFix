@@ -1,5 +1,5 @@
 // GTNH extension point: leave the upstream convention build script unchanged.
-project.ext.modVersion = System.getenv('VERSION') ?: '0.2.3'
+project.ext.modVersion = System.getenv('VERSION') ?: '0.2.2'
 project.version = project.ext.modVersion
 
 // Optional locally built ModernSplash runtime API, used only by client compatibility tests.
@@ -32,6 +32,12 @@ if (project.hasProperty('uiSmoke')) {
     sourceSets.main.java.srcDir('src/uiSmokeTest/java')
 }
 
+if (project.hasProperty('vajraSmoke')) {
+    sourceSets.main.java.srcDir('src/vajraSmokeTest/java')
+}
+if (project.hasProperty('combatSmoke')) {
+    sourceSets.main.java.srcDir('src/combatSmokeTest/java')
+}
 // Pack QA classes are extracted to a separate temporary test mod, never shipped.
 if (project.hasProperty('gtnhCombatQa')) {
     sourceSets.main.java.srcDir('src/gtnhCombatQa/java')

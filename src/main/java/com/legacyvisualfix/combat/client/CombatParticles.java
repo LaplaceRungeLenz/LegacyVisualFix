@@ -12,12 +12,12 @@ import net.minecraft.util.AxisAlignedBB;
 
 import com.legacyvisualfix.combat.CombatConfig;
 import com.legacyvisualfix.combat.FeedbackStyle;
-import com.legacyvisualfix.combat.HitFeedback;
+import com.legacyvisualfix.combat.HitFeedbackMessage;
 import com.legacyvisualfix.combat.ParticleBudget;
 
 import cpw.mods.fml.common.Loader;
 
-/** Client-thread presentation only; local feedback supplies a target, not an exact impact point. */
+/** Client-thread presentation only; protocol v1 supplies a target, not an exact impact point. */
 public final class CombatParticles {
 
     private final ParticleBudget budget = new ParticleBudget();
@@ -35,7 +35,7 @@ public final class CombatParticles {
         }
     }
 
-    public void spawn(Minecraft mc, HitFeedback hit, long nowMs) {
+    public void spawn(Minecraft mc, HitFeedbackMessage hit, long nowMs) {
         if (mc == null || mc.theWorld == null
             || mc.thePlayer == null
             || mc.effectRenderer == null

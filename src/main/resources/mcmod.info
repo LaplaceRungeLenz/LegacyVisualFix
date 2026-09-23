@@ -3,7 +3,7 @@
 	"modList": [{
 		"modid": "${modId}",
 		"name": "${modName}",
-		"description": "Client-only reload screens, smooth tooltips/FOV, inventory effects and local melee feedback for Minecraft 1.7.10.",
+		"description": "Reload screens, smooth tooltips/FOV and optional client/server Vajra wrench/cutter grid interactions for Minecraft 1.7.10.",
 		"version": "${modVersion}",
 		"mcversion": "${minecraftVersion}",
 		"url": "https://github.com/LaplaceRungeLenz/LegacyVisualFix",
