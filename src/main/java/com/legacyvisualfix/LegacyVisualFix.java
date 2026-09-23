@@ -4,22 +4,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.legacyvisualfix.combat.CombatConfig;
-import com.legacyvisualfix.combat.CombatNetwork;
 import com.legacyvisualfix.combat.client.CombatClient;
 import com.legacyvisualfix.fov.FovConfig;
 import com.legacyvisualfix.inventory.InventoryAnimationConfig;
 import com.legacyvisualfix.inventory.InventoryScreenEvents;
 import com.legacyvisualfix.ui.UiEffects;
 import com.legacyvisualfix.ui.UiEffectsConfig;
-import com.legacyvisualfix.vajra.VajraConfig;
-import com.legacyvisualfix.vajra.VajraNetwork;
-import com.legacyvisualfix.vajra.client.VajraClient;
 import com.legacyvisualfix.waila.WailaAnimationConfig;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStoppedEvent;
 
 @Mod(
     modid = LegacyVisualFix.MODID,
@@ -35,38 +30,17 @@ public final class LegacyVisualFix {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+        if (!event.getSide()
+            .isClient()) return;
         CombatConfig.load(event.getModConfigurationDirectory());
-        CombatNetwork.register();
-        if (event.getSide()
-            .isClient()) CombatClient.register();
-        if (event.getSide()
-            .isClient()) {
-            UiEffectsConfig.load(event.getModConfigurationDirectory());
-            UiEffects.register();
-        }
-        if (Loader.isModLoaded("gregtech") && Loader.isModLoaded("IC2") && Loader.isModLoaded("appliedenergistics2")) {
-            VajraConfig.load(event.getModConfigurationDirectory());
-            if (VajraConfig.enabled) {
-                VajraNetwork.register();
-                if (event.getSide()
-                    .isClient()) VajraClient.register();
-            }
-        }
-        if (event.getSide()
-            .isClient()) {
-            InventoryAnimationConfig.load(event.getModConfigurationDirectory());
-            InventoryScreenEvents.register();
-        }
-        if (event.getSide()
-            .isClient()) FovConfig.load(event.getModConfigurationDirectory());
-        if (event.getSide()
-            .isClient() && Loader.isModLoaded("Waila")) {
+        CombatClient.register();
+        UiEffectsConfig.load(event.getModConfigurationDirectory());
+        UiEffects.register();
+        InventoryAnimationConfig.load(event.getModConfigurationDirectory());
+        InventoryScreenEvents.register();
+        FovConfig.load(event.getModConfigurationDirectory());
+        if (Loader.isModLoaded("Waila") || Loader.isModLoaded("wdmla")) {
             WailaAnimationConfig.load(event.getModConfigurationDirectory());
         }
-    }
-
-    @Mod.EventHandler
-    public void serverStopped(FMLServerStoppedEvent event) {
-        CombatNetwork.clearPeers();
     }
 }

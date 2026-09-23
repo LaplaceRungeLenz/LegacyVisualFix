@@ -6,7 +6,7 @@ import net.minecraft.world.World;
 import com.legacyvisualfix.combat.CombatConfig;
 import com.legacyvisualfix.combat.FeedbackStyle;
 
-/** Tiny confirmed-hit mote using the vanilla generic sparkle atlas, never the critical-hit sprite. */
+/** Tiny client-observed-hit mote using the vanilla generic sparkle atlas, never the critical-hit sprite. */
 public final class HitParticle extends EntityFX {
 
     private final float initialScale;

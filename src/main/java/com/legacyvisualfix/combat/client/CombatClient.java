@@ -1,9 +1,12 @@
 package com.legacyvisualfix.combat.client;
 
-import java.util.Locale;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
@@ -11,24 +14,26 @@ import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import org.lwjgl.opengl.GL11;
 
 import com.legacyvisualfix.combat.CombatConfig;
-import com.legacyvisualfix.combat.CombatInbox;
 import com.legacyvisualfix.combat.FeedbackState;
 import com.legacyvisualfix.combat.FeedbackStyle;
-import com.legacyvisualfix.combat.HitFeedbackMessage;
+import com.legacyvisualfix.combat.HitFeedback;
+import com.legacyvisualfix.combat.PendingMeleeHit;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 
-/** Server-confirmed feedback is presented only to the attacking client. */
+/** Client-only feedback from hurt signals observed shortly after local melee attempts. */
 public final class CombatClient {
 
     private final FeedbackState feedback = new FeedbackState();
     private final CombatParticles particles = new CombatParticles();
     private Object world, connection;
     private final boolean etFuturum = Loader.isModLoaded("etfuturum");
-    private long lastSoundMs;
+    private long lastSoundMs, sequence;
+    private final Map<EntityLivingBase, PendingMeleeHit> pending = new IdentityHashMap<>();
 
     private CombatClient() {}
 
@@ -45,7 +50,7 @@ public final class CombatClient {
         if (event.phase != TickEvent.Phase.END) return;
         Minecraft mc = Minecraft.getMinecraft();
         if (world != mc.theWorld || connection != mc.getNetHandler()) {
-            CombatInbox.clear();
+            pending.clear();
             world = mc.theWorld;
             connection = mc.getNetHandler();
             feedback.reset();
@@ -58,38 +63,62 @@ public final class CombatClient {
         particles.tick(mc, now / 1_000_000);
         CombatReactions.tick(mc, now / 1_000_000);
         WeaponRecoil.tick(mc, now / 1_000_000);
-        CombatInbox.Entry entry;
-        for (int i = 0; i < 256 && (entry = CombatInbox.poll()) != null; i++) {
-            if (!CombatConfig.enabled || mc.thePlayer == null
-                || mc.theWorld == null
-                || !entry.matches(connection, mc.thePlayer.dimension, now)) continue;
-            HitFeedbackMessage hit = entry.message;
-            long nowMs = now / 1_000_000;
+        if (!CombatConfig.enabled || mc.thePlayer == null || mc.theWorld == null) {
+            pending.clear();
+            feedback.reset();
+            return;
+        }
+        long nowMs = now / 1_000_000;
+        Iterator<Map.Entry<EntityLivingBase, PendingMeleeHit>> iterator = pending.entrySet()
+            .iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<EntityLivingBase, PendingMeleeHit> entry = iterator.next();
+            EntityLivingBase target = entry.getKey();
+            PendingMeleeHit attempt = entry.getValue();
+            if (target.worldObj != mc.theWorld || mc.theWorld.getEntityByID(target.getEntityId()) != target
+                || attempt.expired(nowMs)) {
+                iterator.remove();
+                continue;
+            }
+            if (!attempt.observe(target.getHealth(), target.hurtTime, nowMs)) continue;
+            iterator.remove();
+            // A fixed visual weight: neither damage ownership nor absorption can be known client-side.
+            HitFeedback hit = new HitFeedback(++sequence, mc.thePlayer.dimension, target.getEntityId(), 1, 0);
             if (!feedback.accept(hit, nowMs)) continue;
             particles.spawn(mc, hit, nowMs);
             CombatReactions.accept(mc, hit, nowMs);
             WeaponRecoil.accept(mc, hit, nowMs);
             if (soundEnabled() && nowMs - lastSoundMs >= 50) {
-                // Rate-limit sound only, never attacks or confirmed results.
-                mc.thePlayer
-                    .playSound("random.successful_hit", FeedbackStyle.soundVolume(), hit.health > 0 ? 1.15F : 0.8F);
+                mc.thePlayer.playSound("random.successful_hit", FeedbackStyle.soundVolume(), 1.15F);
                 lastSoundMs = nowMs;
             }
         }
-        if (!CombatConfig.enabled || mc.thePlayer == null) feedback.reset();
     }
 
     private boolean soundEnabled() {
         return "always".equals(CombatConfig.soundMode) || ("auto".equals(CombatConfig.soundMode) && !etFuturum);
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void attack(AttackEntityEvent event) {
         // The integrated server also posts on this bus; never touch client state there.
         if (!event.entityPlayer.worldObj.isRemote) return;
         Minecraft mc = Minecraft.getMinecraft();
-        if (event.entityPlayer == mc.thePlayer && !event.isCanceled()) {
-            WeaponRecoil.attempt(mc, event.target, System.nanoTime() / 1_000_000);
+        if (CombatConfig.enabled && event.entityPlayer == mc.thePlayer
+            && !event.isCanceled()
+            && event.target instanceof EntityLivingBase
+            && event.target.worldObj == mc.theWorld) {
+            EntityLivingBase target = (EntityLivingBase) event.target;
+            long now = System.nanoTime() / 1_000_000;
+            if (!target.isDead && (pending.size() < 64 || pending.containsKey(target))) {
+                PendingMeleeHit attempt = pending.get(target);
+                if (attempt == null || attempt.expired(now)) {
+                    pending.put(target, new PendingMeleeHit(target.getHealth(), target.hurtTime, now));
+                } else {
+                    attempt.retry(now);
+                }
+                WeaponRecoil.attempt(mc, target, now);
+            }
         }
     }
 
@@ -126,7 +155,7 @@ public final class CombatClient {
                 }
             }
             if (CombatConfig.debug) {
-                String text = String.format(Locale.ROOT, "HP -%.2f | ABS -%.2f", feedback.health, feedback.absorbed);
+                String text = "Client-observed hit";
                 mc.fontRenderer.drawStringWithShadow(text, x - mc.fontRenderer.getStringWidth(text) / 2, y - 24, color);
             }
         } finally {

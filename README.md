@@ -1,10 +1,10 @@
 # LegacyVisualFix
 
-面向 **Minecraft 1.7.10 / GT New Horizons** 的视觉与交互改进模组，各项功能可独立配置。
+面向 **Minecraft 1.7.10 / GT New Horizons** 的纯客户端视觉改进模组，各项功能可独立配置。
 
 ## 功能
 
-- **近战反馈**：实际扣血后显示白色准星标记和局部粒子；包含定向模型反应和第一人称持物回弹，提供统一强度预设、粒子最低亮度与兼容排除项。保留原有连击、伤害、碰撞箱和击退。
+- **近战反馈**：本地攻击后观察目标受伤状态，显示白色准星标记和局部粒子；包含定向模型反应和第一人称持物回弹，提供统一强度预设、粒子最低亮度与兼容排除项。保留原有连击、伤害、碰撞箱和击退。
 
   ![近战反馈演示](https://github.com/user-attachments/assets/4a553d03-47f3-406e-a20d-c5d41a3d31aa)
 
@@ -26,21 +26,17 @@
 
   ![物品动效演示](docs/images/item-effects.gif)
 
-- **金刚杵九宫格**：使用 GT 扳手与剪线钳式九宫格调整机器朝向及线缆、管道连接。
-
-  ![金刚杵九宫格演示](https://github.com/user-attachments/assets/fb2b944d-5127-4677-8072-a70fe92f3976)
-
 - **Waila / WDMla 动画**：提示框大小与位置平滑过渡，自动识别 WDMla；原 Waila 支持 Chromatic Tooltips + Compat。
 
 ## 安装
 
 需要 **Forge 10.13.4.1614** 与 **UniMixins 0.2.1+**；GTNH 请使用整合包配套的 Mixin 环境。
 
-资源重载、Waila / WDMla、FOV、背包和物品动效只需客户端安装；金刚杵九宫格和近战命中确认需要客户端与服务端均安装（单机包含本地服务器）。Waila / WDMla、Chromatic Tooltips 和 Angelica 为可选集成。替换旧 JAR 时只保留一个版本。
+所有功能只需客户端安装，服务端无需安装。近战反馈基于本地攻击与随后 500 ms 内观察到的目标受伤状态，无法精确确认伤害归属或吸收量；多玩家同时攻击可能出现误归属，不显示伤害数值。金刚杵功能已拆为独立 [VajraTweaks](https://github.com/LaplaceRungeLenz/VajraTweaks)，需要该功能时在双端安装独立模组。Waila / WDMla、Chromatic Tooltips 和 Angelica 为可选集成。替换旧 JAR 时只保留一个版本。
 
 ## 配置
 
-配置自动生成于 `config/legacyvisualfix/`。除主题可通过 **F3+T** 重载外，其他配置修改后需重启；金刚杵配置也需重启服务端。
+配置自动生成于 `config/legacyvisualfix/`。除主题可通过 **F3+T** 重载外，其他配置修改后需重启。
 
 | 文件 | 主要配置项 |
 | --- | --- |
@@ -49,8 +45,7 @@
 | `fov.cfg` | `enabled` 开关；`transitionMs` 响应时长，默认 300 ms |
 | `inventory.cfg` | `enabled` 开关；`durationMs` 飞入时长，默认 250 ms；`distance` 飞入距离，0 为自动 |
 | `ui.cfg` | `enabled` 总开关；`hotbar`、`hover`、`carried`、`matching`、`trails` 分别控制快捷栏、悬停、携带、同类浮动和拖尾 |
-| `vajra.cfg` | `enabled` 金刚杵九宫格开关 |
-| `combat.cfg` | `enabled` 总开关；`marker` 命中标记；`durationMs` 时长；`debug` 显示 HP/ABS；`soundMode=auto/always/off`、`soundVolume` 控制可选提示音；`particleMode=auto/always/off`、`particlesPerHit` 控制局部粒子；`modelReaction`、`reactionDegrees`、`reactionDurationMs`、`reactionExcludedEntities` 控制模型反应；`weaponRecoil`、`recoilDegrees`、`recoilDurationMs` 控制第一人称回弹 |
+| `combat.cfg` | `enabled` 总开关；`marker` 命中标记；`durationMs` 时长；`debug` 显示客户端命中观察标签；`soundMode=auto/always/off`、`soundVolume` 控制可选提示音；`particleMode=auto/always/off`、`particlesPerHit` 控制局部粒子；`modelReaction`、`reactionDegrees`、`reactionDurationMs`、`reactionExcludedEntities` 控制模型反应；`weaponRecoil`、`recoilDegrees`、`recoilDurationMs` 控制第一人称回弹 |
 
 `ui.cfg` 还可调整：`hoverScale` / `carriedScale` 放大倍数（默认 1.2）、`rotationDegrees` 倾角、`floatAmplitude` 浮动幅度、`responseSpeed` 响应速度、`voltageColors` 电压配色（默认开启）、`maxParticles` / `particleRate` 粒子上限与速率，以及 `excludedScreens` 排除界面的完整类名。
 
@@ -86,4 +81,4 @@
 
 ## 许可
 
-原创代码与素材采用 [MIT](LICENSE)；包含 GPL-3.0-only 金刚杵移植模块的组合代码发行包按 GPL-3.0-only 提供，见 [模块许可](src/main/resources/META-INF/NOTICE-Vajra.md)。GTNH Jappa 风格 Logo 采用 CC BY-NC-SA 4.0，见 [素材许可](src/main/resources/META-INF/NOTICE-GTNH.md)。本项目不是 GTNH 官方模组。
+原创代码与素材采用 [MIT](LICENSE)。GTNH Jappa 风格 Logo 采用 CC BY-NC-SA 4.0，见 [素材许可](src/main/resources/META-INF/NOTICE-GTNH.md)。本项目不是 GTNH 官方模组。

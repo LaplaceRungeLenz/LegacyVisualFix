@@ -7,7 +7,7 @@ public final class FeedbackState {
     private long receivedMs;
     public float health, absorbed;
 
-    public boolean accept(HitFeedbackMessage message, long nowMs) {
+    public boolean accept(HitFeedback message, long nowMs) {
         if (!message.valid() || message.sequence <= sequence) return false;
         sequence = message.sequence;
         receivedMs = nowMs;

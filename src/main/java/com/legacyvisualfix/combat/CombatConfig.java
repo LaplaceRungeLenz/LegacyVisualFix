@@ -36,24 +36,24 @@ public final class CombatConfig {
             "enabled",
             "combat",
             true,
-            "Enable confirmed melee feedback. Server and client need protocol v1. Restart to apply.");
+            "Enable client-only melee feedback from hurt signals after local attacks. Restart to apply.");
         marker = config.getBoolean(
             "marker",
             "client",
             true,
-            "Brief crosshair marker: white = health lost, gold = absorption only. No attack prediction.");
+            "Brief white marker for client-observed hurt after a local attack; damage ownership is approximate.");
         debug = config.getBoolean(
             "debug",
             "client",
             false,
-            "Show the last confirmed health/absorption loss in HP above the crosshair.");
+            "Label the client-observed hit above the crosshair; no precise damage or absorption amount.");
         durationMs = config
             .getInt("durationMs", "client", 160, 60, 500, "Marker duration in milliseconds; does not limit attacks.");
         soundMode = config.getString(
             "soundMode",
             "client",
             "auto",
-            "auto: no extra sound when Et Futurum is installed; always: confirmed hit chime; off: silent.",
+            "auto: no extra sound when Et Futurum is installed; always: client-observed hit chime; off: silent.",
             new String[] { "auto", "always", "off" });
         soundVolume = config.getFloat(
             "soundVolume",
@@ -66,7 +66,7 @@ public final class CombatConfig {
             "particleMode",
             "client",
             "auto",
-            "auto: confirmed local impact particles unless EFR damage particles are enabled or unknown; always: allow both; off: none. Respects Minimal particles.",
+            "auto: client-observed local impact particles unless EFR damage particles are enabled or unknown; always: allow both; off: none. Respects Minimal particles.",
             new String[] { "auto", "always", "off" });
         particlesPerHit = config.getInt(
             "particlesPerHit",
@@ -74,12 +74,12 @@ public final class CombatConfig {
             6,
             1,
             8,
-            "Maximum particles per confirmed melee result. Global burst budget applies; never affects damage.");
+            "Maximum particles per client-observed melee result. Global burst budget applies; never affects damage.");
         modelReaction = config.getBoolean(
             "modelReaction",
             "client",
             true,
-            "Small server-confirmed visual tilt. Never changes hitboxes, motion, AI or attack timing.");
+            "Small client-observed visual tilt. Never changes hitboxes, motion, AI or attack timing.");
         reactionDegrees = config.getFloat(
             "reactionDegrees",
             "client",
@@ -103,7 +103,7 @@ public final class CombatConfig {
             "weaponRecoil",
             "client",
             true,
-            "Brief first-person held-item recoil after confirmed local melee. Never changes swing timing or input.");
+            "Brief first-person held-item recoil after client-observed local melee. Never changes swing timing or input.");
         recoilDegrees = config.getFloat(
             "recoilDegrees",
             "client",

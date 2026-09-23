@@ -22,7 +22,6 @@ public final class LegacyVisualFixLoadingPlugin implements IFMLLoadingPlugin, IE
     @Override
     public List<String> getMixins(Set<String> loadedCoreMods) {
         // The manifest also registers this config: side-specific targets belong in its client list.
-        // Common combat observation belongs in the shared mixins list for dedicated servers.
         // Optional Angelica targets use @Pseudo and are skipped when the mod is absent.
         return Collections.emptyList();
     }
