@@ -10,11 +10,12 @@ public final class UiEffectsConfig {
     public static boolean enabled = true;
     public static boolean hotbar = true;
     public static boolean hover = true;
+    public static boolean hideHoverOverlay = true;
     public static boolean carried = true;
     public static boolean matching = true;
     public static boolean trails = true;
     public static boolean voltageColors = true;
-    public static float hoverScale = 1.2f;
+    public static float hoverScale = 1.25f;
     public static float carriedScale = 1.2f;
     public static float rotation = 18;
     public static float floatAmplitude = 0.65f;
@@ -28,10 +29,16 @@ public final class UiEffectsConfig {
     public static void load(File directory) {
         Configuration c = new Configuration(new File(directory, "legacyvisualfix/ui.cfg"));
         c.load();
+        boolean upgradeHoverDefault = !c.hasKey("effects", "hideHoverOverlay");
         enabled = c.getBoolean("enabled", "effects", true, "Enable client UI effects. Restart to apply all settings.");
         hotbar = c
             .getBoolean("hotbar", "effects", true, "Smooth the hotbar selector; actual selection changes immediately.");
         hover = c.getBoolean("hover", "effects", true, "Scale hovered real inventory items.");
+        hideHoverOverlay = c.getBoolean(
+            "hideHoverOverlay",
+            "effects",
+            true,
+            "Hide the hover overlay over occupied inventory slots. Empty and phantom slots keep their highlights.");
         carried = c.getBoolean("carried", "effects", true, "Scale and gently rotate the mouse-carried item.");
         matching = c
             .getBoolean("matching", "effects", true, "Float matching item, metadata and NBT stacks. Ignores count.");
@@ -45,7 +52,13 @@ public final class UiEffectsConfig {
             "effects",
             true,
             "Use GT voltage colors for tiered machines, components and circuits. Requires trails.");
-        hoverScale = c.getFloat("hoverScale", "effects", 1.2f, 1, 1.6f, "Hovered item size multiplier.");
+        hoverScale = c.getFloat("hoverScale", "effects", 1.25f, 1, 1.6f, "Hovered item size multiplier.");
+        // Upgrade the old default once, preserving custom scales and later deliberate changes back to 1.2.
+        if (upgradeHoverDefault && hoverScale == 1.2f) {
+            hoverScale = 1.25f;
+            c.get("effects", "hoverScale", 1.25f)
+                .set(hoverScale);
+        }
         carriedScale = c.getFloat("carriedScale", "effects", 1.2f, 1, 1.6f, "Mouse-carried item size multiplier.");
         rotation = c.getFloat("rotationDegrees", "effects", 18, 0, 25, "Maximum carried item tilt in degrees.");
         floatAmplitude = c
@@ -59,7 +72,7 @@ public final class UiEffectsConfig {
             "effects",
             new String[0],
             "Exact full GUI class names to exclude. No wildcards.");
-        if (!Float.isFinite(hoverScale)) hoverScale = 1.2f;
+        if (!Float.isFinite(hoverScale)) hoverScale = 1.25f;
         if (!Float.isFinite(carriedScale)) carriedScale = 1.2f;
         if (!Float.isFinite(rotation)) rotation = 18;
         if (!Float.isFinite(floatAmplitude)) floatAmplitude = 0.65f;

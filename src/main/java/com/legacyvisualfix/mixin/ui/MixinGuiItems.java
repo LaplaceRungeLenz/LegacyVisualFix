@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.legacyvisualfix.ui.UiEffects;
+import com.llamalad7.mixinextras.injector.WrapWithCondition;
 
 @Mixin(GuiContainer.class)
 public abstract class MixinGuiItems {
@@ -22,6 +23,8 @@ public abstract class MixinGuiItems {
     protected int guiTop;
     @Shadow
     private ItemStack returningStack;
+    @Shadow
+    private Slot theSlot;
     @Unique
     private int legacyvisualfix$mouseX, legacyvisualfix$mouseY;
 
@@ -30,6 +33,16 @@ public abstract class MixinGuiItems {
         legacyvisualfix$mouseX = x;
         legacyvisualfix$mouseY = y;
         UiEffects.frame(this, x, y);
+    }
+
+    @WrapWithCondition(
+        method = "drawScreen",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/gui/inventory/GuiContainer;drawGradientRect(IIIIII)V"))
+    private boolean legacyvisualfix$hoverOverlay(GuiContainer gui, int left, int top, int right, int bottom,
+        int startColor, int endColor) {
+        return !UiEffects.hideHoverOverlay(gui, theSlot);
     }
 
     @Inject(method = "func_146977_a", at = @At("HEAD"))

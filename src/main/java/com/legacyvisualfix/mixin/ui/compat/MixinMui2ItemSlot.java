@@ -10,9 +10,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.cleanroommc.modularui.widgets.slot.ItemSlot;
 import com.cleanroommc.modularui.widgets.slot.ModularSlot;
 import com.legacyvisualfix.ui.UiEffects;
+import com.llamalad7.mixinextras.injector.WrapWithCondition;
 
 @Mixin(value = ItemSlot.class, remap = false)
 public abstract class MixinMui2ItemSlot {
+
+    @WrapWithCondition(
+        method = "drawOverlay",
+        at = @At(value = "INVOKE", target = "Lcom/cleanroommc/modularui/drawable/GuiDraw;drawRect(FFFFI)V"),
+        remap = false)
+    private boolean legacyvisualfix$hoverOverlay(float x, float y, float width, float height, int color) {
+        ModularSlot slot = ((ItemSlot) (Object) this).getSlot();
+        return slot == null || slot.isPhantom()
+            || !UiEffects.hideHoverOverlay(Minecraft.getMinecraft().currentScreen, slot);
+    }
 
     @Inject(
         method = "drawSlot",

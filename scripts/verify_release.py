@@ -46,6 +46,14 @@ def verify(path):
             "com/legacyvisualfix/inventory/InventoryMotion.class": b"openingFrom",
             "com/legacyvisualfix/mixin/inventory/MixinGuiScreen.class":
                 b"com/llamalad7/mixinextras/injector/wrapoperation/WrapOperation",
+            "com/legacyvisualfix/ui/UiEffects.class": b"hideHoverOverlay",
+            "com/legacyvisualfix/ui/UiEffectsConfig.class": b"hideHoverOverlay",
+            "com/legacyvisualfix/mixin/ui/MixinGuiItems.class":
+                b"com/llamalad7/mixinextras/injector/WrapWithCondition",
+            "com/legacyvisualfix/mixin/ui/compat/MixinMui1SlotWidget.class":
+                b"com/llamalad7/mixinextras/injector/WrapWithCondition",
+            "com/legacyvisualfix/mixin/ui/compat/MixinMui2ItemSlot.class":
+                b"com/llamalad7/mixinextras/injector/WrapWithCondition",
         }
         for name, marker in contracts.items():
             data = jar.read(name)
@@ -59,6 +67,9 @@ def verify(path):
         if "combat.MixinItemRenderer" not in mixins["client"]:
             raise ValueError("Weapon recoil must load on the client")
         refmap = json.loads(jar.read("mixins.legacyvisualfix.refmap.json"))
+        hover_mapping = refmap["mappings"].get("com/legacyvisualfix/mixin/ui/MixinGuiItems", {})
+        if not any("drawGradientRect" in entry for entry in hover_mapping):
+            raise ValueError("Hover overlay suppression lacks GUI call remapping")
         combat_mapping = refmap["mappings"].get("com/legacyvisualfix/mixin/combat/MixinEntityLivingBase", {})
         if not any("damageEntity" in entry for entry in combat_mapping):
             raise ValueError("Combat mixin lacks damage method remapping")

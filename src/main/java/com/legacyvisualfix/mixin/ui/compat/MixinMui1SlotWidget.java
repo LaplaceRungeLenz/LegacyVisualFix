@@ -9,9 +9,24 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 import com.legacyvisualfix.ui.UiEffects;
+import com.llamalad7.mixinextras.injector.WrapWithCondition;
 
 @Mixin(value = SlotWidget.class, remap = false)
 public abstract class MixinMui1SlotWidget {
+
+    @WrapWithCondition(
+        method = "draw",
+        at = @At(
+            value = "INVOKE",
+            target = "Lcom/gtnewhorizons/modularui/common/internal/wrapper/ModularGui;drawSolidRect(FFFFI)V"),
+        remap = false)
+    private boolean legacyvisualfix$hoverOverlay(float x, float y, float width, float height, int color) {
+        SlotWidget widget = (SlotWidget) (Object) this;
+        return widget.isPhantom() || !UiEffects.hideHoverOverlay(
+            widget.getContext()
+                .getScreen(),
+            widget.getMcSlot());
+    }
 
     // Start outside MUI's own icon matrix, after the slot underlay. Item coordinates are widget-local.
     @Inject(

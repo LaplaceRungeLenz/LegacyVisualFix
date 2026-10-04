@@ -52,7 +52,9 @@
 | `vajra.cfg` | `enabled` 金刚杵九宫格开关 |
 | `combat.cfg` | `enabled` 总开关；`marker` 命中标记；`durationMs` 时长；`debug` 显示 HP/ABS；`soundMode=auto/always/off`、`soundVolume` 控制可选提示音；`particleMode=auto/always/off`、`particlesPerHit` 控制局部粒子；`modelReaction`、`reactionDegrees`、`reactionDurationMs`、`reactionExcludedEntities` 控制模型反应；`weaponRecoil`、`recoilDegrees`、`recoilDurationMs` 控制第一人称回弹 |
 
-`ui.cfg` 还可调整：`hoverScale` / `carriedScale` 放大倍数（默认 1.2）、`rotationDegrees` 倾角、`floatAmplitude` 浮动幅度、`responseSpeed` 响应速度、`voltageColors` 电压配色（默认开启）、`maxParticles` / `particleRate` 粒子上限与速率，以及 `excludedScreens` 排除界面的完整类名。
+`ui.cfg` 还可调整：`hoverScale` 悬停放大倍数（默认 1.25）、`carriedScale` 拿起物品的放大倍数（默认 1.2）、`hideHoverOverlay` 隐藏有物品槽位的悬停遮罩（默认开启，支持原版及 ModularUI 1/2）、`rotationDegrees` 倾角、`floatAmplitude` 浮动幅度、`responseSpeed` 响应速度、`voltageColors` 电压配色（默认开启）、`maxParticles` / `particleRate` 粒子上限与速率，以及 `excludedScreens` 排除界面的完整类名。
+
+升级时，旧配置中默认的 `hoverScale=1.2` 会一次性调整为 `1.25`；自定义倍率保留。设置 `hideHoverOverlay=false` 可恢复原来的悬停遮罩，空槽和幽灵槽的提示保留。
 
 `combat.cfg` 新增 `feedbackPreset=custom/light/standard/strong`；默认 custom 保留已有单项参数。`particleMinLight=6` 改善暗处粒子辨识，设为 0 恢复环境光照；`particleScale` 调整自定义粒子大小。粒子、模型和回弹分别可用 `particleExcludedEntities`、`reactionExcludedEntities`、`recoilExcludedItems` 排除特定对象。
 

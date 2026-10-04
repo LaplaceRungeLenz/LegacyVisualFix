@@ -138,6 +138,10 @@ public final class UiEffects {
         return a != null && b != null && a.isItemEqual(b) && ItemStack.areItemStackTagsEqual(a, b);
     }
 
+    public static boolean hideHoverOverlay(Object gui, Slot slot) {
+        return UiEffectsConfig.hideHoverOverlay && slot != null && slot.getHasStack() && allowed(gui);
+    }
+
     public static void beginSlot(Object gui, Slot slot, double cx, double cy, boolean hovered) {
         if (!enter(gui) || slot == null || slot.getStack() == null || InventoryAnimations.entering(gui)) return;
         ItemStack held = Minecraft.getMinecraft().thePlayer.inventory.getItemStack();

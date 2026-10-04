@@ -1,9 +1,11 @@
 package com.legacyvisualfix.smoke;
 
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -47,7 +49,11 @@ public final class UiMuiSmoke {
         while (GL11.glGetError() != 0) {}
         // Settle the UI library's own opening animation before comparing item transforms.
         for (int i = 0; i < 55; i++) render(draw, -1000, -1000);
+        int originalColor = pixel(mc, slotX.getAsInt(), slotY.getAsInt());
         for (int i = 0; i < 24; i++) render(draw, slotX.getAsInt(), slotY.getAsInt());
+        require(
+            pixel(mc, slotX.getAsInt(), slotY.getAsInt()) != originalColor,
+            name + " original hover overlay missing");
         int baselineError = GL11.glGetError();
         System.out.println("LEGACYVISUALFIX_UI_GL " + name + " disabled=" + baselineError);
         UiEffectsConfig.enabled = true;
@@ -58,6 +64,15 @@ public final class UiMuiSmoke {
         require(
             probe.normalScale > baseline * 1.08f,
             name + " hover missing: " + baseline + " -> " + probe.normalScale);
+        require(
+            pixel(mc, slotX.getAsInt(), slotY.getAsInt()) == originalColor,
+            name + " hover overlay still covers the item");
+        UiEffectsConfig.hideHoverOverlay = false;
+        render(draw, slotX.getAsInt(), slotY.getAsInt());
+        require(
+            pixel(mc, slotX.getAsInt(), slotY.getAsInt()) != originalColor,
+            name + " overlay setting did not restore highlighting");
+        UiEffectsConfig.hideHoverOverlay = true;
         for (int i = 0; i < 24; i++) render(draw, ghostX.getAsInt(), ghostY.getAsInt());
         require(Math.abs(probe.ghostScale - ghostBaseline) < 0.01f, name + " phantom animated");
         ItemStack carried = new ItemStack(Items.emerald, 3);
@@ -72,7 +87,8 @@ public final class UiMuiSmoke {
         System.out.println("LEGACYVISUALFIX_UI_GL " + name + " enabled=" + enabledError);
         require(enabledError == 0 || enabledError == baselineError, name + " new GL error " + enabledError);
         System.out.println(
-            "LEGACYVISUALFIX_UI_MUI_SMOKE PASS " + name + " real widgets/hover/phantom/carried/trail/matrix depth");
+            "LEGACYVISUALFIX_UI_MUI_SMOKE PASS " + name
+                + " real widgets/hover/overlay pixels/config/phantom/carried/trail/matrix depth");
     }
 
     private static void render(Draw draw, int x, int y) throws Exception {
@@ -80,6 +96,15 @@ public final class UiMuiSmoke {
         int depth = GL11.glGetInteger(GL11.GL_MODELVIEW_STACK_DEPTH);
         draw.render(x, y);
         require(GL11.glGetInteger(GL11.GL_MODELVIEW_STACK_DEPTH) == depth, "MUI modelview stack leak");
+    }
+
+    private static int pixel(Minecraft mc, int x, int y) {
+        ScaledResolution resolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
+        int px = (int) (x * mc.displayWidth / resolution.getScaledWidth_double());
+        int py = mc.displayHeight - 1 - (int) (y * mc.displayHeight / resolution.getScaledHeight_double());
+        ByteBuffer rgba = BufferUtils.createByteBuffer(4);
+        GL11.glReadPixels(px, py, 1, 1, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, rgba);
+        return (rgba.get(0) & 255) << 16 | (rgba.get(1) & 255) << 8 | (rgba.get(2) & 255);
     }
 
     private static final class Mui1 {

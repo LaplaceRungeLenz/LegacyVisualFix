@@ -119,6 +119,8 @@ public final class UiSmoke {
                 }
                 int baselineError = GL11.glGetError();
                 System.out.println("LEGACYVISUALFIX_UI_GL disabledContainer=" + baselineError);
+                require(panel.hoverOverlays == 1, "disabled UI effects must retain the original hover overlay");
+                captureFrame(mc, new File(dir, "hover-before.png"));
                 UiEffectsConfig.enabled = true;
                 float baseline = probe.scale;
                 UiEffects.frame(panel, panel.left() + 28, panel.top() + 28);
@@ -135,9 +137,15 @@ public final class UiSmoke {
                 require(
                     probe.scale > baseline * 1.08,
                     "hover scale did not reach item renderer: " + baseline + " -> " + probe.scale);
+                require(
+                    Math.abs(probe.scale / baseline - UiEffectsConfig.hoverScale) < 0.01,
+                    "hover scale did not converge to the configured multiplier");
+                captureFrame(mc, new File(dir, "hover-after.png"));
+                require(panel.hoverOverlays == 0, "occupied slot still draws the white hover overlay");
                 int hoverError = GL11.glGetError();
                 System.out.println("LEGACYVISUALFIX_UI_GL enabledHover=" + hoverError);
                 require(hoverError == 0 || hoverError == baselineError, "new hover GL error " + hoverError);
+                verifyHoverOverlay(panel);
                 require(
                     panel.inventorySlots.getSlot(0)
                         .getStack().stackSize == 17,
@@ -258,12 +266,12 @@ public final class UiSmoke {
                 MinecraftForgeClient.registerItemRenderer(Items.nether_star, null);
                 renderDemo(mc, dir);
                 if (cpw.mods.fml.common.Loader.isModLoaded("modularui")
-                    && cpw.mods.fml.common.Loader.isModLoaded("modularui2")) {
+                    || cpw.mods.fml.common.Loader.isModLoaded("modularui2")) {
                     Class.forName("com.legacyvisualfix.smoke.UiMuiSmoke")
                         .getMethod("verify", Minecraft.class)
                         .invoke(null, mc);
                 }
-                result = "PASS hover/original renderer/count; matching/count/NBT/metadata; carried tilt/settle; trails ("
+                result = "PASS hover/original renderer/count; hover overlay/empty slot/config/excluded screen; matching/count/NBT/metadata; carried tilt/settle; trails ("
                     + oldParticles
                     + ")/expire/stall/GL state; disable; real Forge hotbar; optional MUI checks when loaded";
             } catch (Throwable e) {
@@ -280,7 +288,41 @@ public final class UiSmoke {
         }
     }
 
+    private static void verifyHoverOverlay(Panel panel) {
+        int x = panel.left() + 28, y = panel.top() + 28;
+        Slot slot = panel.inventorySlots.getSlot(0);
+        ItemStack original = slot.getStack();
+        String[] excluded = UiEffectsConfig.excludedScreens;
+        boolean hover = UiEffectsConfig.hover;
+        try {
+            UiEffectsConfig.hideHoverOverlay = false;
+            panel.drawScreen(x, y, 0);
+            require(panel.hoverOverlays == 1, "overlay setting did not restore vanilla highlighting");
+            UiEffectsConfig.hideHoverOverlay = true;
+            UiEffectsConfig.hover = false;
+            panel.drawScreen(x, y, 0);
+            require(panel.hoverOverlays == 0, "overlay suppression incorrectly depends on hover scaling");
+            UiEffectsConfig.excludedScreens = new String[] { panel.getClass()
+                .getName() };
+            panel.drawScreen(x, y, 0);
+            require(panel.hoverOverlays == 1, "excluded screen lost its original highlight");
+            UiEffectsConfig.excludedScreens = excluded;
+            slot.putStack(null);
+            panel.drawScreen(x, y, 0);
+            require(panel.hoverOverlays == 1, "empty slot lost its placement highlight");
+        } finally {
+            slot.putStack(original);
+            UiEffectsConfig.hideHoverOverlay = true;
+            UiEffectsConfig.hover = hover;
+            UiEffectsConfig.excludedScreens = excluded;
+        }
+        panel.drawScreen(x, y, 0);
+        require(panel.hoverOverlays == 0, "occupied slot overlay returned after restoring the stack");
+    }
+
     private static class Panel extends GuiContainer {
+
+        int hoverOverlays;
 
         Panel() {
             super(new Container() {
@@ -304,6 +346,18 @@ public final class UiSmoke {
 
         int top() {
             return guiTop;
+        }
+
+        @Override
+        public void drawScreen(int x, int y, float partial) {
+            hoverOverlays = 0;
+            super.drawScreen(x, y, partial);
+        }
+
+        @Override
+        protected void drawGradientRect(int left, int top, int right, int bottom, int start, int end) {
+            if (start == 0x80ffffff && end == start) hoverOverlays++;
+            super.drawGradientRect(left, top, right, bottom, start, end);
         }
 
         @Override
