@@ -19,7 +19,7 @@ public final class InventoryAnimationConfig {
             "enabled",
             "inventory",
             true,
-            "Animate vanilla survival and creative inventory only. Restart to apply.");
+            "Animate vanilla survival/creative inventory and the Satchels survival replacement. Restart to apply.");
         durationMs = config.getInt(
             "durationMs",
             "inventory",

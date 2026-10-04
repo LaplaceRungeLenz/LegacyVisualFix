@@ -28,6 +28,17 @@ if (project.hasProperty('startupCompatSmoke')) {
 if (project.hasProperty('inventorySmoke')) {
     sourceSets.main.java.srcDir('src/inventorySmokeTest/java')
 }
+if (project.hasProperty('satchelsSmokeJar')) {
+    // Satchels bundles an older Mixin. Keep the required UniMixins runtime first in dev launches.
+    tasks.withType(JavaExec).configureEach {
+        if (name.startsWith('runClient')) {
+            doFirst {
+                def entries = classpath.files
+                classpath = files(entries.findAll { it.name.startsWith('unimixins-') }, entries)
+            }
+        }
+    }
+}
 if (project.hasProperty('uiSmoke')) {
     sourceSets.main.java.srcDir('src/uiSmokeTest/java')
 }
