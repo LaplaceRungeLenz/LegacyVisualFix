@@ -40,6 +40,10 @@ if (project.hasProperty('startupCompatSmoke') || project.hasProperty('inventoryC
 }
 
 dependencies {
+    if (project.hasProperty('satchelsSmokeJar')) {
+        devOnlyNonPublishable(rfg.deobf(project.files(project.property('satchelsSmokeJar'))))
+        runtimeOnlyNonPublishable("com.github.GTNewHorizons:CodeChickenCore:1.4.17:dev")
+    }
     if (project.hasProperty('uiMuiSmoke')) {
         runtimeOnlyNonPublishable("com.github.GTNewHorizons:Baubles-Expanded:2.2.21-GTNH:dev") { transitive = false }
         runtimeOnlyNonPublishable("com.github.GTNewHorizons:GTNHLib:0.11.37:dev")

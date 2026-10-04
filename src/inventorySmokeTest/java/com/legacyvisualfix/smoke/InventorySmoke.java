@@ -26,7 +26,9 @@ import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
@@ -197,13 +199,22 @@ public final class InventorySmoke {
                     mc.entityRenderer.setupOverlayRendering();
                     mc.playerController.setGameType(WorldSettings.GameType.SURVIVAL);
                     verify(new GuiInventory(mc.thePlayer), "survival-" + scale);
+                    if (Loader.isModLoaded("satchels")) {
+                        prepareSatchels();
+                        verify(survivalScreen(true), "satchels-" + scale);
+                    }
                     mc.playerController.setGameType(WorldSettings.GameType.CREATIVE);
                     verify(new GuiContainerCreative(mc.thePlayer), "creative-" + scale);
                     verify(new GuiContainerCreative(mc.thePlayer), "creative-search-" + scale);
                     verify(new GuiContainerCreative(mc.thePlayer), "creative-inventory-" + scale);
                 }
                 mc.playerController.setGameType(WorldSettings.GameType.SURVIVAL);
-                verifyEarlyClick();
+                verifyEarlyClick(false);
+                if (Loader.isModLoaded("satchels")) {
+                    prepareSatchels();
+                    verifyEarlyClick(true);
+                    verifySatchelsReturn();
+                }
                 verifyScreenReturns();
                 require(
                     InventoryAnimations
@@ -228,6 +239,8 @@ public final class InventorySmoke {
                 finish(
                     "PASS: survival/creative at scales 1/2; real left/right pickup/place; ModularUI input events; consumed press/release; world/creative redirect and companion returns; translated buttons/pixels; stationary potion/NEI; natural expiry; resize; unrelated containers excluded; exception scope restored; NEI="
                         + Loader.isModLoaded("NotEnoughItems")
+                        + "; Satchels="
+                        + Loader.isModLoaded("satchels")
                         + "; disabled-control GL="
                         + baselineError);
             } catch (Throwable failure) {
@@ -300,6 +313,89 @@ public final class InventorySmoke {
             System.out.println("INVENTORY_RETURN " + name + " PASS");
         }
 
+        private GuiInventory survivalScreen(boolean satchels) throws Exception {
+            if (!satchels) return new GuiInventory(mc.thePlayer);
+            return (GuiInventory) Class.forName("makamys.satchels.gui.GuiSatchelsInventory")
+                .getConstructor(net.minecraft.entity.player.EntityPlayer.class)
+                .newInstance(mc.thePlayer);
+        }
+
+        @SuppressWarnings("unchecked")
+        private java.util.List<Slot> satchelsSlots() throws Exception {
+            return (java.util.List<Slot>) mc.thePlayer.inventoryContainer.getClass()
+                .getMethod("getExtraSlots")
+                .invoke(mc.thePlayer.inventoryContainer);
+        }
+
+        private void prepareSatchels() throws Exception {
+            Object properties = mc.thePlayer.getExtendedProperties("satchels");
+            require(properties != null, "Satchels player properties were not registered");
+            IInventory equipment = (IInventory) properties.getClass()
+                .getField("equipment")
+                .get(properties);
+            Class<?> items = Class.forName("makamys.satchels.SatchelsItems");
+            equipment.setInventorySlotContents(
+                0,
+                new ItemStack(
+                    (Item) items.getField("satchel")
+                        .get(null)));
+            equipment.setInventorySlotContents(
+                1,
+                new ItemStack(
+                    (Item) items.getField("pouch")
+                        .get(null)));
+            equipment.setInventorySlotContents(
+                2,
+                new ItemStack(
+                    (Item) items.getField("pouch")
+                        .get(null)));
+            mc.thePlayer.inventoryContainer.getClass()
+                .getMethod("redoSlots", boolean.class)
+                .invoke(mc.thePlayer.inventoryContainer, true);
+            java.util.List<Slot> slots = satchelsSlots();
+            require(slots.size() == 15, "expected 9 satchel and 3 slots in each pouch");
+            for (Slot slot : slots) slot.putStack(new ItemStack(Items.emerald, 8));
+        }
+
+        private void verifySatchelsReturn() throws Exception {
+            mc.currentScreen = null;
+            mc.displayGuiScreen(new GuiInventory(mc.thePlayer));
+            require(
+                mc.currentScreen.getClass()
+                    .getName()
+                    .equals("makamys.satchels.gui.GuiSatchelsInventory"),
+                "GuiOpenEvent did not install the real Satchels replacement");
+            require(InventoryAnimations.entering(mc.currentScreen), "Satchels world opening did not animate");
+            GuiScreen equipment = (GuiScreen) Class.forName("makamys.satchels.gui.GuiEquipment")
+                .getConstructor(net.minecraft.entity.player.EntityPlayer.class)
+                .newInstance(mc.thePlayer);
+            mc.displayGuiScreen(equipment);
+            require(InventoryAnimations.motion(equipment) == null, "Satchels equipment must stay excluded");
+            render(equipment);
+            capture("satchels-equipment.png");
+            GuiButton inventoryTab = tab(equipment, "tconstruct.client.tabs.InventoryTabVanilla");
+            // The real vanilla tab sends through our disconnected test handler, then opens the inventory.
+            click(equipment, inventoryTab.xPosition + 8, inventoryTab.yPosition + 8, 0);
+            require(
+                mc.currentScreen.getClass()
+                    .getName()
+                    .equals("makamys.satchels.gui.GuiSatchelsInventory"),
+                "equipment inventory tab did not return to Satchels");
+            require(!InventoryAnimations.entering(mc.currentScreen), "equipment tab return replayed animation");
+            System.out.println("SATCHELS_LIFECYCLE world replacement/equipment tab return PASS");
+        }
+
+        private GuiButton tab(GuiScreen gui, String className) throws Exception {
+            Field buttons = GuiScreen.class.getDeclaredField("buttonList");
+            buttons.setAccessible(true);
+            for (Object value : (java.util.List<?>) buttons.get(gui)) {
+                if (value.getClass()
+                    .getName()
+                    .equals(className)) return (GuiButton) value;
+            }
+            throw new AssertionError("missing tab: " + className);
+        }
+
         @SuppressWarnings("unchecked")
         private void verify(GuiContainer gui, String name) throws Exception {
             initialize(gui);
@@ -344,16 +440,21 @@ public final class InventorySmoke {
             region.setAccessible(true);
             require(!(Boolean) region.invoke(gui, 0, 0, 16, 16, left + 8, top + 8), "stale hover active");
             BufferedImage moving = capture(name + "-moving.png");
+            if (name.startsWith("satchels")) verifySatchelsHover(gui, false);
             Thread.sleep(InventoryAnimationConfig.durationMs + 30L);
             render(gui);
             require(!motion.isEntering(), "animation did not expire naturally");
             require(Math.abs(buttonY - baseY) < 0.01, "button not settled");
             require((Boolean) region.invoke(gui, 0, 0, 16, 16, left + 8, top + 8), "hover not restored");
             BufferedImage settled = capture(name + "-settled.png");
+            if (name.startsWith("satchels")) {
+                verifySatchelsHover(gui, true);
+                verifySatchelsPixelsAndClicks(gui, moving, settled);
+            }
             if (name.startsWith("survival") || name.startsWith("creative-inventory")) verifyClicks(gui);
             int scale = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight).getScaleFactor();
             // A background pixel moves exactly 32 GUI pixels. The potion icon stays put.
-            int sx = (left + 4) * scale, sy = (top + 4) * scale;
+            int sx = (left + (name.startsWith("satchels") ? 20 : 4)) * scale, sy = (top + 4) * scale;
             require(moving.getRGB(sx, sy + 32 * scale) == settled.getRGB(sx, sy), "panel pixels not translated");
             int potionX = (left - 115) * scale, potionY = (top + 8) * scale;
             require(potionX >= 0, "potion sample outside screen");
@@ -373,6 +474,59 @@ public final class InventorySmoke {
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
             mc.currentScreen = gui;
             gui.drawScreen(-1000, -1000, 0);
+        }
+
+        private void verifySatchelsHover(GuiContainer gui, boolean expected) throws Exception {
+            Method hover = GuiContainer.class.getDeclaredMethod("isMouseOverSlot", Slot.class, int.class, int.class);
+            hover.setAccessible(true);
+            for (Slot slot : satchelsSlots()) {
+                int x = coordinate(gui, "guiLeft") + slot.xDisplayPosition + 8;
+                int y = coordinate(gui, "guiTop") + slot.yDisplayPosition + 8;
+                require((Boolean) hover.invoke(gui, slot, x, y) == expected, "bag slot hover disagrees with animation");
+            }
+        }
+
+        private void verifySatchelsPixelsAndClicks(GuiContainer gui, BufferedImage moving, BufferedImage settled)
+            throws Exception {
+            int scale = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight).getScaleFactor();
+            GuiButton equipmentTab = tab(gui, "makamys.satchels.gui.InventoryTabSatchels");
+            translatedPixels(moving, settled, equipmentTab.xPosition + 2, equipmentTab.yPosition + 4, 24, 20, scale);
+            mc.thePlayer.openContainer = gui.inventorySlots;
+            mc.thePlayer.inventory.setItemStack(null);
+            for (Slot slot : satchelsSlots()) {
+                int x = coordinate(gui, "guiLeft") + slot.xDisplayPosition;
+                int y = coordinate(gui, "guiTop") + slot.yDisplayPosition;
+                translatedPixels(moving, settled, x, y, 16, 16, scale);
+                click(gui, x + 8, y + 8, 0);
+                require(
+                    !slot.getHasStack() && mc.thePlayer.inventory.getItemStack() != null
+                        && mc.thePlayer.inventory.getItemStack().stackSize == 8,
+                    "bag slot left-click hit wrong item");
+                click(gui, x + 8, y + 8, 1);
+                require(
+                    slot.getHasStack() && slot.getStack().stackSize == 1
+                        && mc.thePlayer.inventory.getItemStack().stackSize == 7,
+                    "bag slot right-click hit wrong item");
+                click(gui, x + 8, y + 8, 0);
+                require(
+                    mc.thePlayer.inventory.getItemStack() == null && slot.getStack().stackSize == 8,
+                    "bag slot did not merge back");
+            }
+            System.out
+                .println("SATCHELS_RENDER_INPUT 15 bag slots/tab pixels/hover/left-right clicks PASS scale=" + scale);
+        }
+
+        private void translatedPixels(BufferedImage moving, BufferedImage settled, int x, int y, int w, int h,
+            int scale) {
+            int matches = 0;
+            int changed = 0;
+            int total = w * h * scale * scale;
+            for (int dy = 0; dy < h * scale; dy++) for (int dx = 0; dx < w * scale; dx++) {
+                int expected = settled.getRGB(x * scale + dx, y * scale + dy);
+                if (moving.getRGB(x * scale + dx, (y + 32) * scale + dy) == expected) matches++;
+                if (moving.getRGB(x * scale + dx, y * scale + dy) != expected) changed++;
+            }
+            require(matches > total * 0.95 && changed > total * 0.1, "Satchels pixels did not translate with panel");
         }
 
         private void verifyClicks(GuiContainer gui) throws Exception {
@@ -450,9 +604,9 @@ public final class InventorySmoke {
             }
         }
 
-        private void verifyEarlyClick() throws Exception {
+        private void verifyEarlyClick(boolean satchels) throws Exception {
             for (int button : new int[] { 0, 1 }) {
-                GuiInventory gui = new GuiInventory(mc.thePlayer);
+                GuiInventory gui = survivalScreen(satchels);
                 initialize(gui);
                 render(gui);
                 InventoryMotion motion = InventoryAnimations.motion(gui);
@@ -468,7 +622,22 @@ public final class InventorySmoke {
                 verifyClicks(gui);
                 gui.onGuiClosed();
             }
-            System.out.println("INVENTORY_INPUT early press/release and subsequent click PASS");
+            if (satchels) {
+                GuiInventory gui = survivalScreen(true);
+                initialize(gui);
+                render(gui);
+                GuiButton equipmentTab = tab(gui, "makamys.satchels.gui.InventoryTabSatchels");
+                click(gui, equipmentTab.xPosition + 8, equipmentTab.yPosition + 8, 0);
+                require(
+                    mc.currentScreen == gui && !InventoryAnimations.entering(gui),
+                    "early tab click escaped suppression");
+                require(
+                    !InventoryAnimations.motion(gui)
+                        .blocksHeldMouse(),
+                    "early tab release remained latched");
+                gui.onGuiClosed();
+            }
+            System.out.println("INVENTORY_INPUT early press/release and subsequent click PASS Satchels=" + satchels);
         }
 
         private void click(GuiScreen gui, int x, int y, int button) throws Exception {

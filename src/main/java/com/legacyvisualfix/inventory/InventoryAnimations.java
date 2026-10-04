@@ -12,8 +12,13 @@ public final class InventoryAnimations {
     private InventoryAnimations() {}
 
     public static InventoryMotion motion(Object screen) {
+        // Satchels replaces the survival inventory but inherits the same render/input hooks.
+        // Match only its known replacement; other inventory subclasses remain excluded.
         if (screen == null
-            || (screen.getClass() != GuiInventory.class && screen.getClass() != GuiContainerCreative.class))
+            || (screen.getClass() != GuiInventory.class && screen.getClass() != GuiContainerCreative.class
+                && !screen.getClass()
+                    .getName()
+                    .equals("makamys.satchels.gui.GuiSatchelsInventory")))
             return null;
         return ((InventoryMotionAccess) screen).legacyvisualfix$inventoryMotion();
     }
