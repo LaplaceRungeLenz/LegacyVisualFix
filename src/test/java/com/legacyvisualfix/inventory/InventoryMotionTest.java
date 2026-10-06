@@ -9,6 +9,46 @@ import org.junit.Test;
 public class InventoryMotionTest {
 
     @Test
+    public void slowFirstRenderDoesNotConsumeTheVisibleEntrance() {
+        InventoryMotion motion = new InventoryMotion();
+        motion.initialize(true, 250, 32);
+        assertEquals(32, motion.frame(0, 400, 100), 0);
+        motion.rendered(600_000_000L);
+        assertEquals(4, motion.frame(725_000_000L, 400, 100), 0);
+        assertTrue(motion.isEntering());
+        assertEquals(0, motion.frame(850_000_000L, 400, 100), 0);
+        assertFalse(motion.isEntering());
+    }
+
+    @Test
+    public void laterRenderCompletionsDoNotRestartTheClock() {
+        InventoryMotion motion = new InventoryMotion();
+        motion.initialize(true, 250, 32);
+        motion.rendered(500_000_000L); // No animated frame has been drawn yet.
+        motion.frame(600_000_000L, 400, 100);
+        motion.rendered(610_000_000L);
+        assertEquals(4, motion.frame(735_000_000L, 400, 100), 0);
+        motion.rendered(745_000_000L);
+        assertEquals(0, motion.frame(860_000_000L, 400, 100), 0);
+        motion.rendered(870_000_000L);
+        assertFalse(motion.isEntering());
+    }
+
+    @Test
+    public void firstRenderCompletionDoesNotUndoAnInputCancellation() {
+        InventoryMotion motion = new InventoryMotion();
+        motion.initialize(true, 250, 32);
+        motion.frame(0, 400, 100);
+        assertTrue(motion.mouse(0, true, 0));
+        motion.rendered(600_000_000L);
+        assertEquals(0, motion.frame(616_000_000L, 400, 100), 0);
+        assertFalse(motion.isEntering());
+        assertTrue(motion.blocksHeldMouse());
+        assertTrue(motion.mouse(0, false, 0));
+        assertFalse(motion.blocksHeldMouse());
+    }
+
+    @Test
     public void freshObjectsReturningFromOtherScreensDoNotReplay() {
         InventoryMotion returned = new InventoryMotion();
         returned.openingFrom(false, null);

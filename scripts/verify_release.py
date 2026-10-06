@@ -44,6 +44,7 @@ def verify(path):
         contracts = {
             "com/legacyvisualfix/waila/WdmlaAnimationRenderer.class": b"resetIfIdle",
             "com/legacyvisualfix/inventory/InventoryMotion.class": b"openingFrom",
+            "com/legacyvisualfix/inventory/InventoryScreenEvents.class": b"GuiScreenEvent$DrawScreenEvent$Post",
             "com/legacyvisualfix/mixin/inventory/MixinGuiScreen.class":
                 b"com/llamalad7/mixinextras/injector/wrapoperation/WrapOperation",
             "com/legacyvisualfix/ui/UiEffects.class": b"hideHoverOverlay",
@@ -59,6 +60,8 @@ def verify(path):
             data = jar.read(name)
             if marker not in data:
                 raise ValueError("Distribution lacks inventory regression fix: " + name)
+        if b"rendered" not in jar.read("com/legacyvisualfix/inventory/InventoryMotion.class"):
+            raise ValueError("Distribution lacks first-render inventory timing fix")
         mixins = json.loads(jar.read("mixins.legacyvisualfix.json"))
         if "combat.MixinEntityLivingBase" not in mixins["mixins"]:
             raise ValueError("Combat observation must load on both logical sides")
