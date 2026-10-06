@@ -3,6 +3,7 @@ package com.legacyvisualfix.inventory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 
 import cpw.mods.fml.common.eventhandler.EventPriority;
@@ -21,5 +22,11 @@ public final class InventoryScreenEvents {
         if (next == null) return;
         GuiScreen previous = Minecraft.getMinecraft().currentScreen;
         next.openingFrom(previous == null, InventoryAnimations.motion(previous));
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void rendered(GuiScreenEvent.DrawScreenEvent.Post event) {
+        InventoryMotion motion = InventoryAnimations.motion(event.gui);
+        if (motion != null) motion.rendered(System.nanoTime());
     }
 }

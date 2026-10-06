@@ -7,6 +7,7 @@ public final class InventoryMotion {
     private boolean entranceAllowed = true;
     private boolean entering;
     private boolean started;
+    private boolean firstRenderCompleted;
     private long start;
     private int durationMs;
     private int distance;
@@ -49,6 +50,14 @@ public final class InventoryMotion {
 
     public float offset() {
         return offset;
+    }
+
+    /** Lazy item/player rendering on the first draw must not spend the visible entrance. */
+    public void rendered(long now) {
+        if (entering && started && !firstRenderCompleted) {
+            start = now;
+            firstRenderCompleted = true;
+        }
     }
 
     public boolean isEntering() {
