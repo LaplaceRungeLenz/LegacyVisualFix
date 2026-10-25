@@ -32,7 +32,7 @@ public final class UiEffects {
     private static long lastFrame;
     private static double dt, time;
     private static boolean emitted, rendered, moving, hadCarried;
-    private static int depth, matrixMode;
+    private static int depth, matrixMode, itemLayer;
     private static boolean pushed;
     private static boolean nei, obscured;
     private static boolean gregtech;
@@ -114,6 +114,7 @@ public final class UiEffects {
         time += dt;
         emitted = false;
         rendered = false;
+        itemLayer = 0;
         moving = dt > 0 && elapsed <= 0.1 && (oldX != x || oldY != y);
         boolean carrying = Minecraft.getMinecraft().thePlayer.inventory.getItemStack() != null;
         if (carrying != hadCarried) {
@@ -212,6 +213,11 @@ public final class UiEffects {
         matrixMode = GL11.glGetInteger(GL11.GL_MATRIX_MODE);
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
         GL11.glPushMatrix();
+        GL11.glPushAttrib(GL11.GL_POLYGON_BIT);
+        // Glint uses GL_EQUAL: enlarged quads must not match a neighboring item's depth.
+        // Keep each animated icon and its glint together, even while several slots ease out.
+        GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
+        GL11.glPolygonOffset(0, -++itemLayer);
         pushed = true;
     }
 
@@ -220,6 +226,7 @@ public final class UiEffects {
         if (--depth == 0 && pushed) {
             GL11.glMatrixMode(GL11.GL_MODELVIEW);
             GL11.glPopMatrix();
+            GL11.glPopAttrib();
             GL11.glMatrixMode(matrixMode);
             pushed = false;
         }
