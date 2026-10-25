@@ -17,6 +17,8 @@ def verify(path):
             "com/legacyvisualfix/reload/ModernSplashAccess.class",
             "com/legacyvisualfix/render/ModernSplashRenderer.class",
             "com/legacyvisualfix/inventory/InventoryScreenEvents.class",
+            "com/legacyvisualfix/core/RiftFluxPickupStarPatch.class",
+            "com/legacyvisualfix/mixin/compat/MixinRiftFluxPickupStars.class",
             "com/legacyvisualfix/ui/UiEffects.class",
             "com/legacyvisualfix/ui/GregTechTrailColors.class",
             "com/legacyvisualfix/ui/VoltageTrailRules.class",
@@ -69,6 +71,8 @@ def verify(path):
             raise ValueError("Model reaction must load on the client")
         if "combat.MixinItemRenderer" not in mixins["client"]:
             raise ValueError("Weapon recoil must load on the client")
+        if "compat.MixinRiftFluxPickupStars" not in mixins["client"]:
+            raise ValueError("RiftFlux pickup-star compatibility must load on the client")
         refmap = json.loads(jar.read("mixins.legacyvisualfix.refmap.json"))
         hover_mapping = refmap["mappings"].get("com/legacyvisualfix/mixin/ui/MixinGuiItems", {})
         if not any("drawGradientRect" in entry for entry in hover_mapping):

@@ -1,6 +1,5 @@
 package com.legacyvisualfix.inventory;
 
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.client.gui.inventory.GuiInventory;
 
@@ -28,7 +27,7 @@ public final class InventoryAnimations {
         return motion != null && motion.isEntering();
     }
 
-    public static void draw(GuiScreen screen, Runnable draw) {
+    public static void draw(Object screen, Runnable draw) {
         InventoryMotion motion = motion(screen);
         float offset = motion == null ? 0 : motion.offset();
         if (offset == 0) {

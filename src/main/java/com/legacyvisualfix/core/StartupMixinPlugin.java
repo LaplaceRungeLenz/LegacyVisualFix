@@ -21,6 +21,10 @@ public final class StartupMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public void postApply(String targetName, ClassNode target, String mixinName, IMixinInfo info) {
+        if (mixinName.equals("com.legacyvisualfix.mixin.compat.MixinRiftFluxPickupStars")) {
+            RiftFluxPickupStarPatch.apply(target);
+            return;
+        }
         if (!mixinName.equals("com.legacyvisualfix.mixin.compat.MixinMyCtmStartup")) return;
         for (MethodNode method : target.methods) {
             if (!method.name.endsWith("$MyCTMLib$onClearResources")
