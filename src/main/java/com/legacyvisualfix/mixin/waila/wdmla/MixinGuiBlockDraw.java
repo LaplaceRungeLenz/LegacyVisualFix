@@ -8,6 +8,8 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.Desc;
+import org.spongepowered.asm.mixin.injection.Group;
 
 import com.gtnewhorizons.wdmla.overlay.GuiBlockDraw;
 import com.legacyvisualfix.waila.TooltipContentTransform;
@@ -22,19 +24,40 @@ public abstract class MixinGuiBlockDraw {
     @Unique
     private static final IntBuffer legacyvisualfix$scissorBox = BufferUtils.createIntBuffer(16);
 
-    @WrapMethod(method = "render")
+    // Typed selectors keep the return type part of the match with permissive refmap remapping enabled.
+    @Desc(id = "renderVoid", value = "render", args = { int.class, int.class, int.class, int.class })
+    @Group(name = "viewport", min = 1)
+    @WrapMethod(method = "@Desc(renderVoid)", require = 0)
     private void legacyvisualfix$viewport(int x, int y, int width, int height, Operation<Void> original) {
+        legacyvisualfix$renderViewport(x, y, width, height, original, null);
+    }
+
+    // Some WDMla builds return whether the 3D preview rendered so callers can fall back to an item icon.
+    @Desc(
+        id = "renderBoolean",
+        value = "render",
+        args = { int.class, int.class, int.class, int.class },
+        ret = boolean.class)
+    @Group(name = "viewport", min = 1)
+    @WrapMethod(method = "@Desc(renderBoolean)", require = 0)
+    private boolean legacyvisualfix$viewportWithResult(int x, int y, int width, int height,
+        Operation<Boolean> original) {
+        return legacyvisualfix$renderViewport(x, y, width, height, original, false);
+    }
+
+    @Unique
+    private <T> T legacyvisualfix$renderViewport(int x, int y, int width, int height, Operation<T> original,
+        T skippedResult) {
         TooltipContentTransform content = WdmlaAnimationRenderer.contentTransform();
         if (content != null && content.scale != 1) {
             x = content.viewportX(x, WdmlaAnimationRenderer.pixelScale());
             y = content.viewportY(y, WdmlaAnimationRenderer.pixelScale(), Minecraft.getMinecraft().displayHeight);
             width = content.viewportSize(width);
             height = content.viewportSize(height);
-            if (width == 0 || height == 0) return;
+            if (width == 0 || height == 0) return skippedResult;
         }
         if (content == null) {
-            original.call(x, y, width, height);
-            return;
+            return original.call(x, y, width, height);
         }
         boolean scissor = GL11.glIsEnabled(GL11.GL_SCISSOR_TEST);
         legacyvisualfix$scissorBox.clear();
@@ -42,7 +65,7 @@ public abstract class MixinGuiBlockDraw {
         int oldX = legacyvisualfix$scissorBox.get(0), oldY = legacyvisualfix$scissorBox.get(1);
         int oldWidth = legacyvisualfix$scissorBox.get(2), oldHeight = legacyvisualfix$scissorBox.get(3);
         try {
-            original.call(x, y, width, height);
+            return original.call(x, y, width, height);
         } finally {
             // Angelica's emulated attribute stack does not restore the scissor rectangle.
             GL11.glScissor(oldX, oldY, oldWidth, oldHeight);
