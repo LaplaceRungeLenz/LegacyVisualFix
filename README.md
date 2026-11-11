@@ -1,6 +1,6 @@
 # LegacyVisualFix
 
-面向 **Minecraft 1.7.10 / GT New Horizons** 的视觉与交互改进模组，各项功能可独立配置。
+面向 **Minecraft 1.7.10 / GT New Horizons** 的视觉与交互改进模组。
 
 ## 功能
 
@@ -13,6 +13,8 @@
   安装 [ModernSplash 运行时适配版](https://github.com/LaplaceRungeLenz/ModernSplash)后，自动使用其高版本 Mojang Studios 加载界面。需要带 `RuntimeSplash` API v1 的版本（`1.0.0` 起）；原版 ModernSplash 没有该接口，会继续使用本模组原界面。ModernSplash 的图片、颜色、日夜主题及内存显示沿用 `config/splash.properties`，修改后重启；本模组 `theme.properties` 的 `enabled` 和淡入淡出时长仍生效。绘制失败时自动回退原界面，不中断重载。
 
   ![资源重载界面演示](https://github.com/user-attachments/assets/38e7ea0a-5b3d-4854-8af0-6c04ef6d1a33)
+
+- **资源包列表自动刷新**：保持资源包界面打开，将 ZIP 或解压后的资源包放入资源包文件夹，约一秒后即可在「可用的资源包」中看到。选好资源包后，点「完成」应用。
 
 - **FOV 动画**：平滑处理疾跑、飞行和拉弓等视野变化。
 
