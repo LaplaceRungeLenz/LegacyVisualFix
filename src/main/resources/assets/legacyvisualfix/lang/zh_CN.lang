@@ -1,1 +1,4 @@
 legacyvisualfix.resourcePack.search=搜索可用资源包…
+legacyvisualfix.screenshot.copy=[复制图片]
+legacyvisualfix.screenshot.copied=截图已复制到剪贴板。
+legacyvisualfix.screenshot.copyFailed=无法将截图复制到剪贴板。

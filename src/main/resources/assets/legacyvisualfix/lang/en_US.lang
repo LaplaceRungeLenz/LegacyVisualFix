@@ -1,1 +1,4 @@
 legacyvisualfix.resourcePack.search=Search available packs...
+legacyvisualfix.screenshot.copy=[Copy image]
+legacyvisualfix.screenshot.copied=Screenshot copied to the clipboard.
+legacyvisualfix.screenshot.copyFailed=Could not copy the screenshot to the clipboard.
